@@ -2,6 +2,7 @@
 #include <string>
 #include <functional>
 #include <sstream>
+#include <iostream>
 #include <vector>
 #include <map>
 #include <thread>
