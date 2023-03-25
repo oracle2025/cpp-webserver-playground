@@ -4,6 +4,7 @@
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPServerResponse.h>
 #include "Page.hpp"
+#include <iostream>
 
 using namespace std;
 using HTTPRequestHandler = Poco::Net::HTTPRequestHandler;
