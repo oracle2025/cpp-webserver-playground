@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 
 find_package(Threads)
-find_package(Poco COMPONENTS Net Util)
+find_package(Poco COMPONENTS Net Util Data DataSQLite)
 
 include_directories(${PROJECT_BINARY_DIR}/include)
 link_directories(${PROJECT_BINARY_DIR}/lib)
@@ -16,9 +16,9 @@ if(${Poco_FOUND})
     target_link_libraries(cpp_webserver_kata Poco::Net Poco::Util
             Threads::Threads)
 
-    add_executable(tests tests.cpp doctest.cpp)
-    target_link_libraries(tests Poco::Net Poco::Util
-            Threads::Threads)
+    add_executable(tests tests.cpp doctest.cpp todo.cpp todo.hpp Table.cpp Table.hpp Record.cpp Record.hpp Form.cpp Form.hpp List.cpp List.hpp)
+    target_link_libraries(tests Poco::Net Poco::Util Poco::Data
+            Threads::Threads Poco::DataSQLite)
 endif()
 
 include(ExternalProject)
@@ -36,7 +36,7 @@ if(NOT ${Poco_FOUND})
             -DENABLE_XML=ON
             -DENABLE_JSON=ON
             -DENABLE_MONGODB=OFF
-            -DENABLE_DATA_SQLITE=OFF
+            -DENABLE_DATA_SQLITE=ON
             -DENABLE_REDIS=OFF
             -DENABLE_PDF=OFF
             -DENABLE_ZIP=OFF
