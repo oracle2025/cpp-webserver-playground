@@ -1,6 +1,7 @@
 #pragma once
-#include <string>
 #include <Poco/UUID.h>
+
+#include <string>
 using std::string;
 
 struct SessionId : public string {
@@ -10,13 +11,12 @@ struct SessionId : public string {
 
     explicit SessionId(Poco::UUID uuid);
 
-    SessionId &operator=(const Poco::UUID &b);
+    SessionId& operator=(const Poco::UUID& b);
 
     Poco::UUID asUUID() const;
 
 private:
     Poco::UUID uuid;
 };
-
 
 SessionId generateRandomSessionId();

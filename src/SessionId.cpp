@@ -1,15 +1,21 @@
 #include "SessionId.hpp"
 
 #include "doctest.h"
-#include <set>
+
 #include <Poco/UUIDGenerator.h>
+
+#include <set>
 
 using std::set;
 
-TEST_CASE("SessionId") {
-    SUBCASE("set") {
-        SessionId sessionOne(Poco::UUIDGenerator::defaultGenerator().createRandom());
-        SessionId sessionTwo(Poco::UUIDGenerator::defaultGenerator().createRandom());
+TEST_CASE("SessionId")
+{
+    SUBCASE("set")
+    {
+        SessionId sessionOne(
+            Poco::UUIDGenerator::defaultGenerator().createRandom());
+        SessionId sessionTwo(
+            Poco::UUIDGenerator::defaultGenerator().createRandom());
         CHECK(sessionOne != sessionTwo);
         SessionId sessionThree = sessionTwo;
         CHECK(sessionThree == sessionTwo);
@@ -23,8 +29,10 @@ TEST_CASE("SessionId") {
         CHECK(sessions.count(sessionOne) == 0);
         CHECK(sessions.count(sessionTwo) == 0);
     }
-    SUBCASE("convert") {
-        SessionId sessionOne(Poco::UUIDGenerator::defaultGenerator().createRandom());
+    SUBCASE("convert")
+    {
+        SessionId sessionOne(
+            Poco::UUIDGenerator::defaultGenerator().createRandom());
         string sessionIdAsString = sessionOne;
         SessionId sessionIdFromString{sessionIdAsString};
         CHECK(sessionOne == sessionIdFromString);
@@ -32,11 +40,13 @@ TEST_CASE("SessionId") {
     }
 }
 SessionId::SessionId(string uuid)
-    : uuid(uuid) {
+    : uuid(uuid)
+{
     assign(uuid);
 }
 SessionId::SessionId(Poco::UUID uuid)
-    : uuid(uuid) {
+    : uuid(uuid)
+{
     assign(uuid.toString());
 }
 SessionId& SessionId::operator=(const Poco::UUID& b)

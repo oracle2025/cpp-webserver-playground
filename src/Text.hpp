@@ -14,5 +14,4 @@ private:
     string value;
 };
 
-}// namespace Input
-
+} // namespace Input

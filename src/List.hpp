@@ -1,14 +1,15 @@
 #pragma once
 
 #include "Record.hpp"
+
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace Html {
+using std::shared_ptr;
 using std::string;
 using std::vector;
-using std::shared_ptr;
 
 class List {
 public:
@@ -19,4 +20,4 @@ private:
     vector<std::shared_ptr<Record>> records;
 };
 
-}// namespace Html
+} // namespace Html

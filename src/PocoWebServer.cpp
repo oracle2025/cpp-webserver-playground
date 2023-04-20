@@ -1,4 +1,5 @@
 #include "PocoWebServer.hpp"
+
 #include "overloaded.hpp"
 
 using std::make_shared;
@@ -17,14 +18,25 @@ void PocoWebServer::finish_init()
     auto pParams = new HTTPServerParams();
     class HandlerFactory : public HTTPRequestHandlerFactory {
     public:
-        HandlerFactory(map<string, handlers_type> &router) : router(router) {}
+        HandlerFactory(map<string, handlers_type>& router)
+            : router(router)
+        {
+        }
 
-        HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &request) {
+        HTTPRequestHandler* createRequestHandler(
+            const HTTPServerRequest& request)
+        {
             class PageHandler : public HTTPRequestHandler {
             public:
-                PageHandler(handlers_type handler) : handler(handler) {}
+                PageHandler(handlers_type handler)
+                    : handler(handler)
+                {
+                }
 
-                void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response) override {
+                void handleRequest(
+                    HTTPServerRequest& request,
+                    HTTPServerResponse& response) override
+                {
                     response.setChunkedTransferEncoding(true);
                     response.setContentType("text/html");
                     using HTTPCookie = Poco::Net::HTTPCookie;
@@ -35,46 +47,52 @@ void PocoWebServer::finish_init()
                     request.getCookies(cookies);
                     Poco::URI uri(request.getURI());
                     HTMLForm form(request, request.stream());
-                    visit(overloaded{
-                                  [&response](response_handler_type &handler) {
-                                      auto result = handler();
-                                      for (auto &[key, value]: result->cookies()) {
-                                          response.addCookie(HTTPCookie(key, value));
-                                      }
-                                      auto &responseStream = response.send();
-                                      responseStream << result->content();
-                                  },
-                                  [&form, &response, &cookies, &uri](request_response_handler_type &handler) {
-                                      map<string, string> parameters;
-                                      map<string, string> cookiesMap;
-                                      for (auto &[key, value]: cookies) {
-                                          cookiesMap[key] = value;
-                                      }
-                                      for (auto &[key, value]: form) {
-                                          parameters[key] = value;
-                                      }
-                                      auto result = handler(Request(cookiesMap, parameters, uri.getQuery()));
-                                      for (auto &[key, value]: result->cookies()) {
-                                          HTTPCookie cookie(key, value);
-                                          if (value.empty()) {
-                                              cookie.setMaxAge(0);
-                                          }
-                                          response.addCookie(cookie);
-                                      }
-                                      auto &responseStream = response.send();
-                                      responseStream << result->content();
-                                  }},
-                          handler);
+                    visit(
+                        overloaded{
+                            [&response](response_handler_type& handler) {
+                                auto result = handler();
+                                for (auto& [key, value] : result->cookies()) {
+                                    response.addCookie(HTTPCookie(key, value));
+                                }
+                                auto& responseStream = response.send();
+                                responseStream << result->content();
+                            },
+                            [&form, &response, &cookies, &uri](
+                                request_response_handler_type& handler) {
+                                map<string, string> parameters;
+                                map<string, string> cookiesMap;
+                                for (auto& [key, value] : cookies) {
+                                    cookiesMap[key] = value;
+                                }
+                                for (auto& [key, value] : form) {
+                                    parameters[key] = value;
+                                }
+                                auto result = handler(Request(
+                                    cookiesMap, parameters, uri.getQuery()));
+                                for (auto& [key, value] : result->cookies()) {
+                                    HTTPCookie cookie(key, value);
+                                    if (value.empty()) {
+                                        cookie.setMaxAge(0);
+                                    }
+                                    response.addCookie(cookie);
+                                }
+                                auto& responseStream = response.send();
+                                responseStream << result->content();
+                            }},
+                        handler);
                 }
 
             private:
                 handlers_type handler;
             };
             struct EmptyHandler : public HTTPRequestHandler {
-                void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response) override {
+                void handleRequest(
+                    HTTPServerRequest& request,
+                    HTTPServerResponse& response) override
+                {
                     response.setChunkedTransferEncoding(true);
                     response.setContentType("text/html");
-                    auto &responseStream = response.send();
+                    auto& responseStream = response.send();
                     responseStream << "Not found!";
                 }
             };
@@ -86,7 +104,8 @@ void PocoWebServer::finish_init()
         }
 
     private:
-        map<string, handlers_type> &router;
+        map<string, handlers_type>& router;
     };
-    server = make_shared<HTTPServer>(new HandlerFactory(router), socket, pParams);
+    server
+        = make_shared<HTTPServer>(new HandlerFactory(router), socket, pParams);
 }

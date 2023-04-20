@@ -1,12 +1,12 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
 
-using std::shared_ptr;
 using std::enable_shared_from_this;
-using std::string;
 using std::map;
+using std::shared_ptr;
+using std::string;
 
 struct Response : public enable_shared_from_this<Response> {
 
@@ -14,11 +14,11 @@ struct Response : public enable_shared_from_this<Response> {
 
     static shared_ptr<Response> create();
 
-    Response &content(const string &content);
+    Response& content(const string& content);
 
-    Response &code(int code, const string &content);
+    Response& code(int code, const string& content);
 
-    Response &cookie(const string &name, const string &value);
+    Response& cookie(const string& name, const string& value);
 
     string content() const;
 
@@ -32,4 +32,4 @@ private:
     int m_code = 200;
 };
 
-shared_ptr<Response> content(const string &content);
+shared_ptr<Response> content(const string& content);

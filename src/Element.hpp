@@ -10,4 +10,4 @@ struct Element {
     virtual string operator()() = 0;
 };
 
-}// namespace Input
+} // namespace Input

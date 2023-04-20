@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Poco/Util/ServerApplication.h>
+
 #include <string>
 #include <vector>
 
@@ -9,5 +10,5 @@ using std::vector;
 
 class LoginServerApplication : public Poco::Util::ServerApplication {
 protected:
-    int main(const vector<string> &args) override;
+    int main(const vector<string>& args) override;
 };

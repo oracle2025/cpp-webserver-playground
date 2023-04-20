@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Request.hpp"
-#include "Todo.hpp"
 #include "Form.hpp"
-#include "Response.hpp"
 #include "List.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+#include "Todo.hpp"
 
 /*
  * A Simple Todo List:
@@ -33,7 +33,8 @@
  * }
  *
  * https://stackoverflow.com/questions/23038996/stdchronohigh-resolution-clocktime-point-cast-to-store-in-sqlite
- *     using namespace std::literals; // enables the usage of 24h, 1ms, 1s instead of
+ *     using namespace std::literals; // enables the usage of 24h, 1ms, 1s
+ instead of
                                    // e.g. std::chrono::hours(24), accordingly
     const std::chrono::time_point<std::chrono::system_clock> now =
         std::chrono::system_clock::now();
@@ -41,49 +42,53 @@
 
 template<typename T>
 struct CrudServer : public T {
-    CrudServer() {
-        T::get("/new", [](const Request &request) {
+    CrudServer()
+    {
+        T::get("/new", [](const Request& request) {
             using namespace Input;
             Todo todo;
-            return content(R"(<a href="/list">list</a><br>)" +
-                           Form(todo, "/create", "post")());
+            return content(
+                R"(<a href="/list">list</a><br>)"
+                + Form(todo, "/create", "post")());
         });
-        T::post("/create", [this](const Request &request) {
+        T::post("/create", [this](const Request& request) {
             Todo todo;
-            for (auto i: todo.fields()) {
+            for (auto i : todo.fields()) {
                 if (request.hasParameter(i)) {
                     todo.set(i, request.parameter(i));
                 }
             }
             todo.insert();
-            return content(string{"Todo created<br>"} + R"(<a href="/list">list</a><br>)" +
-                           Input::Form(todo, "/update", "post")());
-            //return redirect_to("/read/" + m_id.toString());
+            return content(
+                string{"Todo created<br>"} + R"(<a href="/list">list</a><br>)"
+                + Input::Form(todo, "/update", "post")());
+            // return redirect_to("/read/" + m_id.toString());
         });
-        T::get("/edit", [](const Request &request) {
+        T::get("/edit", [](const Request& request) {
             Todo todo;
             todo.pop(request.query());
-            return content(R"(<a href="/list">list</a><br>)" +
-                           Input::Form(todo, "/update", "post")());
+            return content(
+                R"(<a href="/list">list</a><br>)"
+                + Input::Form(todo, "/update", "post")());
         });
-        T::post("/update", [](const Request &request) {
+        T::post("/update", [](const Request& request) {
             Todo todo;
             todo.pop(request.query());
-            for (auto i: todo.fields()) {
+            for (auto i : todo.fields()) {
                 if (request.hasParameter(i)) {
                     todo.set(i, request.parameter(i));
                 }
             }
             todo.update();
-            return content(string{"Todo updated<br>"} + R"(<a href="/list">list</a><br>)" +
-                           Input::Form(todo, "/edit-submit", "post")());
+            return content(
+                string{"Todo updated<br>"} + R"(<a href="/list">list</a><br>)"
+                + Input::Form(todo, "/edit-submit", "post")());
         });
-        T::get("/delete", [](const Request &request) {
-            return content("");
-        });
-        T::get("/list", [](const Request &request) {
-            return content(R"(<a href="/new">Create new todo</a><br>)" +
-                           Html::List(Todo::listAsPointers())());
+        T::get("/delete", [](const Request& request) { return content(""); });
+        T::get("/list", [](const Request& request) {
+            return content(
+                R"(<a href="/new">Create new todo</a><br>)"
+                + Html::List(Todo::listAsPointers())());
         });
         T::finish_init();
     }

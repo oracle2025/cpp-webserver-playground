@@ -1,9 +1,11 @@
-#include <Poco/Util/ServerApplication.h>
-#include <Poco/Net/ServerSocket.h>
-#include <Poco/Net/HTTPServer.h>
-#include <Poco/Net/HTTPRequestHandler.h>
-#include <Poco/Net/HTTPServerResponse.h>
 #include "Page.hpp"
+
+#include <Poco/Net/HTTPRequestHandler.h>
+#include <Poco/Net/HTTPServer.h>
+#include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/Net/ServerSocket.h>
+#include <Poco/Util/ServerApplication.h>
+
 #include <iostream>
 
 using namespace std;
@@ -13,25 +15,28 @@ using HTTPServerResponse = Poco::Net::HTTPServerResponse;
 
 class PageHandler : public HTTPRequestHandler {
 public:
-    void handleRequest(HTTPServerRequest &request, HTTPServerResponse &response) override {
+    void handleRequest(
+        HTTPServerRequest& request, HTTPServerResponse& response) override
+    {
         response.setChunkedTransferEncoding(true);
         response.setContentType("text/html");
-        auto &responseStream = response.send();
+        auto& responseStream = response.send();
         responseStream << Page("Title", "Content").get();
     }
 };
 
 class HandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
 public:
-
-    HTTPRequestHandler *createRequestHandler(const HTTPServerRequest &request) {
+    HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request)
+    {
         return new PageHandler();
     }
 };
 
 class TestServer : public Poco::Util::ServerApplication {
 protected:
-    int main(const vector<string> &args) {
+    int main(const vector<string>& args)
+    {
         using ServerSocket = Poco::Net::ServerSocket;
         using HTTPServer = Poco::Net::HTTPServer;
         using HTTPServerParams = Poco::Net::HTTPServerParams;

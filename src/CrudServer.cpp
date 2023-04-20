@@ -1,8 +1,10 @@
 #include "CrudServer.hpp"
-#include "doctest.h"
+
 #include "TestServer.hpp"
-#include <Poco/UUID.h>
+#include "doctest.h"
+
 #include <Poco/URI.h>
+#include <Poco/UUID.h>
 /*
  * Test Cases:
  *
@@ -12,18 +14,22 @@
  * Confirm before delete (Javascript?)
  */
 
-TEST_CASE("Crud Server") {
+TEST_CASE("Crud Server")
+{
     CrudServer<TestServer> w;
-    SUBCASE("UUID to string") {
+    SUBCASE("UUID to string")
+    {
         Poco::UUID id("7f74fe03-d834-4d5e-bde7-58712c755781");
         CHECK(id.toString() == "7f74fe03-d834-4d5e-bde7-58712c755781");
     }
-    SUBCASE("Poco URI") {
+    SUBCASE("Poco URI")
+    {
         Poco::URI uri1("/read?7f74fe03-d834-4d5e-bde7-58712c755781");
         CHECK_EQ(uri1.getPath(), "/read");
         CHECK_EQ(uri1.getQuery(), "7f74fe03-d834-4d5e-bde7-58712c755781");
     }
-    SUBCASE("404 Not found") {
+    SUBCASE("404 Not found")
+    {
         auto response = w.getResponse("/edit?invalid-uuid");
         CHECK_EQ(response->code(), 404);
     }

@@ -13,4 +13,4 @@ private:
     string m_label;
 };
 
-}// namespace Input
+} // namespace Input
