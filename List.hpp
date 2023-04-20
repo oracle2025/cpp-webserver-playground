@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace Html {
 using std::ostringstream;
@@ -27,7 +28,7 @@ public:
             str << "<tr>";
             auto values = record->values();
             for (const auto &column: record->fields()) {
-                str << R"(<td><a href="/edit?)" << values["id"] << R"(">)" << values[column] << "</a></td>";
+                str << R"(<td><a href="/edit?)" << values["m_id"] << R"(">)" << values[column] << "</a></td>";
             }
             str << "</tr>";
         }
