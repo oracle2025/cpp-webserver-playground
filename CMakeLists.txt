@@ -11,19 +11,37 @@ find_package(Poco COMPONENTS Net Util Data DataSQLite)
 include_directories(${PROJECT_BINARY_DIR}/include)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
-if(${Poco_FOUND})
-    add_executable(cpp_webserver_kata main.cpp Page.cpp Page.hpp)
+if (${Poco_FOUND})
+    add_executable(cpp_webserver_kata src/main.cpp src/Page.cpp src/Page.hpp)
     target_link_libraries(cpp_webserver_kata Poco::Net Poco::Util
             Threads::Threads)
 
-    add_executable(tests tests.cpp doctest.cpp todo.cpp todo.hpp Table.cpp Table.hpp Record.cpp Record.hpp Form.cpp Form.hpp List.cpp List.hpp)
-    target_link_libraries(tests Poco::Net Poco::Util Poco::Data
+    add_library(webservers STATIC src/tests.cpp src/todo.cpp src/todo.hpp src/Table.cpp src/Table.hpp
+            src/Record.cpp
+            src/Record.hpp src/Form.cpp src/Form.hpp src/List.cpp src/List.hpp src/Text.cpp src/Text.hpp src/Hidden.cpp
+            src/Hidden.hpp src/Password.cpp src/Password.hpp src/Submit.cpp src/Submit.hpp src/Response.cpp
+            src/Response.hpp src/Request.cpp src/Request.hpp src/TestServer.cpp src/TestServer.hpp src/overloaded.hpp
+            src/SessionId.cpp src/SessionId.hpp src/LoginServer.hpp src/CrudServer.hpp src/CrudServer.cpp
+            src/LoginServer.cpp src/PocoWebServer.cpp src/PocoWebServer.hpp src/LoginServerApplication.cpp
+            src/LoginServerApplication.hpp src/CrudServerApplication.cpp src/CrudServerApplication.hpp)
+
+    target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
             Threads::Threads Poco::DataSQLite)
-endif()
+    target_include_directories(webservers PRIVATE tests)
+
+    add_executable(tests tests/doctest.cpp)
+    target_link_libraries(tests webservers)
+    add_library(doctest_impl tests/doctest_impl.cpp)
+
+    add_executable(crud-server src/CrudMain.cpp)
+    target_link_libraries(crud-server webservers doctest_impl)
+    add_executable(login-server src/LoginMain.cpp)
+    target_link_libraries(login-server webservers doctest_impl)
+endif ()
 
 include(ExternalProject)
 
-if(NOT ${Poco_FOUND})
+if (NOT ${Poco_FOUND})
     ExternalProject_Add(libpoco
             GIT_REPOSITORY https://github.com/pocoproject/poco.git
             GIT_TAG poco-1.10.1-release
@@ -44,4 +62,4 @@ if(NOT ${Poco_FOUND})
             -DENABLE_PAGECOMPILER_FILE2PAGE=OFF
             -DENABLE_DATA=ON
             )
-endif()
+endif ()

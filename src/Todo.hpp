@@ -21,13 +21,15 @@ struct Todo : public Record {
          string description,
          string created_at,
          string updated_at,
-         bool checked) : id(std::move(id)),
+         bool checked) : m_id(std::move(id)),
                          description(std::move(description)),
                          created_at(std::move(created_at)),
                          updated_at(std::move(updated_at)),
                          checked(checked) {}
 
-    string id;
+    string id() const override { return m_id; }
+
+    string m_id;
     string description;
     string created_at;
     string updated_at;
@@ -51,7 +53,7 @@ struct Todo : public Record {
 
     std::vector<string> fields() const override {
         return {
-                "id",
+                "m_id",
                 "description",
                 "created_at",
                 "updated_at",
