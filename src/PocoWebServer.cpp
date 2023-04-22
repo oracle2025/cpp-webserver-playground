@@ -1,6 +1,7 @@
 #include "PocoWebServer.hpp"
 
 #include "overloaded.hpp"
+#include <iostream>
 
 using std::make_shared;
 
