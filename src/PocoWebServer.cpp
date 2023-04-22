@@ -46,6 +46,7 @@ void PocoWebServer::finish_init()
                     NameValueCollection cookies;
                     request.getCookies(cookies);
                     Poco::URI uri(request.getURI());
+                    std::cout << "Request: " << uri.toString() << std::endl;
                     HTMLForm form(request, request.stream());
                     visit(
                         overloaded{
@@ -94,6 +95,7 @@ void PocoWebServer::finish_init()
                     response.setContentType("text/html");
                     auto& responseStream = response.send();
                     responseStream << "Not found!";
+                    response.setStatus(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
                 }
             };
             auto uri = Poco::URI(request.getURI());

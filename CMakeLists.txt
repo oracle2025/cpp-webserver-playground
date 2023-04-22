@@ -38,6 +38,7 @@ if (${Poco_FOUND})
     target_link_libraries(crud-server webservers doctest_impl)
     add_executable(login-server src/LoginMain.cpp)
     target_link_libraries(login-server webservers doctest_impl)
+    install(TARGETS login-server DESTINATION bin)
 endif ()
 
 include(ExternalProject)
