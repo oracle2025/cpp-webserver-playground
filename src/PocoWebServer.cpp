@@ -1,6 +1,7 @@
 #include "PocoWebServer.hpp"
 
 #include "overloaded.hpp"
+
 #include <iostream>
 
 using std::make_shared;
@@ -8,6 +9,7 @@ using std::make_shared;
 void PocoWebServer::finish_init()
 {
     using ServerSocket = Poco::Net::ServerSocket;
+    using SocketAddress = Poco::Net::SocketAddress;
     using HTTPServerParams = Poco::Net::HTTPServerParams;
     using HTTPRequestHandlerFactory = Poco::Net::HTTPRequestHandlerFactory;
     using HTTPRequestHandler = Poco::Net::HTTPRequestHandler;
@@ -15,7 +17,7 @@ void PocoWebServer::finish_init()
     using HTTPServerResponse = Poco::Net::HTTPServerResponse;
     using HTMLForm = Poco::Net::HTMLForm;
     using NameValueCollection = Poco::Net::NameValueCollection;
-    ServerSocket socket(8080);
+    ServerSocket socket(SocketAddress("localhost", 8080));
     auto pParams = new HTTPServerParams();
     class HandlerFactory : public HTTPRequestHandlerFactory {
     public:
@@ -56,6 +58,7 @@ void PocoWebServer::finish_init()
                                 for (auto& [key, value] : result->cookies()) {
                                     response.addCookie(HTTPCookie(key, value));
                                 }
+                                response.setContentType(result->mimetype());
                                 auto& responseStream = response.send();
                                 responseStream << result->content();
                             },
@@ -78,6 +81,7 @@ void PocoWebServer::finish_init()
                                     }
                                     response.addCookie(cookie);
                                 }
+                                response.setContentType(result->mimetype());
                                 auto& responseStream = response.send();
                                 responseStream << result->content();
                             }},

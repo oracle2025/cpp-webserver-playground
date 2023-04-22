@@ -53,12 +53,15 @@ struct LoginServer : public T {
                  Submit("submit")()},
                 "/login",
                 "post")();
-            const string header = R"(<!doctype html><html lang="de">
+            const string header = R"(<!doctype html><html lang="de"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
 )";
-            auto result = content(header + text);
+            const string footer = R"(</body></html>)";
+            auto result = content(header + text + footer);
             return result;
         });
         T::post("/login", [this](const Request& request) {
@@ -91,6 +94,45 @@ struct LoginServer : public T {
                 return content("Access denied");
             }
         });
+        T::get("/css/style.css", [] {
+            return content(R"(body {
+font-family: Arial, sans-serif;
+background-color: #f4f4f4;
+}
+.container {
+background-color: #fff;
+padding: 20px;
+max-width: 500px;
+margin: auto;
+margin-top: 50px;
+box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+h2 {
+text-align: center;
+margin-bottom: 20px;
+}
+input[type=text], input[type=password] {
+width: 100%;
+padding: 12px 20px;
+margin: 8px 0;
+display: inline-block;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box;
+}
+button[type=submit] {
+background-color: #4CAF50;
+color: white;
+padding: 14px 20px;
+margin: 8px 0;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+width: 100%;
+}
+button[type=submit]:hover {
+background-color: #45a049;
+})", "text/css");});
         T::finish_init();
     }
 

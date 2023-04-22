@@ -14,7 +14,7 @@ struct Response : public enable_shared_from_this<Response> {
 
     static shared_ptr<Response> create();
 
-    Response& content(const string& content);
+    Response& content(const string& content, const string& mimetype = "text/html");
 
     Response& code(int code, const string& content);
 
@@ -26,10 +26,13 @@ struct Response : public enable_shared_from_this<Response> {
 
     int code() const;
 
+    string mimetype() const;
+
 private:
     string m_content;
     map<string, string> m_cookies;
     int m_code = 200;
+    string m_mimetype = "text/html";
 };
 
-shared_ptr<Response> content(const string& content);
+shared_ptr<Response> content(const string& content, const string& mimetype = "text/html");

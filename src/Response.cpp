@@ -8,9 +8,10 @@ shared_ptr<Response> Response::create()
 {
     return make_shared<Response>();
 }
-Response& Response::content(const string& content)
+Response& Response::content(const string& content, const string& mimetype)
 {
     m_content = content;
+    m_mimetype = mimetype;
     return *this;
 }
 Response& Response::code(int code, const string& content)
@@ -36,9 +37,13 @@ int Response::code() const
 {
     return m_code;
 }
-shared_ptr<Response> content(const string& content)
+string Response::mimetype() const
 {
-    return Response::create()->content(content).shared_from_this();
+    return m_mimetype;
+}
+shared_ptr<Response> content(const string& content, const string& mimetype)
+{
+    return Response::create()->content(content, mimetype).shared_from_this();
 }
 
 TEST_CASE("Create Response")
