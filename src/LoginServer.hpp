@@ -32,14 +32,14 @@ struct LoginServer : public T {
 
     bool hasValidSession(const Request& request) const
     {
-        return request.hasCookie("session-m_id")
-            && m_sessions.count(SessionId{request.cookie("session-m_id")});
+        return request.hasCookie("session-id")
+            && m_sessions.count(SessionId{request.cookie("session-id")});
     }
 
     void clearSession(const Request& request)
     {
-        if (request.hasCookie("session-m_id")) {
-            m_sessions.erase(SessionId{request.cookie("session-m_id")});
+        if (request.hasCookie("session-id")) {
+            m_sessions.erase(SessionId{request.cookie("session-id")});
         }
     }
 
@@ -53,7 +53,12 @@ struct LoginServer : public T {
                  Submit("submit")()},
                 "/login",
                 "post")();
-            auto result = content(text);
+            const string header = R"(<!doctype html><html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+)";
+            auto result = content(header + text);
             return result;
         });
         T::post("/login", [this](const Request& request) {
@@ -66,7 +71,7 @@ struct LoginServer : public T {
             auto sessionId = generateRandomSessionId();
             m_sessions.insert(sessionId);
             return content("Success")
-                ->cookie("session-m_id", sessionId)
+                ->cookie("session-id", sessionId)
                 .shared_from_this();
         });
         T::get("/secret", [this](const Request& request) {
@@ -80,7 +85,7 @@ struct LoginServer : public T {
             if (hasValidSession(request)) {
                 clearSession(request);
                 return content("Logged out")
-                    ->cookie("session-m_id", "")
+                    ->cookie("session-id", "")
                     .shared_from_this();
             } else {
                 return content("Access denied");
