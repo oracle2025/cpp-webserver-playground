@@ -59,8 +59,10 @@ struct LoginServer : public T {
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
+<div class="container">
+<h2>Login Form</h2>
 )";
-            const string footer = R"(</body></html>)";
+            const string footer = R"(</div></body></html>)";
             auto result = content(header + text + footer);
             return result;
         });
@@ -120,7 +122,7 @@ border: 1px solid #ccc;
 border-radius: 4px;
 box-sizing: border-box;
 }
-button[type=submit] {
+input[type=submit] {
 background-color: #4CAF50;
 color: white;
 padding: 14px 20px;
@@ -130,7 +132,7 @@ border-radius: 4px;
 cursor: pointer;
 width: 100%;
 }
-button[type=submit]:hover {
+input[type=submit]:hover {
 background-color: #45a049;
 })", "text/css");});
         T::finish_init();

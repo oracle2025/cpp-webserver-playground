@@ -11,8 +11,9 @@ namespace Input {
 string Password::operator()()
 {
     ostringstream str;
-    str << R"(<input type="password" m_id=")" << m_label << R"(" name=")"
-        << m_label << R"(">)";
+    str << R"(<label for =")" << m_label << R"(">)" << m_label
+        << R"(</label><br> <input type="password" m_id=")" << m_label << R"(" name=")"
+        << m_label << R"(" value=")" << "" << R"(">)";
     return str.str();
 }
 Password::Password(string label)
