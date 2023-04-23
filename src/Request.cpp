@@ -1,9 +1,13 @@
 #include "Request.hpp"
 Request::Request(
-    map<string, string> cookies, map<string, string> parameters, string query)
+    string path,
+    map<string, string> cookies,
+    map<string, string> parameters,
+    string query)
     : m_cookies(move(cookies))
     , m_parameters(move(parameters))
     , m_query(move(query))
+    , m_path(move(path))
 {
 }
 bool Request::hasCookie(const string& name) const
@@ -29,4 +33,8 @@ const map<string, string>& Request::allParameters() const
 string Request::query() const
 {
     return m_query;
+}
+string Request::path() const
+{
+    return m_path;
 }

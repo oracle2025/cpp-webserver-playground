@@ -7,6 +7,7 @@ using std::string;
 
 struct Request {
     Request(
+        string path,
         map<string, string> cookies,
         map<string, string> parameters,
         string query);
@@ -25,8 +26,11 @@ struct Request {
 
     string query() const;
 
+    string path() const;
+
 private:
     map<string, string> m_cookies;
     map<string, string> m_parameters;
     string m_query;
+    string m_path;
 };

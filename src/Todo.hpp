@@ -54,7 +54,7 @@ struct Todo : public Record {
 
     void update();
 
-    void pop(const string& _id);
+    bool pop(const string& _id);
 
     void erase();
 

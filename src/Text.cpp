@@ -26,6 +26,6 @@ TEST_CASE("Text Element")
 {
     CHECK(
         Input::Text("username")()
-        == R"(<input type="text" m_id="username" name="username">)");
+        == R"(<label for ="username">username</label><br> <input type="text" m_id="username" name="username" value="">)");
 }
 } // namespace Input

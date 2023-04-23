@@ -30,7 +30,7 @@ TEST_CASE("Poco Web Server")
         static char buffer[MAX_INPUT];
         strncpy(buffer, "app", MAX_INPUT);
         char* argv[] = {buffer};
-        app.run(1, argv);
+        //app.run(1, argv);
     } catch (Poco::Exception& exc) {
         cerr << exc.displayText() << endl;
     }
@@ -48,6 +48,10 @@ TEST_CASE("Poco Web Server")
 TEST_CASE("Crud Server")
 {
     CrudServer<TestServer> w;
+    Poco::Data::SQLite::Connector::registerConnector();
+    Session session("SQLite", ":memory:");
+    g_session = &session;
+    Todo::create_table();
     SUBCASE("UUID to string")
     {
         Poco::UUID id("7f74fe03-d834-4d5e-bde7-58712c755781");

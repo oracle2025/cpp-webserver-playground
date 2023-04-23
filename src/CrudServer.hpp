@@ -66,10 +66,13 @@ struct CrudServer : public T {
         });
         T::get("/edit", [](const Request& request) {
             Todo todo;
-            todo.pop(request.query());
-            return content(
-                R"(<a href="/list">list</a><br>)"
-                + Input::Form(todo, "/update", "post")());
+            if (todo.pop(request.query())) {
+                return content(
+                    R"(<a href="/list">list</a><br>)"
+                    + Input::Form(todo, "/update", "post")());
+            } else {
+                return content("Todo not found")->code(Response::NOT_FOUND).shared_from_this();
+            }
         });
         T::post("/update", [](const Request& request) {
             Todo todo;

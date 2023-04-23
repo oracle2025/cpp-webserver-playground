@@ -10,13 +10,13 @@ using std::string;
 
 struct Response : public enable_shared_from_this<Response> {
 
-    const int NOT_FOUND = 404;
+    static const int NOT_FOUND = 404;
 
     static shared_ptr<Response> create();
 
     Response& content(const string& content, const string& mimetype = "text/html");
 
-    Response& code(int code, const string& content);
+    Response& code(int code);
 
     Response& cookie(const string& name, const string& value);
 

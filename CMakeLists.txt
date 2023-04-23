@@ -17,7 +17,7 @@ if (${Poco_FOUND})
             Threads::Threads)
 
     add_library(webservers STATIC  src/Todo.cpp src/Todo.hpp src/Table.cpp src/Table.hpp
-            src/Record.cpp
+            src/Record.cpp src/RecursiveWebServer.cpp src/RecursiveWebServer.hpp
             src/Record.hpp src/Form.cpp src/Form.hpp src/List.cpp src/List.hpp src/Text.cpp src/Text.hpp src/Hidden.cpp
             src/Hidden.hpp src/Password.cpp src/Password.hpp src/Submit.cpp src/Submit.hpp src/Response.cpp
             src/Response.hpp src/Request.cpp src/Request.hpp src/TestServer.cpp src/TestServer.hpp src/overloaded.hpp

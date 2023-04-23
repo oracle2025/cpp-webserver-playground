@@ -107,7 +107,7 @@ void Todo::update()
     update.execute();
 }
 
-void Todo::pop(const string& _id)
+bool Todo::pop(const string& _id)
 {
     m_id = _id;
     Statement select(*g_session);
@@ -118,9 +118,10 @@ void Todo::pop(const string& _id)
         use(m_id), into(description), into(created_at), into(updated_at),
         into(checked),
         range(0, 1); //  iterate over result set one row at a time
-    if (!select.done()) {
-        select.execute();
+    if (select.execute() == 0) {
+        return false;
     }
+    return true;
 }
 
 void Todo::erase()

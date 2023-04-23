@@ -12,23 +12,10 @@ using std::shared_ptr;
 using std::variant;
 
 struct TestServer {
-    using response_handler_type = function<shared_ptr<Response>()>;
     using request_response_handler_type
         = function<shared_ptr<Response>(const Request& request)>;
-    using handlers_type
-        = variant<response_handler_type, request_response_handler_type>;
-
-    void get(const string& path, response_handler_type handler)
-    {
-        router[path] = handler;
-    }
 
     void get(const string& path, request_response_handler_type handler)
-    {
-        router[path] = handler;
-    }
-
-    void post(const string& path, response_handler_type handler)
     {
         router[path] = handler;
     }
@@ -36,6 +23,11 @@ struct TestServer {
     void post(const string& path, request_response_handler_type handler)
     {
         router[path] = handler;
+    }
+
+    void defaultHandler(request_response_handler_type handler)
+    {
+        m_defaultHandler = std::move(handler);
     }
 
     void finish_init()
@@ -55,5 +47,6 @@ struct TestServer {
         const string& path, const map<string, string>& params);
 
 private:
-    map<string, handlers_type> router;
+    map<string, request_response_handler_type> router;
+    request_response_handler_type m_defaultHandler;
 };

@@ -3,6 +3,8 @@
 #include "doctest.h"
 #include "overloaded.hpp"
 
+#include <Poco/URI.h>
+
 string TestServer::getPage(
     const string& path,
     const map<string, string>& cookies,
@@ -10,57 +12,39 @@ string TestServer::getPage(
 {
     if (router.find(path) != router.end()) {
         auto& handler = router[path];
-        auto result = visit(
-            overloaded{
-                [](response_handler_type& handler) {
-                    return handler()->content();
-                },
-                [&cookies, &params](request_response_handler_type& handler) {
-                    Request parameters(cookies, params, "");
-                    return handler(parameters)->content();
-                }},
-            handler);
-        return result;
+        Request parameters(path, cookies, params, "");
+        return handler(parameters)->content();
     }
     return "";
 }
 shared_ptr<Response> TestServer::getResponse(
-    const string& path,
+    const string& uri,
     const map<string, string>& cookies,
     const map<string, string>& params)
 {
+    Poco::URI url(uri);
+    auto path = url.getPath();
+    auto query = url.getQuery();
     if (router.find(path) != router.end()) {
         auto& handler = router[path];
-        auto result = visit(
-            overloaded{
-                [](response_handler_type& handler) { return handler(); },
-                [&cookies, &params](request_response_handler_type& handler) {
-                    Request parameters(cookies, params, "");
-                    return handler(parameters);
-                }},
-            handler);
-        return result;
+        Request parameters(path, cookies, params, query);
+        return handler(parameters);
     }
-    return content("");
+    return m_defaultHandler(Request(path, cookies, params, query));
 }
 shared_ptr<Response> TestServer::postTo(
     const string& path, const map<string, string>& params)
 {
     if (router.find(path) != router.end()) {
-        return visit(
-            overloaded{
-                [](response_handler_type& handler) { return handler(); },
-                [params](request_response_handler_type& handler) {
-                    Request request({}, params, "");
-                    return handler(request);
-                }},
-            router[path]);
+        auto& handler = router[path];
+        Request request(path, {}, params, "");
+        return handler(request);
     }
-    return content("");
+    return m_defaultHandler(Request(path, {}, params, ""));
 }
 
 TEST_CASE("Web Server")
 {
     TestServer w;
-    w.get("/", [] { return content("Hello World"); });
+    w.get("/", [](const Request& request) { return content("Hello World"); });
 }

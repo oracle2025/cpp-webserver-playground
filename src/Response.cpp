@@ -14,10 +14,9 @@ Response& Response::content(const string& content, const string& mimetype)
     m_mimetype = mimetype;
     return *this;
 }
-Response& Response::code(int code, const string& content)
+Response& Response::code(int code)
 {
     m_code = code;
-    m_content = content;
     return *this;
 }
 Response& Response::cookie(const string& name, const string& value)

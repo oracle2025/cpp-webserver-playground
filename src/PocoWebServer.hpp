@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 #include <variant>
 using std::function;
 using std::shared_ptr;
@@ -20,25 +21,12 @@ using std::variant;
 
 class PocoWebServer {
 public:
-    using response_handler_type = function<shared_ptr<Response>()>;
     using request_response_handler_type
         = function<shared_ptr<Response>(const Request& request)>;
-    using handlers_type
-        = variant<response_handler_type, request_response_handler_type>;
 
     using HTTPServer = Poco::Net::HTTPServer;
 
     void get(const string& path, request_response_handler_type handler)
-    {
-        router[path] = handler;
-    }
-
-    void get(const string& path, response_handler_type handler)
-    {
-        router[path] = handler;
-    }
-
-    void post(const string& path, response_handler_type handler)
     {
         router[path] = handler;
     }
@@ -59,8 +47,12 @@ public:
     {
         server->stop();
     }
-
+    void defaultHandler(request_response_handler_type handler)
+    {
+        m_defaultHandler = std::move(handler);
+    }
 private:
-    map<string, handlers_type> router;
+    map<string, request_response_handler_type> router;
     shared_ptr<HTTPServer> server;
+    request_response_handler_type m_defaultHandler;
 };

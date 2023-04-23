@@ -1,7 +1,9 @@
 #pragma once
 
+#include "CrudServer.hpp"
 #include "Form.hpp"
 #include "Password.hpp"
+#include "RecursiveWebServer.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "SessionId.hpp"
@@ -45,7 +47,7 @@ struct LoginServer : public T {
 
     LoginServer()
     {
-        T::get("/", [] {
+        T::get("/", [](const Request& request) {
             using namespace Input;
             auto text = Form(
                 {Text("username")(),
@@ -81,6 +83,12 @@ struct LoginServer : public T {
         });
         T::get("/secret", [this](const Request& request) {
             if (hasValidSession(request)) {
+
+                /*
+                 * CrudServer crud;
+                 * return crud.handle(request);
+                 */
+
                 return content("Success");
             } else {
                 return content("Access denied");
@@ -96,8 +104,9 @@ struct LoginServer : public T {
                 return content("Access denied");
             }
         });
-        T::get("/css/style.css", [] {
-            return content(R"(body {
+        T::get("/css/style.css", [](const Request& request) {
+            return content(
+                R"(body {
 font-family: Arial, sans-serif;
 background-color: #f4f4f4;
 }
@@ -134,10 +143,20 @@ width: 100%;
 }
 input[type=submit]:hover {
 background-color: #45a049;
-})", "text/css");});
+})",
+                "text/css");
+        });
+        T::defaultHandler([this](const Request& request) {
+            if (hasValidSession(request)) {
+                return m_crud.handle(request);
+            } else {
+                return content("Access denied");
+            }
+        });
         T::finish_init();
     }
 
 private:
     set<SessionId> m_sessions;
+    CrudServer<RecursiveWebServer> m_crud;
 };
