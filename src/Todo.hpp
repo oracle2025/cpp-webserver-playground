@@ -66,6 +66,13 @@ struct Todo : public Record {
     {
         return {"m_id", "description", "created_at", "updated_at", "checked"};
     }
+    HtmlInputType inputType(const string& field) const override
+    {
+        if (field == "checked") {
+            return HtmlInputType::CHECKBOX;
+        }
+        return HtmlInputType::TEXT;
+    }
 
     std::map<string, string> values() const override;
 };

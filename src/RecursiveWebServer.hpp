@@ -1,6 +1,7 @@
 #pragma once
 #include "Request.hpp"
 #include "Response.hpp"
+#include "RequestHandler.hpp"
 
 #include <functional>
 #include <memory>
@@ -9,7 +10,7 @@
 using std::function;
 using std::shared_ptr;
 using std::variant;
-struct RecursiveWebServer {
+struct RecursiveWebServer : public RequestHandler {
     using handler_type = function<shared_ptr<Response>(const Request& request)>;
 
     void get(const string& path, handler_type handler)
@@ -26,7 +27,7 @@ struct RecursiveWebServer {
     {
     }
 
-    shared_ptr<Response> handle(const Request& request)
+    shared_ptr<Response> handle(const Request& request) override
     {
         if (router.find(request.path()) != router.end()) {
             auto handler = router[request.path()];

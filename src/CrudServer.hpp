@@ -5,6 +5,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Todo.hpp"
+#include "style.hpp"
 
 /*
  * A Simple Todo List:
@@ -89,9 +90,23 @@ struct CrudServer : public T {
         });
         T::get("/delete", [](const Request& request) { return content(""); });
         T::get("/list", [](const Request& request) {
+            const string header = R"(<!doctype html><html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div class="container">
+)";
             return content(
+                header +
                 R"(<a href="/new">Create new todo</a><br>)"
-                + Html::List(Todo::listAsPointers())());
+                + Html::List(Todo::listAsPointers(), {"checked", "description"})()
+                + R"(</div></body></html>)");
+        });
+        T::get("/css/style.css", [](const Request& request) {
+            return content(STYLE_SHEET,
+                           "text/css");
         });
         T::finish_init();
     }

@@ -23,7 +23,7 @@ if (${Poco_FOUND})
             src/Response.hpp src/Request.cpp src/Request.hpp src/TestServer.cpp src/TestServer.hpp src/overloaded.hpp
             src/SessionId.cpp src/SessionId.hpp src/LoginServer.hpp src/CrudServer.hpp src/CrudServer.cpp
             src/LoginServer.cpp src/PocoWebServer.cpp src/PocoWebServer.hpp src/LoginServerApplication.cpp
-            src/LoginServerApplication.hpp src/CrudServerApplication.cpp src/CrudServerApplication.hpp)
+            src/LoginServerApplication.hpp src/CrudServerApplication.cpp src/CrudServerApplication.hpp src/RequestHandler.hpp src/style.hpp src/FieldTypes.hpp)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
             Threads::Threads Poco::DataSQLite)

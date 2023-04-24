@@ -13,11 +13,12 @@ using std::vector;
 
 class List {
 public:
-    explicit List(vector<shared_ptr<Record>> records);
+    explicit List(vector<shared_ptr<Record>> records, vector<string> columns);
     string operator()();
 
 private:
     vector<std::shared_ptr<Record>> records;
+    vector<string> columns;
 };
 
 } // namespace Html

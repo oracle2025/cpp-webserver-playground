@@ -5,7 +5,7 @@
 
 TEST_CASE("Login Server")
 {
-    LoginServer<TestServer> w;
+    LoginServer<TestServer> w(nullptr);
     auto actual = w.getPage("/");
     const auto expected
         = R"(<form action="/login" method="post"><input type="text" m_id="username" name="username"><input type="password" m_id="password" name="password"><input type="submit" m_id="submit" name="submit"></form>)";

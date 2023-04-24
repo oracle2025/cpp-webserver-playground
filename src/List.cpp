@@ -10,28 +10,42 @@ using std::ostringstream;
 string List::operator()()
 {
     ostringstream str;
-    str << R"(<table border="1">)";
-    str << "<tr>";
-    if (!records.empty()) {
-        for (auto& col : (*records.begin())->fields()) {
-            str << "<th>" << col << "</th>";
-        }
-    }
-    str << "</tr>";
+    str << R"(<table>)";
+    int even = 0;
     for (auto record : records) {
-        str << "<tr>";
-        auto values = record->values();
-        for (const auto& column : record->fields()) {
-            str << R"(<td><a href="/edit?)" << values["m_id"] << R"(">)"
-                << values[column] << "</a></td>";
+        if (even % 2) {
+            str << R"(<tr class="uneven">)";
+        } else {
+            str << "<tr>";
         }
+        even++;
+        auto values = record->values();
+        for (const auto& column : columns) {
+            switch (record->inputType(column)) {
+            case HtmlInputType::CHECKBOX:
+                str << R"(<td style="width: 20px;"><input type="checkbox"></td>)";
+                break;
+            default:
+                str << R"(<td>)" << values[column] << "</td>";
+                break;
+            }
+        }
+        str << R"(<td style="width: 100px;"><a href="/edit?)" << values["m_id"]
+            << R"(" class="edit button">)"
+            << "✏️ Edit</a>"
+               "</td>";
+        str << R"(<td style="width: 100px;"><a href="/delete?)"
+            << values["m_id"] << R"(" class="remove button">)"
+            << "♻️ Delete</a>"
+               "</td>";
         str << "</tr>";
     }
     str << "</table>\n";
     return str.str();
 }
-List::List(vector<shared_ptr<Record>> records)
+List::List(vector<shared_ptr<Record>> records, vector<string> columns)
     : records(std::move(records))
+    , columns(std::move(columns))
 {
 }
 } // namespace Html

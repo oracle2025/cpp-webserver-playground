@@ -9,6 +9,7 @@
 #include "SessionId.hpp"
 #include "Submit.hpp"
 #include "Text.hpp"
+#include "style.hpp"
 
 #include <map>
 #include <set>
@@ -45,7 +46,8 @@ struct LoginServer : public T {
         }
     }
 
-    LoginServer()
+    LoginServer(shared_ptr<RequestHandler> secretHandler)
+        : m_secretHandler(secretHandler)
     {
         T::get("/", [](const Request& request) {
             using namespace Input;
@@ -105,50 +107,12 @@ struct LoginServer : public T {
             }
         });
         T::get("/css/style.css", [](const Request& request) {
-            return content(
-                R"(body {
-font-family: Arial, sans-serif;
-background-color: #f4f4f4;
-}
-.container {
-background-color: #fff;
-padding: 20px;
-max-width: 500px;
-margin: auto;
-margin-top: 50px;
-box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-}
-h2 {
-text-align: center;
-margin-bottom: 20px;
-}
-input[type=text], input[type=password] {
-width: 100%;
-padding: 12px 20px;
-margin: 8px 0;
-display: inline-block;
-border: 1px solid #ccc;
-border-radius: 4px;
-box-sizing: border-box;
-}
-input[type=submit] {
-background-color: #4CAF50;
-color: white;
-padding: 14px 20px;
-margin: 8px 0;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-width: 100%;
-}
-input[type=submit]:hover {
-background-color: #45a049;
-})",
+            return content(STYLE_SHEET,
                 "text/css");
         });
         T::defaultHandler([this](const Request& request) {
             if (hasValidSession(request)) {
-                return m_crud.handle(request);
+                return m_secretHandler->handle(request);
             } else {
                 return content("Access denied");
             }
@@ -158,5 +122,5 @@ background-color: #45a049;
 
 private:
     set<SessionId> m_sessions;
-    CrudServer<RecursiveWebServer> m_crud;
+    shared_ptr<RequestHandler> m_secretHandler;
 };
