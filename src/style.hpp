@@ -75,6 +75,10 @@ margin: 2px 0px;
 height: 24px;
 border-radius: 4px;
 }
+:where(th, td):not(.max) {
+  width: 0;
+  white-space: nowrap;
+}
 @media (min-width:540px)  {
 .container {
         background-color: #fff;

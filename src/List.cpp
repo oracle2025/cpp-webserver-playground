@@ -26,15 +26,15 @@ string List::operator()()
                 str << R"(<td style="width: 20px;"><input type="checkbox"></td>)";
                 break;
             default:
-                str << R"(<td>)" << values[column] << "</td>";
+                str << R"(<td class="max">)" << values[column] << "</td>";
                 break;
             }
         }
-        str << R"(<td style="width: 100px;"><a href="/edit?)" << values["m_id"]
+        str << R"(<td><a href="/edit?)" << values["m_id"]
             << R"(" class="edit button">)"
             << R"(✏️ <span class="label">Edit</span></a>)"
                "</td>";
-        str << R"(<td style="width: 100px;"><a href="/delete?)"
+        str << R"(<td><a href="/delete?)"
             << values["m_id"] << R"(" class="remove button">)"
             << R"(♻️ <span class="label">Delete</span></a>)"
                "</td>";
