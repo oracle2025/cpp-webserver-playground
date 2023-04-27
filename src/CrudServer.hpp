@@ -48,9 +48,9 @@ struct CrudServer : public T {
         T::get("/new", [](const Request& request) {
             using namespace Input;
             Todo todo;
-            return content(
-                R"(<a href="/list">list</a><br>)"
-                + Form(todo, "/create", "post")());
+            return content(header() +
+                + R"(<a href="/list">list</a><br>)"
+                + Form(todo, "/create", "post")() + footer());
         });
         T::post("/create", [this](const Request& request) {
             Todo todo;
@@ -69,10 +69,13 @@ struct CrudServer : public T {
             Todo todo;
             if (todo.pop(request.query())) {
                 return content(
-                    R"(<a href="/list">list</a><br>)"
-                    + Input::Form(todo, "/update", "post")());
+                    header()
+                    + R"(<a href="/list">list</a><br>)"
+                    + Input::Form(todo, "/update", "post")() + footer());
             } else {
-                return content("Todo not found")->code(Response::NOT_FOUND).shared_from_this();
+                return content("Todo not found")
+                    ->code(Response::NOT_FOUND)
+                    .shared_from_this();
             }
         });
         T::post("/update", [](const Request& request) {
@@ -90,7 +93,21 @@ struct CrudServer : public T {
         });
         T::get("/delete", [](const Request& request) { return content(""); });
         T::get("/list", [](const Request& request) {
-            const string header = R"(<!doctype html><html lang="de"><head>
+            return content(
+                header()
+                + R"(<a href="/new" class="create button">Create new todo</a><br>)"
+                + Html::List(
+                    Todo::listAsPointers(), {"checked", "description"})()
+                + footer());
+        });
+        T::get("/css/style.css", [](const Request& request) {
+            return content(STYLE_SHEET, "text/css");
+        });
+        T::finish_init();
+    }
+    static string header()
+    {
+        return R"(<!doctype html><html lang="de"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -98,16 +115,9 @@ struct CrudServer : public T {
 <body>
 <div class="container">
 )";
-            return content(
-                header +
-                R"(<a href="/new">Create new todo</a><br>)"
-                + Html::List(Todo::listAsPointers(), {"checked", "description"})()
-                + R"(</div></body></html>)");
-        });
-        T::get("/css/style.css", [](const Request& request) {
-            return content(STYLE_SHEET,
-                           "text/css");
-        });
-        T::finish_init();
+    }
+    static string footer()
+    {
+        return R"(</div></body></html>)";
     }
 };

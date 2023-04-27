@@ -32,11 +32,11 @@ string List::operator()()
         }
         str << R"(<td style="width: 100px;"><a href="/edit?)" << values["m_id"]
             << R"(" class="edit button">)"
-            << "✏️ Edit</a>"
+            << R"(✏️ <span class="label">Edit</span></a>)"
                "</td>";
         str << R"(<td style="width: 100px;"><a href="/delete?)"
             << values["m_id"] << R"(" class="remove button">)"
-            << "♻️ Delete</a>"
+            << R"(♻️ <span class="label">Delete</span></a>)"
                "</td>";
         str << "</tr>";
     }
