@@ -11,6 +11,7 @@ using std::string;
 struct Response : public enable_shared_from_this<Response> {
 
     static const int NOT_FOUND = 404;
+    static const int UNAUTHORIZED = 401;
 
     static shared_ptr<Response> create();
 

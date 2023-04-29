@@ -63,7 +63,7 @@ void PocoWebServer::finish_init()
                         parameters[key] = value;
                     }
                     auto result = handler(Request(
-                        uri.toString(),
+                        uri.getPath(),
                         cookiesMap,
                         parameters,
                         uri.getQuery()));

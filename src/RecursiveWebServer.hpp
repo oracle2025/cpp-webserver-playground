@@ -33,7 +33,7 @@ struct RecursiveWebServer : public RequestHandler {
             auto handler = router[request.path()];
             return handler(request);
         }
-        return Response::create()->code(Response::NOT_FOUND).shared_from_this();
+        return content("404 not found")->code(Response::NOT_FOUND).shared_from_this();
     }
 
     map<string, handler_type> router;

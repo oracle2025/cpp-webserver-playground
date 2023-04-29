@@ -107,14 +107,15 @@ struct LoginServer : public T {
             }
         });
         T::get("/css/style.css", [](const Request& request) {
-            return content(STYLE_SHEET,
-                "text/css");
+            return content(STYLE_SHEET, "text/css");
         });
         T::defaultHandler([this](const Request& request) {
             if (hasValidSession(request)) {
                 return m_secretHandler->handle(request);
             } else {
-                return content("Access denied");
+                return content("Access denied")
+                    ->code(Response::UNAUTHORIZED)
+                    .shared_from_this();
             }
         });
         T::finish_init();
