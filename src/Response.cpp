@@ -1,7 +1,6 @@
 
 #include "Response.hpp"
 
-#include "doctest.h"
 
 using std::make_shared;
 shared_ptr<Response> Response::create()
@@ -43,9 +42,4 @@ string Response::mimetype() const
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();
-}
-
-TEST_CASE("Create Response")
-{
-    auto response = content("Hello World");
 }

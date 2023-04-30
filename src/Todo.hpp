@@ -76,3 +76,5 @@ struct Todo : public Record {
 
     std::map<string, string> values() const override;
 };
+
+string time_string();

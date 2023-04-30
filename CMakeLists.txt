@@ -27,17 +27,19 @@ if (${Poco_FOUND})
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
             Threads::Threads Poco::DataSQLite)
-    target_include_directories(webservers PRIVATE tests)
+    target_include_directories(webservers
+            PRIVATE tests
+            PUBLIC src
+            )
 
-    add_executable(tests tests/doctest.cpp src/tests.cpp)
+    add_executable(tests tests/doctest.cpp tests/LoginServerTest.cpp tests/SessionIdTest.cpp tests/InputTest.cpp tests/WebServerTest.cpp tests/ResponseTest.cpp tests/PocoWebServerTest.cpp tests/CrudServerTest.cpp tests/TodoTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
-    add_library(doctest_impl tests/doctest_impl.cpp)
 
     add_executable(crud-server src/CrudMain.cpp)
-    target_link_libraries(crud-server webservers doctest_impl)
+    target_link_libraries(crud-server webservers)
     add_executable(login-server src/LoginMain.cpp)
-    target_link_libraries(login-server webservers doctest_impl)
+    target_link_libraries(login-server webservers)
     install(TARGETS login-server DESTINATION bin)
 endif ()
 

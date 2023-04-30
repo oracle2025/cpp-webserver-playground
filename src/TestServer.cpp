@@ -1,7 +1,5 @@
 #include "TestServer.hpp"
 
-#include "doctest.h"
-#include "overloaded.hpp"
 
 #include <Poco/URI.h>
 
@@ -43,8 +41,3 @@ shared_ptr<Response> TestServer::postTo(
     return m_defaultHandler(Request(path, {}, params, ""));
 }
 
-TEST_CASE("Web Server")
-{
-    TestServer w;
-    w.get("/", [](const Request& request) { return content("Hello World"); });
-}
