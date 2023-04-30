@@ -14,8 +14,8 @@ TEST_CASE("Password Element")
 {
     CHECK(
         Input::Password("password")()
-        == R"(<input type="password" m_id="password" name="password">)");
+        == R"(<label for ="password">password</label><br> <input type="password" m_id="password" name="password" value="">)");
     CHECK(
         Input::Password("password2")()
-        == R"(<input type="password" m_id="password2" name="password2">)");
+        == R"(<label for ="password2">password2</label><br> <input type="password" m_id="password2" name="password2" value="">)");
 }
