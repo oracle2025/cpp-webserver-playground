@@ -1,16 +1,18 @@
 
 #include "Text.hpp"
+#include <algorithm>
 
 
 #include <sstream>
 
 using std::ostringstream;
+using std::transform;
 
 namespace Input {
 string Text::operator()()
 {
-    std::string capitalized = label;
-    std::transform(capitalized.begin(), capitalized.begin() + 1, capitalized.begin(), ::toupper);
+    string capitalized = label;
+    transform(capitalized.begin(), capitalized.begin() + 1, capitalized.begin(), ::toupper);
 
     ostringstream str;
     str << R"(<label for =")" << label << R"(">)" << capitalized
