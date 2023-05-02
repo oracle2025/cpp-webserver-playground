@@ -8,7 +8,9 @@
 #include "Response.hpp"
 #include "SessionId.hpp"
 #include "Submit.hpp"
+#include "TestServer.hpp"
 #include "Text.hpp"
+#include "doctest.h"
 #include "style.hpp"
 
 #include <map>
@@ -49,38 +51,26 @@ struct LoginServer : public T {
     LoginServer(shared_ptr<RequestHandler> secretHandler)
         : m_secretHandler(secretHandler)
     {
-        T::get("/", [](const Request& request) {
-            using namespace Input;
-            auto text = Form(
-                {Text("username")(),
-                 Password("password")(),
-                 Submit("submit")()},
-                "/login",
-                "post")();
-            const string header = R"(<!doctype html><html lang="de"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="css/style.css">
-</head>
-<body>
-<div class="container">
-<h2>Login Form</h2>
-)";
-            const string footer = R"(</div></body></html>)";
-            auto result = content(header + text + footer);
-            return result;
+        T::get("/", [this](const Request& request) {
+            if (hasValidSession(request) && m_secretHandler) {
+                return m_secretHandler->handle(request);
+            } else {
+                return loginForm();
+            }
         });
         T::post("/login", [this](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
             if (!isValidUser(request.allParameters())) {
-                return content("Invalid Login");
+                setMessage("Invalid Login");
+                return loginForm();
             }
             auto sessionId = generateRandomSessionId();
             m_sessions.insert(sessionId);
-            return content("Success")
-                ->cookie("session-id", sessionId)
+            return redirect("/")
+                ->content("Success")
+                .cookie("session-id", sessionId)
                 .shared_from_this();
         });
         T::get("/secret", [this](const Request& request) {
@@ -120,8 +110,51 @@ struct LoginServer : public T {
         });
         T::finish_init();
     }
-
+    void setMessage(const string& message)
+    {
+        m_message = message;
+    }
+    string showMessage()
+    {
+        if (m_message.empty()) {
+            return "";
+        }
+        auto result = m_message;
+        m_message.clear();
+        return R"(<div class="alert-danger">⚠️ )" + result + R"(</div>)";
+    }
 private:
     set<SessionId> m_sessions;
     shared_ptr<RequestHandler> m_secretHandler;
+    string m_message;
+
+    shared_ptr<Response> loginForm()
+    {
+        using namespace Input;
+        auto text = Form(
+            {Text("username")(),
+             Password("password")(),
+             Submit("submit")()},
+            "/login",
+            "post")();
+        const string header = R"(<!doctype html><html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div class="container">
+<h2>Login Form</h2>
+)";
+        const string footer = R"(</div></body></html>)";
+        auto result = content(header + showMessage() + text + footer);
+        return result;
+    }
 };
+
+TEST_CASE("Show Message") {
+    LoginServer<TestServer> w(nullptr);
+    w.setMessage("Hello");
+    CHECK_FALSE(w.showMessage().empty());
+    CHECK(w.showMessage().empty());
+}

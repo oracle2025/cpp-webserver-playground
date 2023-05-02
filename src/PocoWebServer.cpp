@@ -46,9 +46,6 @@ void PocoWebServer::finish_init()
                     response.setChunkedTransferEncoding(true);
                     response.setContentType("text/html");
                     using HTTPCookie = Poco::Net::HTTPCookie;
-                    /*HTTPCookie cookie("session-m_id",
-                                      Poco::UUIDGenerator::defaultGenerator().createRandom().toString());
-                    response.addCookie(cookie);*/
                     NameValueCollection cookies;
                     request.getCookies(cookies);
                     Poco::URI uri(request.getURI());
@@ -75,6 +72,9 @@ void PocoWebServer::finish_init()
                         response.addCookie(cookie);
                     }
                     response.setContentType(result->mimetype());
+                    if (result->code() == Response::HTTP_FOUND && (!result->location().empty())) {
+                        response.redirect(result->location());
+                    }
                     auto& responseStream = response.send();
                     responseStream << result->content();
                 }

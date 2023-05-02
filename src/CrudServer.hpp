@@ -49,7 +49,7 @@ struct CrudServer : public T {
             using namespace Input;
             Todo todo;
             return content(header() +
-                + R"(<a href="/list">list</a><br>)"
+                + R"(<a href="/">list</a><br>)"
                 + Form(todo, "/create", "post")() + footer());
         });
         T::post("/create", [this](const Request& request) {
@@ -61,7 +61,7 @@ struct CrudServer : public T {
             }
             todo.insert();
             return content(
-                string{"Todo created<br>"} + R"(<a href="/list">list</a><br>)"
+                string{"Todo created<br>"} + R"(<a href="/">list</a><br>)"
                 + Input::Form(todo, "/update", "post")());
             // return redirect_to("/read/" + m_id.toString());
         });
@@ -88,11 +88,11 @@ struct CrudServer : public T {
             }
             todo.update();
             return content(
-                string{"Todo updated<br>"} + R"(<a href="/list">list</a><br>)"
+                string{"Todo updated<br>"} + R"(<a href="/">list</a><br>)"
                 + Input::Form(todo, "/edit-submit", "post")());
         });
         T::get("/delete", [](const Request& request) { return content(""); });
-        T::get("/list", [](const Request& request) {
+        T::get("/", [](const Request& request) {
             return content(
                 header()
                 + R"(<a href="/new" class="create button">Create new todo</a><br>)"

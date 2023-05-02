@@ -13,8 +13,8 @@ Submit::Submit(string label)
 string Submit::operator()()
 {
     ostringstream str;
-    str << R"(<input type="submit" m_id=")" << m_label << R"(" name=")"
-        << m_label << R"(">)";
+    str << R"(<button type="submit" m_id=")" << m_label << R"(" name=")"
+        << m_label << R"(">)" << m_label << R"(</button>)";
     return str.str();
 }
 } // namespace Input

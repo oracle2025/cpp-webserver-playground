@@ -39,7 +39,20 @@ string Response::mimetype() const
 {
     return m_mimetype;
 }
+string Response::location() const
+{
+    return m_location;
+}
+Response& Response::location(const string& url)
+{
+    m_location = url;
+    return *this;
+}
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();
+}
+shared_ptr<Response> redirect(const string& url)
+{
+    return Response::create()->location(url).code(Response::HTTP_FOUND).shared_from_this();
 }

@@ -16,7 +16,7 @@ if (${Poco_FOUND})
     target_link_libraries(cpp_webserver_kata Poco::Net Poco::Util
             Threads::Threads)
 
-    add_library(webservers STATIC  src/Todo.cpp src/Todo.hpp src/Table.cpp src/Table.hpp
+    add_library(webservers OBJECT  src/Todo.cpp src/Todo.hpp src/Table.cpp src/Table.hpp
             src/Record.cpp src/RecursiveWebServer.cpp src/RecursiveWebServer.hpp
             src/Record.hpp src/Form.cpp src/Form.hpp src/List.cpp src/List.hpp src/Text.cpp src/Text.hpp src/Hidden.cpp
             src/Hidden.hpp src/Password.cpp src/Password.hpp src/Submit.cpp src/Submit.hpp src/Response.cpp
@@ -36,9 +36,9 @@ if (${Poco_FOUND})
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
-    add_executable(crud-server src/CrudMain.cpp)
+    add_executable(crud-server src/CrudMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(crud-server webservers)
-    add_executable(login-server src/LoginMain.cpp)
+    add_executable(login-server src/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
     install(TARGETS login-server DESTINATION bin)
 endif ()

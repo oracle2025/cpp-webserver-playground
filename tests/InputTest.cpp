@@ -7,7 +7,7 @@ TEST_CASE("Text Element")
 {
     CHECK(
         Input::Text("username")()
-        == R"(<label for ="username">username</label><br> <input type="text" m_id="username" name="username" value="">)");
+        == R"(<label for ="username">Username</label><br> <input type="text" m_id="username" name="username" value="">)");
 }
 
 TEST_CASE("Password Element")
