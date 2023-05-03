@@ -1,4 +1,4 @@
-#include "TestServer.hpp"
+#include "Server/TestServer.hpp"
 #include "doctest.h"
 TEST_CASE("Web Server")
 {

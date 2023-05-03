@@ -1,8 +1,9 @@
+#include "Data/Todo.hpp"
+#include "Server/CrudServerApplication.hpp"
 #include "doctest.h"
-#include "Todo.hpp"
+
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
-#include "CrudServerApplication.hpp"
 
 using Poco::Data::Session;
 using namespace std;

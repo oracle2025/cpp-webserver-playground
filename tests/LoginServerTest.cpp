@@ -1,6 +1,5 @@
-#include "LoginServer.hpp"
-
-#include "TestServer.hpp"
+#include "Login/LoginServer.hpp"
+#include "Server/TestServer.hpp"
 #include "doctest.h"
 
 TEST_CASE("Login Server")

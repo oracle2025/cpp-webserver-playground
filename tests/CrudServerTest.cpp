@@ -1,7 +1,7 @@
-#include "TestServer.hpp"
-#include "Todo.hpp"
+#include "Data/Todo.hpp"
+#include "Server/CrudServer.hpp"
+#include "Server/TestServer.hpp"
 #include "doctest.h"
-#include "CrudServer.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
@@ -42,5 +42,19 @@ TEST_CASE("Crud Server")
     {
         auto response = w.getResponse("/edit?invalid-uuid");
         CHECK_EQ(response->code(), 404);
+    }
+    SUBCASE("Create")
+    {
+        auto response = w.getResponse("/new");
+        CHECK_EQ(response->code(), 200);
+        CHECK(response->content().find("Create") != string::npos);
+    }
+    SUBCASE("List")
+    {
+        auto response = w.getResponse("/");
+        CHECK(response->actions().size() == 1);
+        CHECK(response->actions().begin()->url == "/new");
+        CHECK(response->actions().begin()->title == "Create new Todo");
+        CHECK(response->title() == "Todo List");
     }
 }

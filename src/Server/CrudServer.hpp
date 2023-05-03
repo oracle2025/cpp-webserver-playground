@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Data/Todo.hpp"
 #include "Form.hpp"
+#include "Http/Request.hpp"
+#include "Http/Response.hpp"
 #include "List.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
-#include "Todo.hpp"
 #include "style.hpp"
 
 /*
@@ -48,8 +48,8 @@ struct CrudServer : public T {
         T::get("/new", [](const Request& request) {
             using namespace Input;
             Todo todo;
-            return content(header() +
-                + R"(<a href="/">list</a><br>)"
+            return content(
+                header() + +R"(<a href="/">list</a><br>)"
                 + Form(todo, "/create", "post")() + footer());
         });
         T::post("/create", [this](const Request& request) {
@@ -69,8 +69,7 @@ struct CrudServer : public T {
             Todo todo;
             if (todo.pop(request.query())) {
                 return content(
-                    header()
-                    + R"(<a href="/list">list</a><br>)"
+                    header() + R"(<a href="/list">list</a><br>)"
                     + Input::Form(todo, "/update", "post")() + footer());
             } else {
                 return content("Todo not found")
@@ -94,11 +93,14 @@ struct CrudServer : public T {
         T::get("/delete", [](const Request& request) { return content(""); });
         T::get("/", [](const Request& request) {
             return content(
-                header()
-                + R"(<a href="/new" class="create button">Create new todo</a><br>)"
-                + Html::List(
-                    Todo::listAsPointers(), {"checked", "description"})()
-                + footer());
+                       header()
+                       + R"(<a href="/new" class="create button">Create new todo</a><br>)"
+                       + Html::List(
+                           Todo::listAsPointers(), {"checked", "description"})()
+                       + footer())
+                ->appendAction({"Create new Todo", "/new"})
+                .title("Todo List")
+                .shared_from_this();
         });
         T::get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
@@ -109,7 +111,7 @@ struct CrudServer : public T {
     {
         return R"(<!doctype html><html lang="de"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta title="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>

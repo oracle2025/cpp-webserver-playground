@@ -393,7 +393,7 @@ DOCTEST_MSVC_SUPPRESS_WARNING(4623) // default constructor was implicitly define
 #define DOCTEST_DEFINE_INTERFACE(name)                                                             \
     name::~name() = default;
 
-// internal macros for string concatenation and anonymous variable name generation
+// internal macros for string concatenation and anonymous variable title generation
 #define DOCTEST_CAT_IMPL(s1, s2) s1##s2
 #define DOCTEST_CAT(s1, s2) DOCTEST_CAT_IMPL(s1, s2)
 #ifdef __COUNTER__ // not standard and may be missing for some compilers
@@ -786,7 +786,7 @@ struct DOCTEST_INTERFACE TestCaseData
 {
     String      m_file;       // the file in which the test was registered (using String - see #350)
     unsigned    m_line;       // the line where the test was registered
-    const char* m_name;       // name of the test case
+    const char* m_name;       // title of the test case
     const char* m_test_suite; // the test suite in which the test was added
     const char* m_description;
     bool        m_skip;
@@ -870,7 +870,7 @@ namespace detail {
 struct ContextOptions //!OCLINT too many fields
 {
     std::ostream* cout = nullptr; // stdout stream
-    String        binary_name;    // the test binary name
+    String        binary_name;    // the test binary title
 
     const detail::TestCase* currentTest = nullptr;
 
@@ -1573,9 +1573,9 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
     {
         funcType m_test; // a function pointer to the test case
 
-        String m_type; // for templated test cases - gets appended to the real name
+        String m_type; // for templated test cases - gets appended to the real title
         int m_template_id; // an ID used to distinguish between the different versions of a templated test case
-        String m_full_name; // contains the name (only for templated test cases!) + the template type
+        String m_full_name; // contains the title (only for templated test cases!) + the template type
 
         TestCase(funcType test, const char* file, unsigned line, const TestSuite& test_suite,
                  const String& type = String(), int template_id = -1);
@@ -2526,7 +2526,7 @@ int registerReporter(const char* name, int priority, bool isReporter) {
 // =================================================================================================
 #else // DOCTEST_CONFIG_DISABLE
 
-#define DOCTEST_IMPLEMENT_FIXTURE(der, base, func, name)                                           \
+#define DOCTEST_IMPLEMENT_FIXTURE(der, base, func, title)                                           \
     namespace /* NOLINT */ {                                                                       \
         template <typename DOCTEST_UNUSED_TEMPLATE_TYPE>                                           \
         struct der : public base                                                                   \
@@ -2535,33 +2535,33 @@ int registerReporter(const char* name, int priority, bool isReporter) {
     template <typename DOCTEST_UNUSED_TEMPLATE_TYPE>                                               \
     inline void der<DOCTEST_UNUSED_TEMPLATE_TYPE>::f()
 
-#define DOCTEST_CREATE_AND_REGISTER_FUNCTION(f, name)                                              \
+#define DOCTEST_CREATE_AND_REGISTER_FUNCTION(f, title)                                              \
     template <typename DOCTEST_UNUSED_TEMPLATE_TYPE>                                               \
     static inline void f()
 
 // for registering tests
-#define DOCTEST_TEST_CASE(name)                                                                    \
-    DOCTEST_CREATE_AND_REGISTER_FUNCTION(DOCTEST_ANONYMOUS(DOCTEST_ANON_FUNC_), name)
+#define DOCTEST_TEST_CASE(title)                                                                    \
+    DOCTEST_CREATE_AND_REGISTER_FUNCTION(DOCTEST_ANONYMOUS(DOCTEST_ANON_FUNC_), title)
 
 // for registering tests in classes
-#define DOCTEST_TEST_CASE_CLASS(name)                                                              \
-    DOCTEST_CREATE_AND_REGISTER_FUNCTION(DOCTEST_ANONYMOUS(DOCTEST_ANON_FUNC_), name)
+#define DOCTEST_TEST_CASE_CLASS(title)                                                              \
+    DOCTEST_CREATE_AND_REGISTER_FUNCTION(DOCTEST_ANONYMOUS(DOCTEST_ANON_FUNC_), title)
 
 // for registering tests with a fixture
-#define DOCTEST_TEST_CASE_FIXTURE(x, name)                                                         \
+#define DOCTEST_TEST_CASE_FIXTURE(x, title)                                                         \
     DOCTEST_IMPLEMENT_FIXTURE(DOCTEST_ANONYMOUS(DOCTEST_ANON_CLASS_), x,                           \
-                              DOCTEST_ANONYMOUS(DOCTEST_ANON_FUNC_), name)
+                              DOCTEST_ANONYMOUS(DOCTEST_ANON_FUNC_), title)
 
 // for converting types to strings without the <typeinfo> header and demangling
 #define DOCTEST_TYPE_TO_STRING_AS(str, ...) static_assert(true, "")
 #define DOCTEST_TYPE_TO_STRING(...) static_assert(true, "")
 
 // for typed tests
-#define DOCTEST_TEST_CASE_TEMPLATE(name, type, ...)                                                \
+#define DOCTEST_TEST_CASE_TEMPLATE(title, type, ...)                                                \
     template <typename type>                                                                       \
     inline void DOCTEST_ANONYMOUS(DOCTEST_ANON_TMP_)()
 
-#define DOCTEST_TEST_CASE_TEMPLATE_DEFINE(name, type, id)                                          \
+#define DOCTEST_TEST_CASE_TEMPLATE_DEFINE(title, type, id)                                          \
     template <typename type>                                                                       \
     inline void DOCTEST_ANONYMOUS(DOCTEST_ANON_TMP_)()
 
@@ -2569,13 +2569,13 @@ int registerReporter(const char* name, int priority, bool isReporter) {
 #define DOCTEST_TEST_CASE_TEMPLATE_APPLY(id, ...) static_assert(true, "")
 
 // for subcases
-#define DOCTEST_SUBCASE(name)
+#define DOCTEST_SUBCASE(title)
 
 // for a testsuite block
-#define DOCTEST_TEST_SUITE(name) namespace // NOLINT
+#define DOCTEST_TEST_SUITE(title) namespace // NOLINT
 
 // for starting a testsuite block
-#define DOCTEST_TEST_SUITE_BEGIN(name) static_assert(true, "")
+#define DOCTEST_TEST_SUITE_BEGIN(title) static_assert(true, "")
 
 // for ending a testsuite block
 #define DOCTEST_TEST_SUITE_END using DOCTEST_ANONYMOUS(DOCTEST_ANON_FOR_SEMICOLON_) = int
@@ -2584,8 +2584,8 @@ int registerReporter(const char* name, int priority, bool isReporter) {
     template <typename DOCTEST_UNUSED_TEMPLATE_TYPE>                                               \
     static inline doctest::String DOCTEST_ANONYMOUS(DOCTEST_ANON_TRANSLATOR_)(signature)
 
-#define DOCTEST_REGISTER_REPORTER(name, priority, reporter)
-#define DOCTEST_REGISTER_LISTENER(name, priority, reporter)
+#define DOCTEST_REGISTER_REPORTER(title, priority, reporter)
+#define DOCTEST_REGISTER_LISTENER(title, priority, reporter)
 
 #define DOCTEST_INFO(...) (static_cast<void>(0))
 #define DOCTEST_CAPTURE(x) (static_cast<void>(0))
@@ -2615,9 +2615,9 @@ int registerReporter(const char* name, int priority, bool isReporter) {
 
 namespace doctest {
 namespace detail {
-#define DOCTEST_RELATIONAL_OP(name, op)                                                            \
+#define DOCTEST_RELATIONAL_OP(title, op)                                                            \
     template <typename L, typename R>                                                              \
-    bool name(const DOCTEST_REF_WRAP(L) lhs, const DOCTEST_REF_WRAP(R) rhs) { return lhs op rhs; }
+    bool title(const DOCTEST_REF_WRAP(L) lhs, const DOCTEST_REF_WRAP(R) rhs) { return lhs op rhs; }
 
     DOCTEST_RELATIONAL_OP(eq, ==)
     DOCTEST_RELATIONAL_OP(ne, !=)
@@ -3126,13 +3126,13 @@ DOCTEST_MAKE_STD_HEADERS_CLEAN_FROM_WARNINGS_ON_WALL_BEGIN
 #ifndef DOCTEST_CONFIG_NO_MULTITHREADING
 #include <atomic>
 #include <mutex>
-#define DOCTEST_DECLARE_MUTEX(name) std::mutex name;
-#define DOCTEST_DECLARE_STATIC_MUTEX(name) static DOCTEST_DECLARE_MUTEX(name)
-#define DOCTEST_LOCK_MUTEX(name) std::lock_guard<std::mutex> DOCTEST_ANONYMOUS(DOCTEST_ANON_LOCK_)(name);
+#define DOCTEST_DECLARE_MUTEX(title) std::mutex title;
+#define DOCTEST_DECLARE_STATIC_MUTEX(title) static DOCTEST_DECLARE_MUTEX(title)
+#define DOCTEST_LOCK_MUTEX(title) std::lock_guard<std::mutex> DOCTEST_ANONYMOUS(DOCTEST_ANON_LOCK_)(title);
 #else // DOCTEST_CONFIG_NO_MULTITHREADING
-#define DOCTEST_DECLARE_MUTEX(name)
-#define DOCTEST_DECLARE_STATIC_MUTEX(name)
-#define DOCTEST_LOCK_MUTEX(name)
+#define DOCTEST_DECLARE_MUTEX(title)
+#define DOCTEST_DECLARE_STATIC_MUTEX(title)
+#define DOCTEST_LOCK_MUTEX(title)
 #endif // DOCTEST_CONFIG_NO_MULTITHREADING
 #include <set>
 #include <map>
@@ -4014,7 +4014,7 @@ doctest::detail::TestSuite& getCurrentTestSuite() {
 namespace doctest {
 namespace {
     // the int (priority) is part of the key for automatic sorting - sadly one can register a
-    // reporter with a duplicate name and a different priority but hopefully that won't happen often :|
+    // reporter with a duplicate title and a different priority but hopefully that won't happen often :|
     using reporterMap = std::map<std::pair<int, String>, reporterCreatorFunc>;
 
     reporterMap& getReporters() {
@@ -4094,13 +4094,13 @@ namespace {
         return !*wild;
     }
 
-    // checks if the name matches any of the filters (and can be configured what to do when empty)
-    bool matchesAny(const char* name, const std::vector<String>& filters, bool matchEmpty,
+    // checks if the title matches any of the filters (and can be configured what to do when empty)
+    bool matchesAny(const char* title, const std::vector<String>& filters, bool matchEmpty,
         bool caseSensitive) {
         if (filters.empty() && matchEmpty)
             return true;
         for (auto& curr : filters)
-            if (wildcmp(name, curr.c_str(), caseSensitive))
+            if (wildcmp(title, curr.c_str(), caseSensitive))
                 return true;
         return false;
     }
@@ -4150,8 +4150,8 @@ namespace detail {
         return false;
     }
 
-    Subcase::Subcase(const String& name, const char* file, int line)
-            : m_signature({name, file, line}) {
+    Subcase::Subcase(const String& title, const char* file, int line)
+            : m_signature({title, file, line}) {
         if (!g_cs->reachedLeaf) {
             if (g_cs->nextSubcaseStack.size() <= g_cs->subcaseStack.size()
                 || g_cs->nextSubcaseStack[g_cs->subcaseStack.size()] == m_signature) {
@@ -4277,10 +4277,10 @@ namespace detail {
 
     TestCase& TestCase::operator*(const char* in) {
         m_name = in;
-        // make a new name with an appended type for templated test case
+        // make a new title with an appended type for templated test case
         if(m_template_id != -1) {
             m_full_name = String(m_name) + "<" + m_type + ">";
-            // redirect the name to point to the newly constructed full name
+            // redirect the title to point to the newly constructed full title
             m_name = m_full_name.c_str();
         }
         return *this;
@@ -4327,7 +4327,7 @@ namespace {
         return fileOrderComparator(lhs, rhs);
     }
 
-    // for sorting tests by name/suite/file/line
+    // for sorting tests by title/suite/file/line
     bool nameOrderComparator(const TestCase* lhs, const TestCase* rhs) {
         const int res = std::strcmp(lhs->m_name, rhs->m_name);
         if(res != 0)
@@ -4578,7 +4578,7 @@ namespace {
     struct SignalDefs
     {
         DWORD id;
-        const char* name;
+        const char* title;
     };
     // There is no 1-1 mapping between signals and windows exceptions.
     // Windows can easily distinguish between SO and SigSegV,
@@ -4605,7 +4605,7 @@ namespace {
                     bool reported = false;
                     for(size_t i = 0; i < DOCTEST_COUNTOF(signalDefs); ++i) {
                         if(ExceptionInfo->ExceptionRecord->ExceptionCode == signalDefs[i].id) {
-                            reportFatal(signalDefs[i].name);
+                            reportFatal(signalDefs[i].title);
                             reported = true;
                             break;
                         }
@@ -4726,7 +4726,7 @@ namespace {
     struct SignalDefs
     {
         int         id;
-        const char* name;
+        const char* title;
     };
     SignalDefs signalDefs[] = {{SIGINT, "SIGINT - Terminal interrupt signal"},
                                {SIGILL, "SIGILL - Illegal instruction signal"},
@@ -4744,16 +4744,16 @@ namespace {
         static char*            altStackMem;
 
         static void handleSignal(int sig) {
-            const char* name = "<unknown signal>";
+            const char* title = "<unknown signal>";
             for(std::size_t i = 0; i < DOCTEST_COUNTOF(signalDefs); ++i) {
                 SignalDefs& def = signalDefs[i];
                 if(sig == def.id) {
-                    name = def.name;
+                    title = def.title;
                     break;
                 }
             }
             reset();
-            reportFatal(name);
+            reportFatal(title);
             raise(sig);
         }
 
@@ -5009,8 +5009,8 @@ namespace {
             ScopedElement& writeText( std::string const& text, bool indent = true );
 
             template<typename T>
-            ScopedElement& writeAttribute( std::string const& name, T const& attribute ) {
-                m_writer->writeAttribute( name, attribute );
+            ScopedElement& writeAttribute( std::string const& title, T const& attribute ) {
+                m_writer->writeAttribute( title, attribute );
                 return *this;
             }
 
@@ -5024,23 +5024,23 @@ namespace {
         XmlWriter( XmlWriter const& ) = delete;
         XmlWriter& operator=( XmlWriter const& ) = delete;
 
-        XmlWriter& startElement( std::string const& name );
+        XmlWriter& startElement( std::string const& title );
 
-        ScopedElement scopedElement( std::string const& name );
+        ScopedElement scopedElement( std::string const& title );
 
         XmlWriter& endElement();
 
-        XmlWriter& writeAttribute( std::string const& name, std::string const& attribute );
+        XmlWriter& writeAttribute( std::string const& title, std::string const& attribute );
 
-        XmlWriter& writeAttribute( std::string const& name, const char* attribute );
+        XmlWriter& writeAttribute( std::string const& title, const char* attribute );
 
-        XmlWriter& writeAttribute( std::string const& name, bool attribute );
+        XmlWriter& writeAttribute( std::string const& title, bool attribute );
 
         template<typename T>
-        XmlWriter& writeAttribute( std::string const& name, T const& attribute ) {
+        XmlWriter& writeAttribute( std::string const& title, T const& attribute ) {
         std::stringstream rss;
             rss << attribute;
-            return writeAttribute( name, rss.str() );
+            return writeAttribute( title, rss.str() );
         }
 
         XmlWriter& writeText( std::string const& text, bool indent = true );
@@ -5253,19 +5253,19 @@ namespace {
             endElement();
     }
 
-    XmlWriter& XmlWriter::startElement( std::string const& name ) {
+    XmlWriter& XmlWriter::startElement( std::string const& title ) {
         ensureTagClosed();
         newlineIfNecessary();
-        m_os << m_indent << '<' << name;
-        m_tags.push_back( name );
+        m_os << m_indent << '<' << title;
+        m_tags.push_back( title );
         m_indent += "  ";
         m_tagIsOpen = true;
         return *this;
     }
 
-    XmlWriter::ScopedElement XmlWriter::scopedElement( std::string const& name ) {
+    XmlWriter::ScopedElement XmlWriter::scopedElement( std::string const& title ) {
         ScopedElement scoped( this );
-        startElement( name );
+        startElement( title );
         return scoped;
     }
 
@@ -5284,20 +5284,20 @@ namespace {
         return *this;
     }
 
-    XmlWriter& XmlWriter::writeAttribute( std::string const& name, std::string const& attribute ) {
-        if( !name.empty() && !attribute.empty() )
-            m_os << ' ' << name << "=\"" << XmlEncode( attribute, XmlEncode::ForAttributes ) << '"';
+    XmlWriter& XmlWriter::writeAttribute( std::string const& title, std::string const& attribute ) {
+        if( !title.empty() && !attribute.empty() )
+            m_os << ' ' << title << "=\"" << XmlEncode( attribute, XmlEncode::ForAttributes ) << '"';
         return *this;
     }
 
-    XmlWriter& XmlWriter::writeAttribute( std::string const& name, const char* attribute ) {
-        if( !name.empty() && attribute && attribute[0] != '\0' )
-            m_os << ' ' << name << "=\"" << XmlEncode( attribute, XmlEncode::ForAttributes ) << '"';
+    XmlWriter& XmlWriter::writeAttribute( std::string const& title, const char* attribute ) {
+        if( !title.empty() && attribute && attribute[0] != '\0' )
+            m_os << ' ' << title << "=\"" << XmlEncode( attribute, XmlEncode::ForAttributes ) << '"';
         return *this;
     }
 
-    XmlWriter& XmlWriter::writeAttribute( std::string const& name, bool attribute ) {
-        m_os << ' ' << name << "=\"" << ( attribute ? "true" : "false" ) << '"';
+    XmlWriter& XmlWriter::writeAttribute( std::string const& title, bool attribute ) {
+        m_os << ' ' << title << "=\"" << ( attribute ? "true" : "false" ) << '"';
         return *this;
     }
 
@@ -5396,12 +5396,12 @@ namespace {
 
             if(open_ts_tag) {
                 xml.startElement("TestSuite");
-                xml.writeAttribute("name", in.m_test_suite);
+                xml.writeAttribute("title", in.m_test_suite);
             }
 
             tc = &in;
             xml.startElement("TestCase")
-                    .writeAttribute("name", in.m_name)
+                    .writeAttribute("title", in.m_name)
                     .writeAttribute("filename", skipPathFromFilename(in.m_file.c_str()))
                     .writeAttribute("line", line(in.m_line))
                     .writeAttribute("description", in.m_description);
@@ -5424,14 +5424,14 @@ namespace {
                 for(auto& curr : getListeners())
                     xml.scopedElement("Listener")
                             .writeAttribute("priority", curr.first.first)
-                            .writeAttribute("name", curr.first.second);
+                            .writeAttribute("title", curr.first.second);
                 for(auto& curr : getReporters())
                     xml.scopedElement("Reporter")
                             .writeAttribute("priority", curr.first.first)
-                            .writeAttribute("name", curr.first.second);
+                            .writeAttribute("title", curr.first.second);
             } else if(opt.count || opt.list_test_cases) {
                 for(unsigned i = 0; i < in.num_data; ++i) {
-                    xml.scopedElement("TestCase").writeAttribute("name", in.data[i]->m_name)
+                    xml.scopedElement("TestCase").writeAttribute("title", in.data[i]->m_name)
                         .writeAttribute("testsuite", in.data[i]->m_test_suite)
                         .writeAttribute("filename", skipPathFromFilename(in.data[i]->m_file.c_str()))
                         .writeAttribute("line", line(in.data[i]->m_line))
@@ -5441,7 +5441,7 @@ namespace {
                         .writeAttribute("unskipped", in.run_stats->numTestCasesPassingFilters);
             } else if(opt.list_test_suites) {
                 for(unsigned i = 0; i < in.num_data; ++i)
-                    xml.scopedElement("TestSuite").writeAttribute("name", in.data[i]->m_test_suite);
+                    xml.scopedElement("TestSuite").writeAttribute("title", in.data[i]->m_test_suite);
                 xml.scopedElement("OverallResultsTestCases")
                         .writeAttribute("unskipped", in.run_stats->numTestCasesPassingFilters);
                 xml.scopedElement("OverallResultsTestSuites")
@@ -5528,7 +5528,7 @@ namespace {
 
         void subcase_start(const SubcaseSignature& in) override {
             xml.startElement("SubCase")
-                    .writeAttribute("name", in.m_name)
+                    .writeAttribute("title", in.m_name)
                     .writeAttribute("filename", skipPathFromFilename(in.m_file))
                     .writeAttribute("line", line(in.m_line));
             xml.ensureTagClosed();
@@ -5692,21 +5692,21 @@ namespace {
             struct JUnitTestCase
             {
                 JUnitTestCase(const std::string& _classname, const std::string& _name)
-                    : classname(_classname), name(_name), time(0), failures() {}
+                    : classname(_classname), title(_name), time(0), failures() {}
 
-                std::string classname, name;
+                std::string classname, title;
                 double time;
                 std::vector<JUnitTestMessage> failures, errors;
             };
 
-            void add(const std::string& classname, const std::string& name) {
-                testcases.emplace_back(classname, name);
+            void add(const std::string& classname, const std::string& title) {
+                testcases.emplace_back(classname, title);
             }
 
             void appendSubcaseNamesToLastTestcase(std::vector<String> nameStack) {
                 for(auto& curr: nameStack)
                     if(curr.size())
-                        testcases.back().name += std::string("/") + curr.c_str();
+                        testcases.back().title += std::string("/") + curr.c_str();
             }
 
             void addTime(double time) {
@@ -5763,7 +5763,7 @@ namespace {
                 binary_name = binary_name.substr(0, binary_name.length() - 4);
 #endif // DOCTEST_PLATFORM_WINDOWS
             xml.startElement("testsuites");
-            xml.startElement("testsuite").writeAttribute("name", binary_name)
+            xml.startElement("testsuite").writeAttribute("title", binary_name)
                     .writeAttribute("errors", testCaseData.totalErrors)
                     .writeAttribute("failures", testCaseData.totalFailures)
                     .writeAttribute("tests", p.numAsserts);
@@ -5777,7 +5777,7 @@ namespace {
             for(const auto& testCase : testCaseData.testcases) {
                 xml.startElement("testcase")
                     .writeAttribute("classname", testCase.classname)
-                    .writeAttribute("name", testCase.name);
+                    .writeAttribute("title", testCase.title);
                 if(opt.no_time_in_output == false)
                     xml.writeAttribute("time", testCase.time);
                 // This is not ideal, but it should be enough to mimic gtest's junit output.
@@ -6029,7 +6029,7 @@ namespace {
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "c,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "count                         "
               << Whitespace(sizePrefixDisplay*1) << "prints the number of matching tests\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ltc, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "list-test-cases               "
-              << Whitespace(sizePrefixDisplay*1) << "lists all matching tests by name\n";
+              << Whitespace(sizePrefixDisplay*1) << "lists all matching tests by title\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "lts, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "list-test-suites              "
               << Whitespace(sizePrefixDisplay*1) << "lists all matching test suites\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "lr,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "list-reporters                "
@@ -6038,9 +6038,9 @@ namespace {
             s << Color::Cyan << "[doctest] " << Color::None;
             s << "The available <int>/<string> options/filters are:\n\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "tc,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-case=<filters>           "
-              << Whitespace(sizePrefixDisplay*1) << "filters     tests by their name\n";
+              << Whitespace(sizePrefixDisplay*1) << "filters     tests by their title\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "tce, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-case-exclude=<filters>   "
-              << Whitespace(sizePrefixDisplay*1) << "filters OUT tests by their name\n";
+              << Whitespace(sizePrefixDisplay*1) << "filters OUT tests by their title\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sf,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "source-file=<filters>         "
               << Whitespace(sizePrefixDisplay*1) << "filters     tests by their file\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sfe, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "source-file-exclude=<filters> "
@@ -6050,16 +6050,16 @@ namespace {
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "tse, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "test-suite-exclude=<filters>  "
               << Whitespace(sizePrefixDisplay*1) << "filters OUT tests by their test suite\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sc,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "subcase=<filters>             "
-              << Whitespace(sizePrefixDisplay*1) << "filters     subcases by their name\n";
+              << Whitespace(sizePrefixDisplay*1) << "filters     subcases by their title\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "sce, --" DOCTEST_OPTIONS_PREFIX_DISPLAY "subcase-exclude=<filters>     "
-              << Whitespace(sizePrefixDisplay*1) << "filters OUT subcases by their name\n";
+              << Whitespace(sizePrefixDisplay*1) << "filters OUT subcases by their title\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "r,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "reporters=<filters>           "
               << Whitespace(sizePrefixDisplay*1) << "reporters to use (console is default)\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "o,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "out=<string>                  "
               << Whitespace(sizePrefixDisplay*1) << "output filename\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "ob,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "order-by=<string>             "
               << Whitespace(sizePrefixDisplay*1) << "how the tests should be ordered\n";
-            s << Whitespace(sizePrefixDisplay*3) << "                                       <string> - [file/suite/name/rand/none]\n";
+            s << Whitespace(sizePrefixDisplay*3) << "                                       <string> - [file/suite/title/rand/none]\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "rs,  --" DOCTEST_OPTIONS_PREFIX_DISPLAY "rand-seed=<int>               "
               << Whitespace(sizePrefixDisplay*1) << "seed for random ordering\n";
             s << " -" DOCTEST_OPTIONS_PREFIX_DISPLAY "f,   --" DOCTEST_OPTIONS_PREFIX_DISPLAY "first=<int>                   "
@@ -6124,7 +6124,7 @@ namespace {
                     s << Color::Cyan << "[doctest] " << Color::None << "listing all registered " << type << "\n";
                     for(auto& curr : reporters)
                         s << "priority: " << std::setw(5) << curr.first.first
-                          << " name: " << curr.first.second << "\n";
+                          << " title: " << curr.first.second << "\n";
                 }
             };
             printReporters(getListeners(), "listeners");
@@ -6561,25 +6561,25 @@ void Context::parseArgs(int argc, const char* const* argv, bool withDefaults) {
     int    intRes = 0;
     String strRes;
 
-#define DOCTEST_PARSE_AS_BOOL_OR_FLAG(name, sname, var, default)                                   \
-    if(parseIntOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX name "=", option_bool, intRes) ||  \
+#define DOCTEST_PARSE_AS_BOOL_OR_FLAG(title, sname, var, default)                                   \
+    if(parseIntOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX title "=", option_bool, intRes) ||  \
        parseIntOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX sname "=", option_bool, intRes))   \
         p->var = static_cast<bool>(intRes);                                                        \
-    else if(parseFlag(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX name) ||                           \
+    else if(parseFlag(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX title) ||                           \
             parseFlag(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX sname))                            \
         p->var = true;                                                                             \
     else if(withDefaults)                                                                          \
     p->var = default
 
-#define DOCTEST_PARSE_INT_OPTION(name, sname, var, default)                                        \
-    if(parseIntOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX name "=", option_int, intRes) ||   \
+#define DOCTEST_PARSE_INT_OPTION(title, sname, var, default)                                        \
+    if(parseIntOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX title "=", option_int, intRes) ||   \
        parseIntOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX sname "=", option_int, intRes))    \
         p->var = intRes;                                                                           \
     else if(withDefaults)                                                                          \
     p->var = default
 
-#define DOCTEST_PARSE_STR_OPTION(name, sname, var, default)                                        \
-    if(parseOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX name "=", &strRes, default) ||        \
+#define DOCTEST_PARSE_STR_OPTION(title, sname, var, default)                                        \
+    if(parseOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX title "=", &strRes, default) ||        \
        parseOption(argc, argv, DOCTEST_CONFIG_OPTIONS_PREFIX sname "=", &strRes, default) ||       \
        withDefaults)                                                                               \
     p->var = strRes
@@ -6805,7 +6805,7 @@ int Context::run() {
             std::sort(testArray.begin(), testArray.end(), fileOrderComparator);
         } else if(p->order_by.compare("suite", true) == 0) {
             std::sort(testArray.begin(), testArray.end(), suiteOrderComparator);
-        } else if(p->order_by.compare("name", true) == 0) {
+        } else if(p->order_by.compare("title", true) == 0) {
             std::sort(testArray.begin(), testArray.end(), nameOrderComparator);
         } else if(p->order_by.compare("rand", true) == 0) {
             std::srand(p->rand_seed);
@@ -6873,13 +6873,13 @@ int Context::run() {
         if(p->count)
             continue;
 
-        // print the name of the test and don't execute it
+        // print the title of the test and don't execute it
         if(p->list_test_cases) {
             queryResults.push_back(&tc);
             continue;
         }
 
-        // print the name of the test suite if not done already and don't execute it
+        // print the title of the test suite if not done already and don't execute it
         if(p->list_test_suites) {
             if((testSuitesPassingFilt.count(tc.m_test_suite) == 0) && tc.m_test_suite[0] != '\0') {
                 queryResults.push_back(&tc);
@@ -6991,11 +6991,11 @@ const String* IReporter::get_stringified_contexts() {
 }
 
 namespace detail {
-    void registerReporterImpl(const char* name, int priority, reporterCreatorFunc c, bool isReporter) {
+    void registerReporterImpl(const char* title, int priority, reporterCreatorFunc c, bool isReporter) {
         if(isReporter)
-            getReporters().insert(reporterMap::value_type(reporterMap::key_type(priority, name), c));
+            getReporters().insert(reporterMap::value_type(reporterMap::key_type(priority, title), c));
         else
-            getListeners().insert(reporterMap::value_type(reporterMap::key_type(priority, name), c));
+            getListeners().insert(reporterMap::value_type(reporterMap::key_type(priority, title), c));
     }
 } // namespace detail
 

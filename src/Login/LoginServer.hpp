@@ -1,17 +1,17 @@
 #pragma once
 
-#include "CrudServer.hpp"
 #include "Form.hpp"
+#include "Http/Request.hpp"
+#include "Http/Response.hpp"
 #include "Password.hpp"
-#include "RecursiveWebServer.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
+#include "Server/CrudServer.hpp"
+#include "Server/RecursiveWebServer.hpp"
+#include "Server/TestServer.hpp"
+#include "Server/style.hpp"
 #include "SessionId.hpp"
 #include "Submit.hpp"
-#include "TestServer.hpp"
 #include "Text.hpp"
 #include "doctest.h"
-#include "style.hpp"
 
 #include <map>
 #include <set>
@@ -139,7 +139,7 @@ private:
             "post")();
         const string header = R"(<!doctype html><html lang="de"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta title="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>

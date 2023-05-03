@@ -1,15 +1,14 @@
-#include "CrudServerApplication.hpp"
+#include "Data/Todo.hpp"
+#include "LoginServerApplication.hpp"
 
 #include <iostream>
 using std::cerr;
 using std::endl;
-#include "Todo.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 using Poco::Data::Session;
-
-int main()
+int main(int argc, char** argv)
 {
     try {
         Poco::Data::SQLite::Connector::registerConnector();
@@ -20,13 +19,10 @@ int main()
         todo.insert();
         todo = {"0123", "Empty Trash", "", "", 0};
         todo.insert();
-        CrudServerApplication app;
-        static char buffer[MAX_INPUT];
-        strncpy(buffer, "app", MAX_INPUT);
-        char* argv[] = {buffer};
-        app.run(1, argv);
+        LoginServerApplication app;
+        return app.run(argc, argv);
     } catch (Poco::Exception& exc) {
         cerr << exc.displayText() << endl;
+        return EXIT_FAILURE;
     }
-    return 0;
 }

@@ -2,7 +2,7 @@
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 using Poco::Data::Session;
-#include "Todo.hpp"
+#include "Data/Todo.hpp"
 
 TEST_CASE("todo")
 {

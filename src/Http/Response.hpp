@@ -1,12 +1,16 @@
 #pragma once
+#include "ActionLink.hpp"
+
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 using std::enable_shared_from_this;
 using std::map;
 using std::shared_ptr;
 using std::string;
+using std::vector;
 
 struct Response : public enable_shared_from_this<Response> {
 
@@ -17,13 +21,18 @@ struct Response : public enable_shared_from_this<Response> {
 
     static shared_ptr<Response> create();
 
-    Response& content(const string& content, const string& mimetype = "text/html");
+    Response& content(
+        const string& content, const string& mimetype = "text/html");
 
     Response& code(int code);
 
     Response& cookie(const string& name, const string& value);
 
     Response& location(const string& url);
+
+    Response& title(const string& title);
+
+    Response& appendAction(const ActionLink& action);
 
     string content() const;
 
@@ -35,14 +44,21 @@ struct Response : public enable_shared_from_this<Response> {
 
     string mimetype() const;
 
+    vector<ActionLink> actions() const;
+
+    string title() const;
+
 private:
     string m_content;
     map<string, string> m_cookies;
     int m_code = OK;
     string m_mimetype = "text/html";
     string m_location;
+    vector<ActionLink> m_actions;
+    string m_title;
 };
 
-shared_ptr<Response> content(const string& content, const string& mimetype = "text/html");
+shared_ptr<Response> content(
+    const string& content, const string& mimetype = "text/html");
 
 shared_ptr<Response> redirect(const string& url);

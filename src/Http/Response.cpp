@@ -1,7 +1,6 @@
 
 #include "Response.hpp"
 
-
 using std::make_shared;
 shared_ptr<Response> Response::create()
 {
@@ -48,11 +47,32 @@ Response& Response::location(const string& url)
     m_location = url;
     return *this;
 }
+Response& Response::appendAction(const ActionLink& action)
+{
+    m_actions.push_back(action);
+    return *this;
+}
+Response& Response::title(const string& title)
+{
+    m_title = title;
+    return *this;
+}
+vector<ActionLink> Response::actions() const
+{
+    return m_actions;
+}
+string Response::title() const
+{
+    return m_title;
+}
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();
 }
 shared_ptr<Response> redirect(const string& url)
 {
-    return Response::create()->location(url).code(Response::HTTP_FOUND).shared_from_this();
+    return Response::create()
+        ->location(url)
+        .code(Response::HTTP_FOUND)
+        .shared_from_this();
 }

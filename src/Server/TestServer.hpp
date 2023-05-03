@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Request.hpp"
-#include "Response.hpp"
+#include "Http/Request.hpp"
+#include "Http/Response.hpp"
 
 #include <functional>
 #include <memory>

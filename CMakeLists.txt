@@ -12,33 +12,37 @@ include_directories(${PROJECT_BINARY_DIR}/include)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
 if (${Poco_FOUND})
-    add_executable(cpp_webserver_kata src/main.cpp src/Page.cpp src/Page.hpp)
-    target_link_libraries(cpp_webserver_kata Poco::Net Poco::Util
-            Threads::Threads)
 
-    add_library(webservers OBJECT  src/Todo.cpp src/Todo.hpp src/Table.cpp src/Table.hpp
-            src/Record.cpp src/RecursiveWebServer.cpp src/RecursiveWebServer.hpp
-            src/Record.hpp src/Form.cpp src/Form.hpp src/List.cpp src/List.hpp src/Text.cpp src/Text.hpp src/Hidden.cpp
-            src/Hidden.hpp src/Password.cpp src/Password.hpp src/Submit.cpp src/Submit.hpp src/Response.cpp
-            src/Response.hpp src/Request.cpp src/Request.hpp src/TestServer.cpp src/TestServer.hpp src/overloaded.hpp
-            src/SessionId.cpp src/SessionId.hpp src/LoginServer.hpp src/CrudServer.hpp src/CrudServer.cpp
-            src/LoginServer.cpp src/PocoWebServer.cpp src/PocoWebServer.hpp src/LoginServerApplication.cpp
-            src/LoginServerApplication.hpp src/CrudServerApplication.cpp src/CrudServerApplication.hpp src/RequestHandler.hpp src/style.hpp src/FieldTypes.hpp)
+    add_library(webservers OBJECT src/Data/Todo.cpp src/Data/Todo.hpp src/Html/Table.cpp src/Html/Table.hpp
+            src/Data/Record.cpp src/Server/RecursiveWebServer.cpp src/Server/RecursiveWebServer.hpp
+            src/Data/Record.hpp src/Input/Form.cpp src/Input/Form.hpp src/Html/List.cpp src/Html/List.hpp src/Input/Text.cpp src/Input/Text.hpp src/Input/Hidden.cpp
+            src/Input/Hidden.hpp src/Input/Password.cpp src/Input/Password.hpp src/Input/Submit.cpp src/Input/Submit.hpp src/Http/Response.cpp
+            src/Http/Response.hpp src/Http/Request.cpp src/Http/Request.hpp src/Server/TestServer.cpp src/Server/TestServer.hpp src/overloaded.hpp
+            src/Login/SessionId.cpp src/Login/SessionId.hpp src/Login/LoginServer.hpp src/Server/CrudServer.hpp src/Server/CrudServer.cpp
+            src/Login/LoginServer.cpp src/Impl/PocoWebServer.cpp src/Impl/PocoWebServer.hpp src/Login/LoginServerApplication.cpp
+            src/Login/LoginServerApplication.hpp src/Server/CrudServerApplication.cpp src/Server/CrudServerApplication.hpp
+            src/Http/RequestHandler.hpp src/Server/style.hpp src/Data/FieldTypes.hpp src/Html/Footer.cpp src/Html/Footer.hpp src/Html/Presentation.cpp
+            src/Html/Presentation.hpp src/Html/Page.cpp src/Html/Page.hpp src/Html/ActionLink.cpp src/Html/ActionLink.hpp)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
             Threads::Threads Poco::DataSQLite)
     target_include_directories(webservers
             PRIVATE tests
             PUBLIC src
+            PUBLIC src/Html
+            PUBLIC src/Input
+            PUBLIC src/Impl
+            PUBLIC src/Server
+            PUBLIC src/Http
             )
 
     add_executable(tests tests/doctest.cpp tests/LoginServerTest.cpp tests/SessionIdTest.cpp tests/InputTest.cpp tests/WebServerTest.cpp tests/ResponseTest.cpp tests/PocoWebServerTest.cpp tests/CrudServerTest.cpp tests/TodoTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
-    add_executable(crud-server src/CrudMain.cpp tests/doctest_impl.cpp)
+    add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(crud-server webservers)
-    add_executable(login-server src/LoginMain.cpp tests/doctest_impl.cpp)
+    add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
     install(TARGETS login-server DESTINATION bin)
 endif ()
