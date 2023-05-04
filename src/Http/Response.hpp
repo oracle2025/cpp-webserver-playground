@@ -34,6 +34,8 @@ struct Response : public enable_shared_from_this<Response> {
 
     Response& appendAction(const ActionLink& action);
 
+    Response& alert(const string& alert);
+
     string content() const;
 
     string location() const;
@@ -48,6 +50,8 @@ struct Response : public enable_shared_from_this<Response> {
 
     string title() const;
 
+    string alert() const;
+
 private:
     string m_content;
     map<string, string> m_cookies;
@@ -56,6 +60,7 @@ private:
     string m_location;
     vector<ActionLink> m_actions;
     string m_title;
+    string m_alert;
 };
 
 shared_ptr<Response> content(

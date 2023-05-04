@@ -17,7 +17,7 @@ if (${Poco_FOUND})
             src/Data/Record.cpp src/Server/RecursiveWebServer.cpp src/Server/RecursiveWebServer.hpp
             src/Data/Record.hpp src/Input/Form.cpp src/Input/Form.hpp src/Html/List.cpp src/Html/List.hpp src/Input/Text.cpp src/Input/Text.hpp src/Input/Hidden.cpp
             src/Input/Hidden.hpp src/Input/Password.cpp src/Input/Password.hpp src/Input/Submit.cpp src/Input/Submit.hpp src/Http/Response.cpp
-            src/Http/Response.hpp src/Http/Request.cpp src/Http/Request.hpp src/Server/TestServer.cpp src/Server/TestServer.hpp src/overloaded.hpp
+            src/Http/Response.hpp src/Http/Request.cpp src/Http/Request.hpp src/Server/TestServer.cpp src/Server/TestServer.hpp
             src/Login/SessionId.cpp src/Login/SessionId.hpp src/Login/LoginServer.hpp src/Server/CrudServer.hpp src/Server/CrudServer.cpp
             src/Login/LoginServer.cpp src/Impl/PocoWebServer.cpp src/Impl/PocoWebServer.hpp src/Login/LoginServerApplication.cpp
             src/Login/LoginServerApplication.hpp src/Server/CrudServerApplication.cpp src/Server/CrudServerApplication.hpp

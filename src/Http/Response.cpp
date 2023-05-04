@@ -65,6 +65,15 @@ string Response::title() const
 {
     return m_title;
 }
+Response& Response::alert(const string& alert)
+{
+    m_alert = alert;
+    return *this;
+}
+string Response::alert() const
+{
+    return m_alert;
+}
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();

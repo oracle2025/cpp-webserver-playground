@@ -4,6 +4,7 @@
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Password.hpp"
+#include "Presentation.hpp"
 #include "Server/CrudServer.hpp"
 #include "Server/RecursiveWebServer.hpp"
 #include "Server/TestServer.hpp"
@@ -48,8 +49,11 @@ struct LoginServer : public T {
         }
     }
 
-    LoginServer(shared_ptr<RequestHandler> secretHandler)
+    LoginServer(
+        shared_ptr<RequestHandler> secretHandler,
+        shared_ptr<Presentation> presentation)
         : m_secretHandler(secretHandler)
+        , m_presentation(presentation)
     {
         T::get("/", [this](const Request& request) {
             if (hasValidSession(request) && m_secretHandler) {
@@ -75,12 +79,6 @@ struct LoginServer : public T {
         });
         T::get("/secret", [this](const Request& request) {
             if (hasValidSession(request)) {
-
-                /*
-                 * CrudServer crud;
-                 * return crud.handle(request);
-                 */
-
                 return content("Success");
             } else {
                 return content("Access denied");
@@ -108,6 +106,7 @@ struct LoginServer : public T {
                     .shared_from_this();
             }
         });
+        T::setPresentation(m_presentation);
         T::finish_init();
     }
     void setMessage(const string& message)
@@ -123,23 +122,23 @@ struct LoginServer : public T {
         m_message.clear();
         return R"(<div class="alert-danger">⚠️ )" + result + R"(</div>)";
     }
+
 private:
     set<SessionId> m_sessions;
     shared_ptr<RequestHandler> m_secretHandler;
+    shared_ptr<Presentation> m_presentation;
     string m_message;
 
     shared_ptr<Response> loginForm()
     {
         using namespace Input;
         auto text = Form(
-            {Text("username")(),
-             Password("password")(),
-             Submit("submit")()},
+            {Text("username")(), Password("password")(), Submit("submit")()},
             "/login",
             "post")();
         const string header = R"(<!doctype html><html lang="de"><head>
 <meta charset="utf-8">
-<meta title="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
@@ -147,13 +146,13 @@ private:
 <h2>Login Form</h2>
 )";
         const string footer = R"(</div></body></html>)";
-        auto result = content(header + showMessage() + text + footer);
-        return result;
+        return content(text)->title("Login").alert(m_message).shared_from_this();
     }
 };
 
-TEST_CASE("Show Message") {
-    LoginServer<TestServer> w(nullptr);
+TEST_CASE("Show Message")
+{
+    LoginServer<TestServer> w(nullptr, nullptr);
     w.setMessage("Hello");
     CHECK_FALSE(w.showMessage().empty());
     CHECK(w.showMessage().empty());

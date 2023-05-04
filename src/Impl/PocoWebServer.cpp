@@ -21,9 +21,9 @@ void PocoWebServer::finish_init()
     public:
         HandlerFactory(
             map<string, request_response_handler_type>& router,
-            request_response_handler_type& defaultHandler)
+            request_response_handler_type& defaultHandler,shared_ptr<Presentation> presentation)
             : router(router)
-            , m_defaultHandler(defaultHandler)
+            , m_defaultHandler(defaultHandler),m_presentation(presentation)
         {
         }
 
@@ -32,8 +32,8 @@ void PocoWebServer::finish_init()
         {
             class PageHandler : public HTTPRequestHandler {
             public:
-                PageHandler(request_response_handler_type handler)
-                    : handler(handler)
+                PageHandler(request_response_handler_type handler,shared_ptr<Presentation> presentation)
+                    : handler(handler),m_presentation(presentation)
                 {
                 }
 
@@ -56,6 +56,7 @@ void PocoWebServer::finish_init()
                     }
                     for (auto& [key, value] : form) {
                         parameters[key] = value;
+                        std::cout << "Form: " << key << " = " << value << std::endl;
                     }
                     auto result = handler(Request(
                         uri.getPath(),
@@ -74,11 +75,12 @@ void PocoWebServer::finish_init()
                         response.redirect(result->location());
                     }
                     auto& responseStream = response.send();
-                    responseStream << result->content();
+                    responseStream << m_presentation->render(*result);
                 }
 
             private:
                 request_response_handler_type handler;
+                shared_ptr<Presentation> m_presentation;
             };
             struct EmptyHandler : public HTTPRequestHandler {
                 void handleRequest(
@@ -94,15 +96,16 @@ void PocoWebServer::finish_init()
             };
             auto uri = Poco::URI(request.getURI());
             if (router.find(uri.getPath()) != router.end()) {
-                return new PageHandler(router[uri.getPath()]);
+                return new PageHandler(router[uri.getPath()], m_presentation);
             }
-            return new PageHandler(m_defaultHandler);
+            return new PageHandler(m_defaultHandler, m_presentation);
         }
 
     private:
         map<string, request_response_handler_type>& router;
         request_response_handler_type& m_defaultHandler;
+        shared_ptr<Presentation> m_presentation;
     };
     server = make_shared<HTTPServer>(
-        new HandlerFactory(router, m_defaultHandler), socket, pParams);
+        new HandlerFactory(router, m_defaultHandler, m_presentation), socket, pParams);
 }

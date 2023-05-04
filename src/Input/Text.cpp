@@ -16,7 +16,7 @@ string Text::operator()()
 
     ostringstream str;
     str << R"(<label for =")" << label << R"(">)" << capitalized
-        << R"(</label><br> <input type="text" m_id=")" << label << R"(" title=")"
+        << R"(</label><br> <input type="text" m_id=")" << label << R"(" name=")"
         << label << R"(" value=")" << value << R"(">)";
     return str.str();
 }

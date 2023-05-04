@@ -12,7 +12,7 @@ Page::Page(std::string title, std::string content)
 std::string Page::get() const
 {
     std::ostringstream str;
-    str << R"(<!doctype html><html lang="de"><meta charset="utf-8"><meta title="viewport" content="width=device-width, initial-scale=1.0">)";
+    str << R"(<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">)";
     str << "<head>";
     str << "<title>" << m_title << "</title>";
     str << "</head>";

@@ -111,7 +111,7 @@ struct CrudServer : public T {
     {
         return R"(<!doctype html><html lang="de"><head>
 <meta charset="utf-8">
-<meta title="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>

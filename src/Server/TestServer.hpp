@@ -2,6 +2,7 @@
 
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "Presentation.hpp"
 
 #include <functional>
 #include <memory>
@@ -33,7 +34,9 @@ struct TestServer {
     void finish_init()
     {
     }
-
+    void setPresentation(shared_ptr<Presentation> presentation)
+    {
+    }
     string getPage(
         const string& path,
         const map<string, string>& cookies = {},

@@ -2,6 +2,7 @@
 
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "Presentation.hpp"
 
 #include <Poco/Net/HTMLForm.h>
 #include <Poco/Net/HTTPRequestHandler.h>
@@ -51,8 +52,14 @@ public:
     {
         m_defaultHandler = std::move(handler);
     }
+    void setPresentation(shared_ptr<Presentation> presentation)
+    {
+        m_presentation = std::move(presentation);
+    }
+
 private:
     map<string, request_response_handler_type> router;
     shared_ptr<HTTPServer> server;
+    shared_ptr<Presentation> m_presentation;
     request_response_handler_type m_defaultHandler;
 };

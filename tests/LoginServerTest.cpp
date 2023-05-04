@@ -4,7 +4,7 @@
 
 TEST_CASE("Login Server")
 {
-    LoginServer<TestServer> w(nullptr);
+    LoginServer<TestServer> w(nullptr, nullptr);
     SUBCASE("Login")
     {
         CHECK(w.getPage("/secret") == "Access denied");

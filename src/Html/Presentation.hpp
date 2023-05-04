@@ -2,10 +2,12 @@
 
 #include "Footer.hpp"
 #include "Header.hpp"
+#include "Response.hpp"
 
+#include <sstream>
 #include <string>
 
-using std::string;
+using std::ostringstream;
 
 struct Presentation {
     Header m_header;
@@ -18,5 +20,43 @@ struct Presentation {
     string render(const string& content)
     {
         return m_header.m_content + content + m_footer.m_content;
+    }
+    string render(const Response& response)
+    {
+        if (response.mimetype() == "text/html") {
+            return renderHtml(response);
+        }
+        return response.content();
+    }
+    string renderAlert(const string& alert)
+    {
+        if (alert.empty()) {
+            return "";
+        }
+        return R"(<div class="alert-danger">⚠️ )" + alert + R"(</div>)";
+    }
+    string renderHtml(const Response& response)
+    {
+        ostringstream result;
+        result << R"(<!doctype html><html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<title>)";
+        result << response.title();
+        result << R"(</title>
+</head>
+<body>
+<div class="container">
+<h2>)";
+        result << response.title();
+        result << R"(</h2>)";
+        result << renderAlert(response.alert());
+        result << response.content();
+        result << R"(</div></body></html>)";
+        response.title();
+        response.actions();
+        response.alert();
+        return result.str();
     }
 };
