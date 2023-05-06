@@ -92,11 +92,38 @@ span.label {
         display: inline;
 }
 }
+.alert-danger, .alert-success, .alert-primary, .alert-secondary, .alert-warning, .alert-info {
+    padding: 14px;
+    margin-bottom: 10px;
+}
 .alert-danger {
     color: #721c24;
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
-    padding: 14px;
-    margin-bottom: 10px;
+}
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+.alert-primary {
+    color: #004085;
+    background-color: #cce5ff;
+    border: 1px solid #b8daff;
+}
+.alert-secondary {
+    color: #383d41;
+    background-color: #e2e3e5;
+    border: 1px solid #d6d8db;
+}
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+}
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
 }
 )";

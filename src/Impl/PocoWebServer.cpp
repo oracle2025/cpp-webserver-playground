@@ -71,12 +71,22 @@ void PocoWebServer::finish_init()
                         }
                         response.addCookie(cookie);
                     }
-                    if (!result->alert().empty()) {
-                        response.addCookie({"alert", result->alert()});
+                    if (!result->alert().message().empty()) {
+                        response.addCookie(
+                            {"alert", result->alert().message()});
+                        response.addCookie(
+                            {"alert-type", result->alert().typeAsString()});
                     } else {
-                        HTTPCookie cookie("alert", "");
-                        cookie.setMaxAge(0);
-                        response.addCookie(cookie);
+                        {
+                            HTTPCookie cookie("alert-type", "");
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
+                        }
+                        {
+                            HTTPCookie cookie("alert", "");
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
+                        }
                     }
                     response.setContentType(result->mimetype());
                     if (result->code() == Response::HTTP_FOUND
@@ -84,8 +94,11 @@ void PocoWebServer::finish_init()
                         response.redirect(result->location());
                     }
                     auto& responseStream = response.send();
-                    if (cookiesMap.count("alert") > 0) {
-                        result->alert(cookiesMap["alert"]);
+                    if (cookiesMap.count("alert") > 0
+                        && cookiesMap.count("alert-type") > 0) {
+                        result->alert(
+                            cookiesMap["alert"],
+                            Html::Alert::fromString(cookiesMap["alert-type"]));
                     }
                     responseStream << m_presentation->render(*result);
                 }

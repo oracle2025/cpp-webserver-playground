@@ -13,7 +13,7 @@ TEST_CASE("Create Response")
 TEST_CASE("Render Response")
 {
     auto response = content("Hello World");
-    auto presentation = Presentation(Header("<html>"), Footer("</html>"));
+    auto presentation = Html::Presentation(Header("<html>"), Footer("</html>"));
     auto rendered = presentation.render(response->content());
     CHECK(rendered == "<html>Hello World</html>");
 }

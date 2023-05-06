@@ -16,6 +16,7 @@
 #include <memory>
 #include <utility>
 #include <variant>
+using Html::Presentation;
 using std::function;
 using std::shared_ptr;
 using std::variant;

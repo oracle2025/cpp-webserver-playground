@@ -67,10 +67,10 @@ string Response::title() const
 }
 Response& Response::alert(const string& alert, Html::AlertType type)
 {
-    m_alert = alert;
+    m_alert = Html::Alert(alert, type);
     return *this;
 }
-string Response::alert() const
+const Html::Alert& Response::alert() const
 {
     return m_alert;
 }

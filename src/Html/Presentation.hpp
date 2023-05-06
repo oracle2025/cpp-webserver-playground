@@ -8,6 +8,7 @@
 #include <string>
 
 using std::ostringstream;
+namespace Html {
 
 struct Presentation {
     Header m_header;
@@ -28,12 +29,34 @@ struct Presentation {
         }
         return response.content();
     }
-    string renderAlert(const string& alert)
+    string renderAlert(const Alert& alert)
     {
-        if (alert.empty()) {
+        if (alert.message().empty()) {
             return "";
         }
-        return R"(<div class="alert-danger">⚠️ )" + alert + R"(</div>)";
+        string alertClass = "alert-danger";
+        switch (alert.alertType()) {
+        case AlertType::PRIMARY:
+            alertClass = "alert-primary";
+            break;
+        case AlertType::SECONDARY:
+            alertClass = "alert-secondary";
+            break;
+        case AlertType::SUCCESS:
+            alertClass = "alert-success";
+            break;
+        case AlertType::DANGER:
+            alertClass = "alert-danger";
+            break;
+        case AlertType::WARNING:
+            alertClass = "alert-warning";
+            break;
+        case AlertType::INFO:
+            alertClass = "alert-info";
+            break;
+        }
+        return R"(<div class=")" + alertClass + R"(">⚠️ )" + alert.message()
+            + R"(</div>)";
     }
     string renderActions(const vector<ActionLink>& actions)
     {
@@ -74,3 +97,4 @@ struct Presentation {
         return result.str();
     }
 };
+} // namespace Html

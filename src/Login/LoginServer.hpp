@@ -67,13 +67,13 @@ struct LoginServer : public T {
                 return content("Invalid Request");
             }
             if (!isValidUser(request.allParameters())) {
-                setMessage("Invalid Login");
-                return loginForm();
+                return redirect("/")->alert("Invalid Login", Html::AlertType::DANGER)
+                    .shared_from_this();
             }
             auto sessionId = generateRandomSessionId();
             m_sessions.insert(sessionId);
             return redirect("/")
-                ->alert("Logged in successfully")
+                ->alert("Logged in successfully", Html::AlertType::SUCCESS)
                 .cookie("session-id", sessionId)
                 .shared_from_this();
         });
@@ -89,7 +89,7 @@ struct LoginServer : public T {
                 clearSession(request);
                 return redirect("/")
                     ->cookie("session-id", "")
-                    .alert("Logged out")
+                    .alert("Logged out", Html::AlertType::INFO)
                     .shared_from_this();
             } else {
                 return content("Access denied");

@@ -1,6 +1,6 @@
 #pragma once
 #include "ActionLink.hpp"
-#include "AlertType.hpp"
+#include "Alert.hpp"
 
 #include <map>
 #include <memory>
@@ -51,7 +51,7 @@ struct Response : public enable_shared_from_this<Response> {
 
     string title() const;
 
-    string alert() const;
+    const Html::Alert& alert() const;
 
 private:
     string m_content;
@@ -61,7 +61,7 @@ private:
     string m_location;
     vector<ActionLink> m_actions;
     string m_title;
-    string m_alert;
+    Html::Alert m_alert;
 };
 
 shared_ptr<Response> content(
