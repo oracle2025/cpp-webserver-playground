@@ -2,10 +2,10 @@
 
 #include "Data/Todo.hpp"
 #include "Form.hpp"
-#include "Submit.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "List.hpp"
+#include "Submit.hpp"
 #include "style.hpp"
 
 /*
@@ -64,15 +64,16 @@ struct CrudServer : public T {
             }
             todo.insert();
             return redirect("/edit?" + todo.id())
-                ->alert("Todo created")
+                ->alert("Todo created", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
         T::get("/edit", [](const Request& request) {
             using namespace Input;
             Todo todo;
             if (todo.pop(request.query())) {
-                return content(Form(todo, string("/update?")+todo.id(), "post")
-                                   .appendElement(Submit("Update Todo")())())
+                return content(
+                           Form(todo, string("/update?") + todo.id(), "post")
+                               .appendElement(Submit("Update Todo")())())
                     ->appendAction({"List", "/"})
                     .title("Edit Todo")
                     .shared_from_this();
@@ -92,7 +93,7 @@ struct CrudServer : public T {
                 }
                 todo.update();
                 return redirect("/edit?" + todo.id())
-                    ->alert("Todo updated")
+                    ->alert("Todo updated", Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
                 return content("Todo not found")
@@ -104,7 +105,9 @@ struct CrudServer : public T {
             Todo todo;
             if (todo.pop(request.query())) {
                 todo.erase();
-                return redirect("/")->alert("Todo deleted").shared_from_this();
+                return redirect("/")
+                    ->alert("Todo deleted", Html::AlertType::WARNING)
+                    .shared_from_this();
             } else {
                 return content("Todo not found")
                     ->code(Response::NOT_FOUND)

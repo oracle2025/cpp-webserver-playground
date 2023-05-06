@@ -110,19 +110,6 @@ struct LoginServer : public T {
         T::setPresentation(m_presentation);
         T::finish_init();
     }
-    void setMessage(const string& message)
-    {
-        m_message = message;
-    }
-    string showMessage()
-    {
-        if (m_message.empty()) {
-            return "";
-        }
-        auto result = m_message;
-        m_message.clear();
-        return R"(<div class="alert-danger">⚠️ )" + result + R"(</div>)";
-    }
     shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {
         return m_secretHandler->handle(request)
@@ -135,7 +122,6 @@ private:
     set<SessionId> m_sessions;
     shared_ptr<RequestHandler> m_secretHandler;
     shared_ptr<Presentation> m_presentation;
-    string m_message;
 
     shared_ptr<Response> loginForm()
     {
@@ -146,15 +132,7 @@ private:
             "post")();
         return content(text)
             ->title("Login")
-            .alert(m_message)
             .shared_from_this();
     }
 };
 
-TEST_CASE("Show Message")
-{
-    LoginServer<TestServer> w(nullptr, nullptr);
-    w.setMessage("Hello");
-    CHECK_FALSE(w.showMessage().empty());
-    CHECK(w.showMessage().empty());
-}
