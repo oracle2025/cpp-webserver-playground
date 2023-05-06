@@ -141,7 +141,7 @@ private:
     {
         using namespace Input;
         auto text = Form(
-            {Text("username")(), Password("password")(), Submit("submit")()},
+            {Text("username")(), Password("password")(), Submit("Login")()},
             "/login",
             "post")();
         return content(text)

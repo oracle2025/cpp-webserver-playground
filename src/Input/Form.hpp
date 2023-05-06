@@ -11,6 +11,8 @@ struct Form : public Element {
 
     Form(const Record &record, string action, string method);
 
+    Form& appendElement(string element);
+
     string operator()();
 
 private:

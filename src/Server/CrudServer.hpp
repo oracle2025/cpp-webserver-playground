@@ -2,6 +2,7 @@
 
 #include "Data/Todo.hpp"
 #include "Form.hpp"
+#include "Submit.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "List.hpp"
@@ -48,7 +49,8 @@ struct CrudServer : public T {
         T::get("/new", [](const Request& request) {
             using namespace Input;
             Todo todo;
-            return content(Form(todo, "/create", "post")())
+            return content(Form(todo, "/create", "post")
+                               .appendElement(Submit("Create Todo")())())
                 ->appendAction({"List", "/"})
                 .title("Create Todo")
                 .shared_from_this();
@@ -66,13 +68,14 @@ struct CrudServer : public T {
                 .shared_from_this();
         });
         T::get("/edit", [](const Request& request) {
+            using namespace Input;
             Todo todo;
             if (todo.pop(request.query())) {
-                return content(Input::Form(todo, "/update", "post")())
+                return content(Form(todo, string("/update?")+todo.id(), "post")
+                                   .appendElement(Submit("Update Todo")())())
                     ->appendAction({"List", "/"})
                     .title("Edit Todo")
                     .shared_from_this();
-
             } else {
                 return content("Todo not found")
                     ->code(Response::NOT_FOUND)
@@ -82,7 +85,6 @@ struct CrudServer : public T {
         T::post("/update", [](const Request& request) {
             Todo todo;
             if (todo.pop(request.query())) {
-
                 for (auto i : todo.fields()) {
                     if (request.hasParameter(i)) {
                         todo.set(i, request.parameter(i));

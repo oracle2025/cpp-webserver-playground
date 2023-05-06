@@ -34,8 +34,9 @@ std::vector<Todo> Todo::list()
         into(todo.updated_at), into(todo.checked),
         range(0, 1); //  iterate over result set one row at a time
     while (!select.done()) {
-        select.execute();
-        result.push_back(todo);
+        if (select.execute()) {
+            result.push_back(todo);
+        }
     }
     return result;
 }
@@ -50,8 +51,9 @@ std::vector<std::shared_ptr<Record>> Todo::listAsPointers()
         into(todo.updated_at), into(todo.checked),
         range(0, 1); //  iterate over result set one row at a time
     while (!select.done()) {
-        select.execute();
-        result.push_back(std::make_shared<Todo>(todo));
+        if (select.execute()) {
+            result.push_back(std::make_shared<Todo>(todo));
+        }
     }
     return result;
 }

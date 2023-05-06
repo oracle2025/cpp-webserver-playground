@@ -65,7 +65,7 @@ string Response::title() const
 {
     return m_title;
 }
-Response& Response::alert(const string& alert)
+Response& Response::alert(const string& alert, Html::AlertType type)
 {
     m_alert = alert;
     return *this;

@@ -1,5 +1,6 @@
 #pragma once
 #include "ActionLink.hpp"
+#include "AlertType.hpp"
 
 #include <map>
 #include <memory>
@@ -34,7 +35,7 @@ struct Response : public enable_shared_from_this<Response> {
 
     Response& appendAction(const ActionLink& action);
 
-    Response& alert(const string& alert);
+    Response& alert(const string& alert, Html::AlertType type = Html::AlertType::DANGER);
 
     string content() const;
 

@@ -36,7 +36,6 @@ Form::Form(const Record& record, string action, string method)
             m_elements.push_back(Text(key, value)());
         }
     }
-    m_elements.push_back(Submit("submit")());
 }
 string Form::operator()()
 {
@@ -48,5 +47,10 @@ string Form::operator()()
     }
     str << "</form>";
     return str.str();
+}
+Form& Form::appendElement(string element)
+{
+    m_elements.push_back(std::move(element));
+    return *this;
 }
 } // namespace Input
