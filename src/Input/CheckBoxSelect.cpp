@@ -1,5 +1,6 @@
 #include "CheckBoxSelect.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 using std::ostringstream;
