@@ -48,12 +48,10 @@ struct CrudServer : public T {
         T::get("/new", [](const Request& request) {
             using namespace Input;
             Todo todo;
-            return content(
-                 Form(todo, "/create", "post")())
+            return content(Form(todo, "/create", "post")())
                 ->appendAction({"List", "/"})
                 .title("Create Todo")
                 .shared_from_this();
-
         });
         T::post("/create", [this](const Request& request) {
             Todo todo;
@@ -64,13 +62,13 @@ struct CrudServer : public T {
             }
             todo.insert();
             return redirect("/edit?" + todo.id())
-                ->alert("Todo created").shared_from_this();
+                ->alert("Todo created")
+                .shared_from_this();
         });
         T::get("/edit", [](const Request& request) {
             Todo todo;
             if (todo.pop(request.query())) {
-                return content(
-                    Input::Form(todo, "/update", "post")())
+                return content(Input::Form(todo, "/update", "post")())
                     ->appendAction({"List", "/"})
                     .title("Edit Todo")
                     .shared_from_this();
@@ -83,17 +81,34 @@ struct CrudServer : public T {
         });
         T::post("/update", [](const Request& request) {
             Todo todo;
-            todo.pop(request.query());
-            for (auto i : todo.fields()) {
-                if (request.hasParameter(i)) {
-                    todo.set(i, request.parameter(i));
+            if (todo.pop(request.query())) {
+
+                for (auto i : todo.fields()) {
+                    if (request.hasParameter(i)) {
+                        todo.set(i, request.parameter(i));
+                    }
                 }
+                todo.update();
+                return redirect("/edit?" + todo.id())
+                    ->alert("Todo updated")
+                    .shared_from_this();
+            } else {
+                return content("Todo not found")
+                    ->code(Response::NOT_FOUND)
+                    .shared_from_this();
             }
-            todo.update();
-            return redirect("/edit?" + todo.id())
-                ->alert("Todo updated").shared_from_this();
         });
-        T::get("/delete", [](const Request& request) { return content(""); });
+        T::get("/delete", [](const Request& request) {
+            Todo todo;
+            if (todo.pop(request.query())) {
+                todo.erase();
+                return redirect("/")->alert("Todo deleted").shared_from_this();
+            } else {
+                return content("Todo not found")
+                    ->code(Response::NOT_FOUND)
+                    .shared_from_this();
+            }
+        });
         T::get("/", [](const Request& request) {
             return content(Html::List(
                                Todo::listAsPointers(),

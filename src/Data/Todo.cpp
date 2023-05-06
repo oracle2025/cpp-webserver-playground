@@ -23,8 +23,6 @@ string time_string()
     return std::ctime(&t_c);
 }
 
-
-
 std::vector<Todo> Todo::list()
 {
     std::vector<Todo> result;
@@ -103,6 +101,13 @@ bool Todo::pop(const string& _id)
 
 void Todo::erase()
 {
+    Statement update(*g_session);
+    updated_at = time_string();
+    update << "DELETE FROM Todo"
+              " WHERE"
+              " m_id = ?;",
+        use(m_id);
+    update.execute();
 }
 
 void Todo::create_table()

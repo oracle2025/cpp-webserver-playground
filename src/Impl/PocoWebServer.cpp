@@ -61,8 +61,6 @@ void PocoWebServer::finish_init()
                     }
                     for (auto& [key, value] : form) {
                         parameters[key] = value;
-                        std::cout << "Form: " << key << " = " << value
-                                  << std::endl;
                     }
                     auto result = handler(Request(
                         uri.getPath(), cookiesMap, parameters, uri.getQuery()));
