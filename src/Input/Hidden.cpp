@@ -7,7 +7,7 @@ namespace Input {
 string Hidden::operator()()
 {
     ostringstream str;
-    str << R"(<input type="hidden" m_id=")" << m_label << R"(" name=")"
+    str << R"(<input type="hidden" id=")" << m_label << R"(" name=")"
         << m_label << R"(" value=")" << m_value << R"(">)";
     return str.str();
 }

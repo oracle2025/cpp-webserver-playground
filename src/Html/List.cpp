@@ -34,11 +34,11 @@ string List::operator()()
                 break;
             }
         }
-        str << R"(<td><a href="/edit?)" << values["m_id"]
+        str << R"(<td><a href="/edit?)" << values["id"]
             << R"(" class="edit button">)"
             << R"(✏️ <span class="label">Edit</span></a>)"
                "</td>";
-        str << R"(<td><a href="/delete?)" << values["m_id"]
+        str << R"(<td><a href="/delete?)" << values["id"]
             << R"(" class="remove button">)"
             << R"(♻️ <span class="label">Delete</span></a>)"
                "</td>";

@@ -12,12 +12,12 @@ TEST_CASE("todo")
     Todo::create_table();
     Todo todo = {"0123", "Buy Milk", time_string(), time_string(), 0};
     todo.insert();
-    auto id = todo.m_id;
+    auto id = todo.id;
     SUBCASE("list")
     {
         auto result = Todo::list();
         CHECK(result.size() == 1);
-        CHECK(result[0].m_id == id);
+        CHECK(result[0].id == id);
     }
     SUBCASE("pop")
     {

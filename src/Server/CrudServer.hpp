@@ -12,7 +12,7 @@
  * A Simple Todo List:
  * Data Model:
  *
- * m_id (uuid)
+ * id (uuid)
  * Description (text)
  * Checked (bool)
  * created_at (date)
@@ -24,7 +24,7 @@
  * DELETE FROM
  *
  * ActiveRecord {
- *   uuid m_id;
+ *   uuid id;
  *   string description;
  *   bool checked;
  *   std::chrono::time_point<std::chrono::system_clock> created_at;
@@ -63,7 +63,7 @@ struct CrudServer : public T {
                 }
             }
             todo.insert();
-            return redirect("/edit?" + todo.id())
+            return redirect("/edit?" + todo.key())
                 ->alert("Todo created", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
@@ -72,7 +72,7 @@ struct CrudServer : public T {
             Todo todo;
             if (todo.pop(request.query())) {
                 return content(
-                           Form(todo, string("/update?") + todo.id(), "post")
+                           Form(todo, string("/update?") + todo.key(), "post")
                                .appendElement(Submit("Update Todo")())())
                     ->appendAction({"List", "/"})
                     .title("Edit Todo")
@@ -92,7 +92,7 @@ struct CrudServer : public T {
                     }
                 }
                 todo.update();
-                return redirect("/edit?" + todo.id())
+                return redirect("/edit?" + todo.key())
                     ->alert("Todo updated", Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {

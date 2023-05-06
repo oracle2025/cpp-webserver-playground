@@ -22,7 +22,7 @@ Form::Form(const Record& record, string action, string method)
     : m_action(move(action))
     , m_method(move(method))
 {
-    m_elements.push_back(Hidden("m_id", record.id())());
+    m_elements.push_back(Hidden("id", record.key())());
     for (const auto& [key, value] : record.values()) {
 
         switch (record.inputType(key)) {

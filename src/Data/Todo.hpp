@@ -26,7 +26,7 @@ struct Todo : public Record {
         string created_at,
         string updated_at,
         bool checked)
-        : m_id(std::move(id))
+        : id(std::move(id))
         , description(std::move(description))
         , created_at(std::move(created_at))
         , updated_at(std::move(updated_at))
@@ -34,12 +34,12 @@ struct Todo : public Record {
     {
     }
 
-    string id() const override
+    string key() const override
     {
-        return m_id;
+        return id;
     }
 
-    string m_id;
+    string id;
     string description;
     string created_at;
     string updated_at;
@@ -64,13 +64,13 @@ struct Todo : public Record {
 
     std::vector<string> fields() const override
     {
-        return {"m_id", "description", "created_at", "updated_at", "checked"};
+        return {"id", "description", "created_at", "updated_at", "checked"};
     }
     HtmlInputType inputType(const string& field) const override
     {
         if (field == "checked") {
             return HtmlInputType::CHECKBOX;
-        } else if (field == "m_id") {
+        } else if (field == "id") {
             return HtmlInputType::HIDDEN;
         } else if (field == "created_at") {
             return HtmlInputType::HIDDEN;

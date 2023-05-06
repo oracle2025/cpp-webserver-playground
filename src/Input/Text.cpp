@@ -18,7 +18,7 @@ string Text::operator()()
         ::toupper);
 
     ostringstream str;
-    str << R"(<label for =")" << label << R"(">)" << capitalized
+    str << R"(<label for=")" << label << R"(">)" << capitalized
         << R"(</label><br> <input type="text" id=")" << label << R"(" name=")"
         << label << R"(" value=")" << value << R"(">)";
     return str.str();

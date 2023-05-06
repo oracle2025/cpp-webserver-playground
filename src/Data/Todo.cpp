@@ -28,9 +28,9 @@ std::vector<Todo> Todo::list()
     std::vector<Todo> result;
     Todo todo;
     Statement select(*g_session);
-    select << "SELECT m_id, description, created_at, updated_at, checked FROM "
+    select << "SELECT id, description, created_at, updated_at, checked FROM "
               "Todo",
-        into(todo.m_id), into(todo.description), into(todo.created_at),
+        into(todo.id), into(todo.description), into(todo.created_at),
         into(todo.updated_at), into(todo.checked),
         range(0, 1); //  iterate over result set one row at a time
     while (!select.done()) {
@@ -45,9 +45,9 @@ std::vector<std::shared_ptr<Record>> Todo::listAsPointers()
     std::vector<std::shared_ptr<Record>> result;
     Todo todo;
     Statement select(*g_session);
-    select << "SELECT m_id, description, created_at, updated_at, checked FROM "
+    select << "SELECT id, description, created_at, updated_at, checked FROM "
               "Todo",
-        into(todo.m_id), into(todo.description), into(todo.created_at),
+        into(todo.id), into(todo.description), into(todo.created_at),
         into(todo.updated_at), into(todo.checked),
         range(0, 1); //  iterate over result set one row at a time
     while (!select.done()) {
@@ -61,10 +61,10 @@ std::vector<std::shared_ptr<Record>> Todo::listAsPointers()
 void Todo::insert()
 {
     Statement insert(*g_session);
-    m_id = Poco::UUIDGenerator::defaultGenerator().createRandom().toString();
+    id = Poco::UUIDGenerator::defaultGenerator().createRandom().toString();
     created_at = time_string();
     updated_at = time_string();
-    insert << "INSERT INTO Todo VALUES(?, ?, ?, ?, ?)", use(m_id),
+    insert << "INSERT INTO Todo VALUES(?, ?, ?, ?, ?)", use(id),
         use(description), use(created_at), use(updated_at), use(checked);
 
     insert.execute();
@@ -79,20 +79,20 @@ void Todo::update()
               " updated_at = ?,"
               " checked = ?"
               " WHERE"
-              " m_id = ?;",
-        use(description), use(updated_at), use(checked), use(m_id);
+              " id = ?;",
+        use(description), use(updated_at), use(checked), use(id);
     update.execute();
 }
 
 bool Todo::pop(const string& _id)
 {
-    m_id = _id;
+    id = _id;
     Statement select(*g_session);
     select << "SELECT description, "
               "created_at, updated_at, "
               "checked FROM Todo "
-              "WHERE m_id = ?",
-        use(m_id), into(description), into(created_at), into(updated_at),
+              "WHERE id = ?",
+        use(id), into(description), into(created_at), into(updated_at),
         into(checked),
         range(0, 1); //  iterate over result set one row at a time
     if (select.execute() == 0) {
@@ -107,8 +107,8 @@ void Todo::erase()
     updated_at = time_string();
     update << "DELETE FROM Todo"
               " WHERE"
-              " m_id = ?;",
-        use(m_id);
+              " id = ?;",
+        use(id);
     update.execute();
 }
 
@@ -117,7 +117,7 @@ void Todo::create_table()
     auto& session = *g_session;
     session << "DROP TABLE IF EXISTS Todo", now;
     session << "CREATE TABLE "
-               "Todo (m_id VARCHAR, "
+               "Todo (id VARCHAR, "
                "description VARCHAR, "
                "created_at VARCHAR, "
                "updated_at VARCHAR, "
@@ -127,8 +127,8 @@ void Todo::create_table()
 
 void Todo::set(const string& key, const string& value)
 {
-    if (key == "m_id") {
-        m_id = value;
+    if (key == "id") {
+        id = value;
     } else if (key == "description") {
         description = value;
     } else if (key == "created_at") {
@@ -143,7 +143,7 @@ void Todo::set(const string& key, const string& value)
 std::map<string, string> Todo::values() const
 {
     return {
-        {"m_id", m_id},
+        {"id", id},
         {"description", description},
         {"created_at", created_at},
         {"updated_at", updated_at},
