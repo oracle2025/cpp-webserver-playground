@@ -49,8 +49,9 @@ struct CrudServer : public T {
             using namespace Input;
             Todo todo;
             return content(
-                header() + +R"(<a href="/">list</a><br>)"
-                + Form(todo, "/create", "post")() + footer());
+                 Form(todo, "/create", "post")())
+                ->appendAction({"List", "/"}).shared_from_this();
+
         });
         T::post("/create", [this](const Request& request) {
             Todo todo;
@@ -60,17 +61,16 @@ struct CrudServer : public T {
                 }
             }
             todo.insert();
-            return content(
-                string{"Todo created<br>"} + R"(<a href="/">list</a><br>)"
-                + Input::Form(todo, "/update", "post")());
-            // return redirect_to("/read/" + m_id.toString());
+            return redirect("/edit?" + todo.id())
+                ->alert("Todo created").shared_from_this();
         });
         T::get("/edit", [](const Request& request) {
             Todo todo;
             if (todo.pop(request.query())) {
                 return content(
-                    header() + R"(<a href="/list">list</a><br>)"
-                    + Input::Form(todo, "/update", "post")() + footer());
+                    Input::Form(todo, "/update", "post")())
+                    ->appendAction({"List", "/"}).shared_from_this();
+
             } else {
                 return content("Todo not found")
                     ->code(Response::NOT_FOUND)
@@ -86,18 +86,14 @@ struct CrudServer : public T {
                 }
             }
             todo.update();
-            return content(
-                string{"Todo updated<br>"} + R"(<a href="/">list</a><br>)"
-                + Input::Form(todo, "/edit-submit", "post")());
+            return redirect("/edit?" + todo.id())
+                ->alert("Todo updated").shared_from_this();
         });
         T::get("/delete", [](const Request& request) { return content(""); });
         T::get("/", [](const Request& request) {
-            return content(
-                       header()
-                       + R"(<a href="/new" class="create button">Create new todo</a><br>)"
-                       + Html::List(
-                           Todo::listAsPointers(), {"checked", "description"})()
-                       + footer())
+            return content(Html::List(
+                               Todo::listAsPointers(),
+                               {"checked", "description"})())
                 ->appendAction({"Create new Todo", "/new"})
                 .title("Todo List")
                 .shared_from_this();
@@ -106,20 +102,5 @@ struct CrudServer : public T {
             return content(STYLE_SHEET, "text/css");
         });
         T::finish_init();
-    }
-    static string header()
-    {
-        return R"(<!doctype html><html lang="de"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="css/style.css">
-</head>
-<body>
-<div class="container">
-)";
-    }
-    static string footer()
-    {
-        return R"(</div></body></html>)";
     }
 };

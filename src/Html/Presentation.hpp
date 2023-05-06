@@ -35,6 +35,19 @@ struct Presentation {
         }
         return R"(<div class="alert-danger">⚠️ )" + alert + R"(</div>)";
     }
+    string renderActions(const vector<ActionLink>& actions)
+    {
+        if (actions.empty()) {
+            return "";
+        }
+        ostringstream result;
+        for (const auto& action : actions) {
+            result << R"(<a href=")" << action.url
+                   << R"(" class="create button">)" << action.title
+                   << R"(</a><br>)";
+        }
+        return result.str();
+    }
     string renderHtml(const Response& response)
     {
         ostringstream result;
@@ -52,11 +65,11 @@ struct Presentation {
         result << response.title();
         result << R"(</h2>)";
         result << renderAlert(response.alert());
+        result << renderActions(response.actions());
         result << response.content();
-        result << R"(</div></body></html>)";
-        response.title();
-        response.actions();
-        response.alert();
+        result << R"(</div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body></html>)";
         return result.str();
     }
 };

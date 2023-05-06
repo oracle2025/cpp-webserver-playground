@@ -21,9 +21,11 @@ void PocoWebServer::finish_init()
     public:
         HandlerFactory(
             map<string, request_response_handler_type>& router,
-            request_response_handler_type& defaultHandler,shared_ptr<Presentation> presentation)
+            request_response_handler_type& defaultHandler,
+            shared_ptr<Presentation> presentation)
             : router(router)
-            , m_defaultHandler(defaultHandler),m_presentation(presentation)
+            , m_defaultHandler(defaultHandler)
+            , m_presentation(presentation)
         {
         }
 
@@ -32,8 +34,11 @@ void PocoWebServer::finish_init()
         {
             class PageHandler : public HTTPRequestHandler {
             public:
-                PageHandler(request_response_handler_type handler,shared_ptr<Presentation> presentation)
-                    : handler(handler),m_presentation(presentation)
+                PageHandler(
+                    request_response_handler_type handler,
+                    shared_ptr<Presentation> presentation)
+                    : handler(handler)
+                    , m_presentation(presentation)
                 {
                 }
 
@@ -56,13 +61,11 @@ void PocoWebServer::finish_init()
                     }
                     for (auto& [key, value] : form) {
                         parameters[key] = value;
-                        std::cout << "Form: " << key << " = " << value << std::endl;
+                        std::cout << "Form: " << key << " = " << value
+                                  << std::endl;
                     }
                     auto result = handler(Request(
-                        uri.getPath(),
-                        cookiesMap,
-                        parameters,
-                        uri.getQuery()));
+                        uri.getPath(), cookiesMap, parameters, uri.getQuery()));
                     for (auto& [key, value] : result->cookies()) {
                         HTTPCookie cookie(key, value);
                         if (value.empty()) {
@@ -70,11 +73,22 @@ void PocoWebServer::finish_init()
                         }
                         response.addCookie(cookie);
                     }
+                    if (!result->alert().empty()) {
+                        response.addCookie({"alert", result->alert()});
+                    } else {
+                        HTTPCookie cookie("alert", "");
+                        cookie.setMaxAge(0);
+                        response.addCookie(cookie);
+                    }
                     response.setContentType(result->mimetype());
-                    if (result->code() == Response::HTTP_FOUND && (!result->location().empty())) {
+                    if (result->code() == Response::HTTP_FOUND
+                        && (!result->location().empty())) {
                         response.redirect(result->location());
                     }
                     auto& responseStream = response.send();
+                    if (cookiesMap.count("alert") > 0) {
+                        result->alert(cookiesMap["alert"]);
+                    }
                     responseStream << m_presentation->render(*result);
                 }
 
@@ -107,5 +121,7 @@ void PocoWebServer::finish_init()
         shared_ptr<Presentation> m_presentation;
     };
     server = make_shared<HTTPServer>(
-        new HandlerFactory(router, m_defaultHandler, m_presentation), socket, pParams);
+        new HandlerFactory(router, m_defaultHandler, m_presentation),
+        socket,
+        pParams);
 }

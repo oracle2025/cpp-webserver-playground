@@ -87,8 +87,9 @@ struct LoginServer : public T {
         T::get("/logout", [this](const Request& request) {
             if (hasValidSession(request)) {
                 clearSession(request);
-                return content("Logged out")
+                return redirect("/")
                     ->cookie("session-id", "")
+                    .alert("Logged out")
                     .shared_from_this();
             } else {
                 return content("Access denied");
@@ -133,20 +134,15 @@ private:
     {
         using namespace Input;
         auto text = Form(
-            {Text("username")(), Password("password")(), Submit("submit")()},
-            "/login",
-            "post")();
-        const string header = R"(<!doctype html><html lang="de"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="css/style.css">
-</head>
-<body>
-<div class="container">
-<h2>Login Form</h2>
-)";
-        const string footer = R"(</div></body></html>)";
-        return content(text)->title("Login").alert(m_message).shared_from_this();
+                        {Text("username")(),
+                         Password("password")(),
+                         Submit("submit")()},
+                        "/login",
+                        "post")();
+        return content(text)
+            ->title("Login")
+            .alert(m_message)
+            .shared_from_this();
     }
 };
 
