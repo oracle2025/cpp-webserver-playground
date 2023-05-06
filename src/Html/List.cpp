@@ -23,7 +23,11 @@ string List::operator()()
         for (const auto& column : columns) {
             switch (record->inputType(column)) {
             case HtmlInputType::CHECKBOX:
-                str << R"(<td style="width: 20px;"><input type="checkbox"></td>)";
+                if (values[column] == "yes") {
+                    str << R"(<td style="width: 20px;"><input type="checkbox" checked></td>)";
+                } else {
+                    str << R"(<td style="width: 20px;"><input type="checkbox"></td>)";
+                }
                 break;
             default:
                 str << R"(<td class="max">)" << values[column] << "</td>";
@@ -34,8 +38,8 @@ string List::operator()()
             << R"(" class="edit button">)"
             << R"(✏️ <span class="label">Edit</span></a>)"
                "</td>";
-        str << R"(<td><a href="/delete?)"
-            << values["m_id"] << R"(" class="remove button">)"
+        str << R"(<td><a href="/delete?)" << values["m_id"]
+            << R"(" class="remove button">)"
             << R"(♻️ <span class="label">Delete</span></a>)"
                "</td>";
         str << "</tr>";

@@ -1,8 +1,7 @@
 
 #include "Text.hpp"
+
 #include <algorithm>
-
-
 #include <sstream>
 
 using std::ostringstream;
@@ -12,11 +11,15 @@ namespace Input {
 string Text::operator()()
 {
     string capitalized = label;
-    transform(capitalized.begin(), capitalized.begin() + 1, capitalized.begin(), ::toupper);
+    transform(
+        capitalized.begin(),
+        capitalized.begin() + 1,
+        capitalized.begin(),
+        ::toupper);
 
     ostringstream str;
     str << R"(<label for =")" << label << R"(">)" << capitalized
-        << R"(</label><br> <input type="text" m_id=")" << label << R"(" name=")"
+        << R"(</label><br> <input type="text" id=")" << label << R"(" name=")"
         << label << R"(" value=")" << value << R"(">)";
     return str.str();
 }
@@ -25,6 +28,5 @@ Text::Text(string label, string value)
     , value(move(value))
 {
 }
-
 
 } // namespace Input

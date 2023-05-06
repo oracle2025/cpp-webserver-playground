@@ -50,7 +50,9 @@ struct CrudServer : public T {
             Todo todo;
             return content(
                  Form(todo, "/create", "post")())
-                ->appendAction({"List", "/"}).shared_from_this();
+                ->appendAction({"List", "/"})
+                .title("Create Todo")
+                .shared_from_this();
 
         });
         T::post("/create", [this](const Request& request) {
@@ -69,7 +71,9 @@ struct CrudServer : public T {
             if (todo.pop(request.query())) {
                 return content(
                     Input::Form(todo, "/update", "post")())
-                    ->appendAction({"List", "/"}).shared_from_this();
+                    ->appendAction({"List", "/"})
+                    .title("Edit Todo")
+                    .shared_from_this();
 
             } else {
                 return content("Todo not found")

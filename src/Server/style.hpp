@@ -20,7 +20,7 @@ h2 {
 text-align: center;
 margin-bottom: 20px;
 }
-input[type=text], input[type=password] {
+input[type=text], input[type=password], select {
 width: 100%;
 padding: 12px 20px;
 margin: 8px 0;

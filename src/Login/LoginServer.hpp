@@ -57,7 +57,7 @@ struct LoginServer : public T {
     {
         T::get("/", [this](const Request& request) {
             if (hasValidSession(request) && m_secretHandler) {
-                return m_secretHandler->handle(request);
+                return forwardToSecretHandler(request);
             } else {
                 return loginForm();
             }
@@ -73,7 +73,7 @@ struct LoginServer : public T {
             auto sessionId = generateRandomSessionId();
             m_sessions.insert(sessionId);
             return redirect("/")
-                ->content("Success")
+                ->alert("Logged in successfully")
                 .cookie("session-id", sessionId)
                 .shared_from_this();
         });
@@ -100,7 +100,7 @@ struct LoginServer : public T {
         });
         T::defaultHandler([this](const Request& request) {
             if (hasValidSession(request)) {
-                return m_secretHandler->handle(request);
+                return forwardToSecretHandler(request);
             } else {
                 return content("Access denied")
                     ->code(Response::UNAUTHORIZED)
@@ -123,6 +123,13 @@ struct LoginServer : public T {
         m_message.clear();
         return R"(<div class="alert-danger">⚠️ )" + result + R"(</div>)";
     }
+    shared_ptr<Response> forwardToSecretHandler(const Request& request)
+    {
+        return m_secretHandler->handle(request)
+            ->appendAction({"🚪 Logout", "/logout"})
+            .shared_from_this();
+        ;
+    }
 
 private:
     set<SessionId> m_sessions;
@@ -134,11 +141,9 @@ private:
     {
         using namespace Input;
         auto text = Form(
-                        {Text("username")(),
-                         Password("password")(),
-                         Submit("submit")()},
-                        "/login",
-                        "post")();
+            {Text("username")(), Password("password")(), Submit("submit")()},
+            "/login",
+            "post")();
         return content(text)
             ->title("Login")
             .alert(m_message)

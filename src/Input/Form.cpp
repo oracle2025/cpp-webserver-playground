@@ -1,6 +1,7 @@
 
 #include "Form.hpp"
 
+#include "CheckBoxSelect.hpp"
 #include "Data/Record.hpp"
 #include "Hidden.hpp"
 #include "Submit.hpp"
@@ -23,7 +24,17 @@ Form::Form(const Record& record, string action, string method)
 {
     m_elements.push_back(Hidden("m_id", record.id())());
     for (const auto& [key, value] : record.values()) {
-        m_elements.push_back(Text(key, value)());
+
+        switch (record.inputType(key)) {
+        case HtmlInputType::HIDDEN:
+            m_elements.push_back(Hidden(key, value)());
+            break;
+        case HtmlInputType::CHECKBOX:
+            m_elements.push_back(CheckBoxSelect(key, value)());
+            break;
+        default:
+            m_elements.push_back(Text(key, value)());
+        }
     }
     m_elements.push_back(Submit("submit")());
 }

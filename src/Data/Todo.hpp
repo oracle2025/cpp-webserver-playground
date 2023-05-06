@@ -70,6 +70,12 @@ struct Todo : public Record {
     {
         if (field == "checked") {
             return HtmlInputType::CHECKBOX;
+        } else if (field == "m_id") {
+            return HtmlInputType::HIDDEN;
+        } else if (field == "created_at") {
+            return HtmlInputType::HIDDEN;
+        } else if (field == "updated_at") {
+            return HtmlInputType::HIDDEN;
         }
         return HtmlInputType::TEXT;
     }
