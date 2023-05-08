@@ -5,6 +5,43 @@ font-family: Arial, sans-serif;
 background-color: #f4f4f4;
 margin: 0px;
 }
+.header {
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    background-color: rgb(33, 37, 41);
+    color: white;
+}
+.header div {
+    display: block;
+    padding: 10px;
+}
+.header a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+}
+.header ul {
+    display: float;
+    margin: 0px;
+    padding: 0px;
+    float: none;
+    vertical-align: top;
+    width: 100%;
+    overflow: hidden;
+}
+.header ul li {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    display: block;
+    float: left;
+    vertical-align: center;
+}
+.header ul li.right {
+    float: right;
+}
 .container {
 background-color: #fff;
 padding: 20px 0px;

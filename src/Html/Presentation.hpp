@@ -84,6 +84,12 @@ struct Presentation {
         result << R"(</title>
 </head>
 <body>
+<div class="header">
+    <ul>
+        <li><div>Todos</div></li>
+        <li class="right"><a href="/logout">🚪 <span class="label">Logout</span></a></li>
+    </ul>
+</div>
 <div class="container">
 <h2>)";
         result << response.title();
