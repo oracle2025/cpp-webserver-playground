@@ -9,7 +9,7 @@ int LoginServerApplication::main(const vector<string>& args)
 {
     LoginServer<PocoWebServer> server(
         std::make_shared<CrudServer<RecursiveWebServer>>(),
-        std::make_shared<Presentation>(Header("<html>"), Footer("</html>")));
+        std::make_shared<Presentation>());
     server.start();
     waitForTerminationRequest();
     server.stop();
