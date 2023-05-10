@@ -1,4 +1,5 @@
 #include "doctest.h"
+
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 using Poco::Data::Session;
@@ -12,17 +13,29 @@ TEST_CASE("todo")
     Todo::create_table();
     Todo todo = {"0123", "Buy Milk", time_string(), time_string(), 0};
     todo.insert();
-    auto id = todo.id;
+    auto id = todo.key();
     SUBCASE("list")
     {
         auto result = Todo::list();
         CHECK(result.size() == 1);
-        CHECK(result[0].id == id);
+        CHECK(result[0].key() == id);
     }
     SUBCASE("pop")
     {
         Todo t;
         t.pop(id);
-        CHECK(t.description == "Buy Milk");
+        CHECK(t.description() == "Buy Milk");
+    }
+    SUBCASE("update")
+    {
+        Todo t;
+        t.pop(id);
+        t.set("description", "Buy Milk and Eggs");
+        t.update();
+        {
+            Todo t;
+            t.pop(id);
+            CHECK(t.description() == "Buy Milk and Eggs");
+        }
     }
 }

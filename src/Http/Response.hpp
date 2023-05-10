@@ -35,6 +35,8 @@ struct Response : public enable_shared_from_this<Response> {
 
     Response& appendAction(const ActionLink& action);
 
+    Response& appendNavBarAction(const ActionLink& action);
+
     Response& alert(const string& alert, Html::AlertType type = Html::AlertType::DANGER);
 
     string content() const;
@@ -49,6 +51,8 @@ struct Response : public enable_shared_from_this<Response> {
 
     vector<ActionLink> actions() const;
 
+    vector<ActionLink> navBarActions() const;
+
     string title() const;
 
     const Html::Alert& alert() const;
@@ -60,6 +64,7 @@ private:
     string m_mimetype = "text/html";
     string m_location;
     vector<ActionLink> m_actions;
+    vector<ActionLink> m_navbarActions;
     string m_title;
     Html::Alert m_alert;
 };

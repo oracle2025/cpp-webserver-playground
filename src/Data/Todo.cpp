@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <numeric>
 #include <vector>
 
 using namespace Poco::Data::Keywords;
@@ -23,6 +24,19 @@ string time_string()
     return std::ctime(&t_c);
 }
 
+string join(std::vector<string> const& strings, string delim)
+{
+    if (strings.empty()) {
+        return {};
+    }
+
+    return accumulate(
+        strings.begin() + 1,
+        strings.end(),
+        strings[0],
+        [&delim](string x, string y) { return x + delim + y; });
+}
+
 std::vector<Todo> Todo::list()
 {
     std::vector<Todo> result;
@@ -30,7 +44,7 @@ std::vector<Todo> Todo::list()
     Statement select(*g_session);
     select << "SELECT id, description, created_at, updated_at, checked FROM "
               "Todo",
-        into(todo.id), into(todo.description), into(todo.created_at),
+        into(todo.id), into(todo.m_description), into(todo.created_at),
         into(todo.updated_at), into(todo.checked),
         range(0, 1); //  iterate over result set one row at a time
     while (!select.done()) {
@@ -47,7 +61,7 @@ std::vector<std::shared_ptr<Record>> Todo::listAsPointers()
     Statement select(*g_session);
     select << "SELECT id, description, created_at, updated_at, checked FROM "
               "Todo",
-        into(todo.id), into(todo.description), into(todo.created_at),
+        into(todo.id), into(todo.m_description), into(todo.created_at),
         into(todo.updated_at), into(todo.checked),
         range(0, 1); //  iterate over result set one row at a time
     while (!select.done()) {
@@ -65,7 +79,7 @@ void Todo::insert()
     created_at = time_string();
     updated_at = time_string();
     insert << "INSERT INTO Todo VALUES(?, ?, ?, ?, ?)", use(id),
-        use(description), use(created_at), use(updated_at), use(checked);
+        use(m_description), use(created_at), use(updated_at), use(checked);
 
     insert.execute();
 }
@@ -80,7 +94,7 @@ void Todo::update()
               " checked = ?"
               " WHERE"
               " id = ?;",
-        use(description), use(updated_at), use(checked), use(id);
+        use(m_description), use(updated_at), use(checked), use(id);
     update.execute();
 }
 
@@ -92,7 +106,7 @@ bool Todo::pop(const string& _id)
               "created_at, updated_at, "
               "checked FROM Todo "
               "WHERE id = ?",
-        use(id), into(description), into(created_at), into(updated_at),
+        use(id), into(m_description), into(created_at), into(updated_at),
         into(checked),
         range(0, 1); //  iterate over result set one row at a time
     if (select.execute() == 0) {
@@ -130,7 +144,7 @@ void Todo::set(const string& key, const string& value)
     if (key == "id") {
         id = value;
     } else if (key == "description") {
-        description = value;
+        m_description = value;
     } else if (key == "created_at") {
         created_at = value;
     } else if (key == "updated_at") {
@@ -144,9 +158,47 @@ std::map<string, string> Todo::values() const
 {
     return {
         {"id", id},
-        {"description", description},
+        {"description", m_description},
         {"created_at", created_at},
         {"updated_at", updated_at},
         {"checked", (checked ? "yes" : "no")},
     };
+}
+Todo::Todo(
+    string id,
+    string description,
+    string created_at,
+    string updated_at,
+    bool checked)
+    : id(std::move(id))
+    , m_description(std::move(description))
+    , created_at(std::move(created_at))
+    , updated_at(std::move(updated_at))
+    , checked(checked)
+{
+}
+string Todo::key() const
+{
+    return id;
+}
+std::vector<string> Todo::fields() const
+{
+    return {"id", "description", "created_at", "updated_at", "checked"};
+}
+HtmlInputType Todo::inputType(const string& field) const
+{
+    if (field == "checked") {
+        return HtmlInputType::CHECKBOX;
+    } else if (field == "id") {
+        return HtmlInputType::HIDDEN;
+    } else if (field == "created_at") {
+        return HtmlInputType::HIDDEN;
+    } else if (field == "updated_at") {
+        return HtmlInputType::HIDDEN;
+    }
+    return HtmlInputType::TEXT;
+}
+string Todo::description() const
+{
+    return m_description;
 }

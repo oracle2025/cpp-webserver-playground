@@ -51,7 +51,7 @@ struct CrudServer : public T {
             Todo todo;
             return content(Form(todo, "/create", "post")
                                .appendElement(Submit("Create Todo")())())
-                ->appendAction({"List", "/"})
+                ->appendNavBarAction({"Start", "/"})
                 .title("Create Todo")
                 .shared_from_this();
         });
@@ -74,13 +74,11 @@ struct CrudServer : public T {
                 return content(
                            Form(todo, string("/update?") + todo.key(), "post")
                                .appendElement(Submit("Update Todo")())())
-                    ->appendAction({"List", "/"})
+                    ->appendNavBarAction({"Start", "/"})
                     .title("Edit Todo")
                     .shared_from_this();
             } else {
-                return content("Todo not found")
-                    ->code(Response::NOT_FOUND)
-                    .shared_from_this();
+                return todoNotFound();
             }
         });
         T::post("/update", [](const Request& request) {
@@ -96,9 +94,7 @@ struct CrudServer : public T {
                     ->alert("Todo updated", Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
-                return content("Todo not found")
-                    ->code(Response::NOT_FOUND)
-                    .shared_from_this();
+                return todoNotFound();
             }
         });
         T::get("/delete", [](const Request& request) {
@@ -109,9 +105,7 @@ struct CrudServer : public T {
                     ->alert("Todo deleted", Html::AlertType::WARNING)
                     .shared_from_this();
             } else {
-                return content("Todo not found")
-                    ->code(Response::NOT_FOUND)
-                    .shared_from_this();
+                return todoNotFound();
             }
         });
         T::get("/", [](const Request& request) {
@@ -119,6 +113,7 @@ struct CrudServer : public T {
                                Todo::listAsPointers(),
                                {"checked", "description"})())
                 ->appendAction({"Create new Todo", "/new"})
+                .appendNavBarAction({"Start", "/"})
                 .title("Todo List")
                 .shared_from_this();
         });
@@ -126,5 +121,12 @@ struct CrudServer : public T {
             return content(STYLE_SHEET, "text/css");
         });
         T::finish_init();
+    }
+    static shared_ptr<Response> todoNotFound()
+    {
+        return content("Todo not found")
+            ->code(Response::NOT_FOUND)
+            .appendNavBarAction({"Start", "/"})
+            .shared_from_this();
     }
 };

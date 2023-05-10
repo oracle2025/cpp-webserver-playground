@@ -74,6 +74,15 @@ const Html::Alert& Response::alert() const
 {
     return m_alert;
 }
+Response& Response::appendNavBarAction(const ActionLink& action)
+{
+    m_navbarActions.push_back(action);
+    return *this;
+}
+vector<ActionLink> Response::navBarActions() const
+{
+    return m_navbarActions;
+}
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();

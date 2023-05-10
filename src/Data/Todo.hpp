@@ -16,39 +16,22 @@ extern Poco::Data::Session* g_session;
 using std::string;
 
 struct Todo : public Record {
-    Todo()
-    {
-    }
+    Todo() = default;
 
     Todo(
         string id,
         string description,
         string created_at,
         string updated_at,
-        bool checked)
-        : id(std::move(id))
-        , description(std::move(description))
-        , created_at(std::move(created_at))
-        , updated_at(std::move(updated_at))
-        , checked(checked)
-    {
-    }
+        bool checked);
 
-    string key() const override
-    {
-        return id;
-    }
+    string key() const override;
 
-    string id;
-    string description;
-    string created_at;
-    string updated_at;
-    bool checked;
+    bool checked = false
 
     static std::vector<Todo> list();
 
     static std::vector<std::shared_ptr<Record>> listAsPointers();
-    ;
 
     void insert();
 
@@ -62,25 +45,17 @@ struct Todo : public Record {
 
     static void create_table();
 
-    std::vector<string> fields() const override
-    {
-        return {"id", "description", "created_at", "updated_at", "checked"};
-    }
-    HtmlInputType inputType(const string& field) const override
-    {
-        if (field == "checked") {
-            return HtmlInputType::CHECKBOX;
-        } else if (field == "id") {
-            return HtmlInputType::HIDDEN;
-        } else if (field == "created_at") {
-            return HtmlInputType::HIDDEN;
-        } else if (field == "updated_at") {
-            return HtmlInputType::HIDDEN;
-        }
-        return HtmlInputType::TEXT;
-    }
+    std::vector<string> fields() const override;
+    HtmlInputType inputType(const string& field) const override;
 
     std::map<string, string> values() const override;
+
+    string description() const;
+private:
+    string id;
+    string m_description;
+    string created_at;
+    string updated_at;
 };
 
 string time_string();

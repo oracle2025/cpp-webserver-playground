@@ -71,6 +71,19 @@ struct Presentation {
         }
         return result.str();
     }
+    string renderNavBarActions(const vector<ActionLink>& actions)
+    {
+        if (actions.empty()) {
+            return "";
+        }
+        ostringstream result;
+        for (const auto& action : actions) {
+            result << R"(<li class=")" << action.liClass << R"("><a href=")" << action.url
+                   << R"(">)" << action.title
+                   << R"(</a></li>)";
+        }
+        return result.str();
+    }
     string renderHtml(const Response& response)
     {
         ostringstream result;
@@ -86,8 +99,9 @@ struct Presentation {
 <body>
 <div class="header">
     <ul>
-        <li><div>Todos</div></li>
-        <li class="right"><a href="/logout">🚪 <span class="label">Logout</span></a></li>
+        <li><div>Todos</div></li>)";
+        result << renderNavBarActions(response.navBarActions());
+        result << R"(
     </ul>
 </div>
 <div class="container">

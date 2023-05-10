@@ -113,7 +113,7 @@ struct LoginServer : public T {
     shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {
         return m_secretHandler->handle(request)
-            ->appendAction({"🚪 Logout", "/logout"})
+            ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .shared_from_this();
         ;
     }
