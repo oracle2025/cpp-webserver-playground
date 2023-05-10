@@ -27,7 +27,7 @@ struct Todo : public Record {
 
     string key() const override;
 
-    bool checked = false
+    bool checked = false;
 
     static std::vector<Todo> list();
 
