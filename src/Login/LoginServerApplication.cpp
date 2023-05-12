@@ -1,6 +1,5 @@
 #include "LoginServerApplication.hpp"
 
-#include "Header.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "LoginServer.hpp"
 #include "doctest.h"

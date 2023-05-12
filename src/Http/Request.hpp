@@ -8,9 +8,9 @@ using std::string;
 struct Request {
     Request(
         string path,
-        map<string, string> cookies,
-        map<string, string> parameters,
-        string query);
+        map<string, string> cookies = {},
+        map<string, string> parameters = {},
+        string query = "");
 
     Request() = default;
 

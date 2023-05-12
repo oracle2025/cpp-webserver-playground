@@ -38,17 +38,8 @@ struct TestServer {
     void setPresentation(shared_ptr<Presentation> presentation)
     {
     }
-    string getPage(
-        const string& path,
-        const map<string, string>& cookies = {},
-        const map<string, string>& params = {});
-    shared_ptr<Response> getResponse(
-        const string& path,
-        const map<string, string>& cookies = {},
-        const map<string, string>& params = {});
 
-    shared_ptr<Response> postTo(
-        const string& path, const map<string, string>& params);
+    shared_ptr<Response> handle(const Request& request);
 
 private:
     map<string, request_response_handler_type> router;

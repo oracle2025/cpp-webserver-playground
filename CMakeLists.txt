@@ -21,7 +21,7 @@ if (${Poco_FOUND})
             src/Login/SessionId.cpp src/Login/SessionId.hpp src/Login/LoginServer.hpp src/Server/CrudServer.hpp src/Server/CrudServer.cpp
             src/Login/LoginServer.cpp src/Impl/PocoWebServer.cpp src/Impl/PocoWebServer.hpp src/Login/LoginServerApplication.cpp
             src/Login/LoginServerApplication.hpp src/Server/CrudServerApplication.cpp src/Server/CrudServerApplication.hpp
-            src/Http/RequestHandler.hpp src/Server/style.hpp src/Data/FieldTypes.hpp src/Html/Footer.cpp src/Html/Footer.hpp src/Html/Presentation.cpp
+            src/Http/RequestHandler.hpp src/Server/style.hpp src/Data/FieldTypes.hpp src/Html/Presentation.cpp
             src/Html/Presentation.hpp src/Html/Page.cpp src/Html/Page.hpp src/Html/ActionLink.cpp src/Html/ActionLink.hpp src/Input/CheckBoxSelect.cpp src/Input/CheckBoxSelect.hpp src/Html/AlertType.hpp src/Html/Alert.cpp src/Html/Alert.hpp)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data

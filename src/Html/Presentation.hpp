@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Footer.hpp"
-#include "Header.hpp"
 #include "Response.hpp"
 
 #include <sstream>
