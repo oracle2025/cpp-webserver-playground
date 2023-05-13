@@ -40,6 +40,9 @@ if (${Poco_FOUND})
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
+    enable_testing()
+    add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
+
     add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(crud-server webservers)
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
