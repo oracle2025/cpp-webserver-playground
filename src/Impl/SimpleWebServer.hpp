@@ -22,7 +22,7 @@ using std::variant;
 namespace Html {
 struct Presentation;
 }
-class RecursiveWebServer : public RequestHandler {
+class SimpleWebServer : public RequestHandler {
 public:
     void finish_init();
     shared_ptr<Response> handle(const Request& request) override;

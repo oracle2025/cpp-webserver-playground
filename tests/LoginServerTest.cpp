@@ -1,10 +1,10 @@
-#include "Login/LoginServer.hpp"
+#include "Login/LoginComponent.hpp"
 #include "Server/TestServer.hpp"
 #include "doctest.h"
 
 TEST_CASE("Login Server")
 {
-    LoginServer<TestServer> w(nullptr, nullptr);
+    LoginComponent<TestServer> w(nullptr, nullptr);
     SUBCASE("Login")
     {
         CHECK(w.handle({"/secret"})->content() == "Access denied");

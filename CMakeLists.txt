@@ -14,12 +14,12 @@ link_directories(${PROJECT_BINARY_DIR}/lib)
 if (${Poco_FOUND})
 
     add_library(webservers OBJECT src/Data/Todo.cpp src/Data/Todo.hpp src/Html/Table.cpp src/Html/Table.hpp
-            src/Data/Record.cpp src/Server/RecursiveWebServer.cpp src/Server/RecursiveWebServer.hpp
+            src/Data/Record.cpp src/Impl/SimpleWebServer.cpp src/Impl/SimpleWebServer.hpp
             src/Data/Record.hpp src/Input/Form.cpp src/Input/Form.hpp src/Html/List.cpp src/Html/List.hpp src/Input/Text.cpp src/Input/Text.hpp src/Input/Hidden.cpp
             src/Input/Hidden.hpp src/Input/Password.cpp src/Input/Password.hpp src/Input/Submit.cpp src/Input/Submit.hpp src/Http/Response.cpp
             src/Http/Response.hpp src/Http/Request.cpp src/Http/Request.hpp src/Server/TestServer.cpp src/Server/TestServer.hpp
-            src/Login/SessionId.cpp src/Login/SessionId.hpp src/Login/LoginServer.hpp src/Server/CrudServer.hpp src/Server/CrudServer.cpp
-            src/Login/LoginServer.cpp src/Impl/PocoWebServer.cpp src/Impl/PocoWebServer.hpp src/Login/LoginServerApplication.cpp
+            src/Login/SessionId.cpp src/Login/SessionId.hpp src/Login/LoginComponent.hpp src/Server/CrudComponent.hpp
+            src/Impl/PocoWebServer.cpp src/Impl/PocoWebServer.hpp src/Login/LoginServerApplication.cpp
             src/Login/LoginServerApplication.hpp src/Server/CrudServerApplication.cpp src/Server/CrudServerApplication.hpp
             src/Http/RequestHandler.hpp src/Server/style.hpp src/Data/FieldTypes.hpp src/Html/Presentation.cpp
             src/Html/Presentation.hpp src/Html/Page.cpp src/Html/Page.hpp src/Html/ActionLink.cpp src/Html/ActionLink.hpp src/Input/CheckBoxSelect.cpp src/Input/CheckBoxSelect.hpp src/Html/AlertType.hpp src/Html/Alert.cpp src/Html/Alert.hpp src/Http/Router.cpp src/Http/Router.hpp src/Http/NotFoundHandler.hpp src/Http/NotFoundHandler.cpp)

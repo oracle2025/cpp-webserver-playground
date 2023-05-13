@@ -1,5 +1,5 @@
 #pragma once
 
-#include "Server/RecursiveWebServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 
-using TestServer = RecursiveWebServer;
+using TestServer = SimpleWebServer;

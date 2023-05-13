@@ -3,10 +3,10 @@
 #include "Form.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "Password.hpp"
 #include "Presentation.hpp"
-#include "Server/CrudServer.hpp"
-#include "Server/RecursiveWebServer.hpp"
+#include "Server/CrudComponent.hpp"
 #include "Server/TestServer.hpp"
 #include "Server/style.hpp"
 #include "SessionId.hpp"
@@ -22,7 +22,7 @@ using std::set;
 using std::string;
 
 template<typename T>
-struct LoginServer : public T {
+struct LoginComponent : public T {
     static bool isLoginAttempt(const map<string, string>& parameters)
     {
         return parameters.count("username") && parameters.count("password");
@@ -49,7 +49,7 @@ struct LoginServer : public T {
         }
     }
 
-    LoginServer(
+    LoginComponent(
         shared_ptr<RequestHandler> secretHandler,
         shared_ptr<Html::Presentation> presentation)
         : m_secretHandler(secretHandler)

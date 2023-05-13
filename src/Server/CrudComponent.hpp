@@ -46,8 +46,8 @@
 using namespace Http;
 
 template<typename T>
-struct CrudServer : public T {
-    CrudServer()
+struct CrudComponent : public T {
+    CrudComponent()
     {
         T::router().get("/new", [](const Request& request) {
             using namespace Input;
