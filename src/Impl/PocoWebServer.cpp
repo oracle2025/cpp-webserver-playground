@@ -20,8 +20,8 @@ void PocoWebServer::finish_init()
     class HandlerFactory : public HTTPRequestHandlerFactory {
     public:
         HandlerFactory(
-            map<string, request_response_handler_type>& router,
-            request_response_handler_type& defaultHandler,
+            Router& router,
+            handler_type& defaultHandler,
             shared_ptr<Presentation> presentation)
             : router(router)
             , m_defaultHandler(defaultHandler)
@@ -35,8 +35,7 @@ void PocoWebServer::finish_init()
             class PageHandler : public HTTPRequestHandler {
             public:
                 PageHandler(
-                    request_response_handler_type handler,
-                    shared_ptr<Presentation> presentation)
+                    handler_type handler, shared_ptr<Presentation> presentation)
                     : handler(handler)
                     , m_presentation(presentation)
                 {
@@ -104,7 +103,7 @@ void PocoWebServer::finish_init()
                 }
 
             private:
-                request_response_handler_type handler;
+                handler_type handler;
                 shared_ptr<Presentation> m_presentation;
             };
             struct EmptyHandler : public HTTPRequestHandler {
@@ -120,19 +119,39 @@ void PocoWebServer::finish_init()
                 }
             };
             auto uri = Poco::URI(request.getURI());
-            if (router.find(uri.getPath()) != router.end()) {
-                return new PageHandler(router[uri.getPath()], m_presentation);
-            }
-            return new PageHandler(m_defaultHandler, m_presentation);
+            return new PageHandler(
+                router.findHandlerOrReturnDefault(
+                    uri.getPath(), m_defaultHandler),
+                m_presentation);
         }
 
     private:
-        map<string, request_response_handler_type>& router;
-        request_response_handler_type& m_defaultHandler;
+        Router& router;
+        handler_type& m_defaultHandler;
         shared_ptr<Presentation> m_presentation;
     };
     server = make_shared<HTTPServer>(
-        new HandlerFactory(router, m_defaultHandler, m_presentation),
+        new HandlerFactory(m_router, m_defaultHandler, m_presentation),
         socket,
         pParams);
+}
+void PocoWebServer::start()
+{
+    server->start();
+}
+void PocoWebServer::stop()
+{
+    server->stop();
+}
+void PocoWebServer::defaultHandler(handler_type handler)
+{
+    m_defaultHandler = std::move(handler);
+}
+void PocoWebServer::setPresentation(shared_ptr<Presentation> presentation)
+{
+    m_presentation = std::move(presentation);
+}
+Router& PocoWebServer::router()
+{
+    return m_router;
 }

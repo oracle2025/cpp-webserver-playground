@@ -4,6 +4,7 @@
 #include "Form.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "Http/NotFoundHandler.hpp"
 #include "List.hpp"
 #include "Submit.hpp"
 #include "style.hpp"
@@ -42,11 +43,13 @@
         std::chrono::system_clock::now();
  */
 
+using namespace Http;
+
 template<typename T>
 struct CrudServer : public T {
     CrudServer()
     {
-        T::get("/new", [](const Request& request) {
+        T::router().get("/new", [](const Request& request) {
             using namespace Input;
             Todo todo;
             return content(Form(todo, "/create", "post")
@@ -55,7 +58,7 @@ struct CrudServer : public T {
                 .title("Create Todo")
                 .shared_from_this();
         });
-        T::post("/create", [this](const Request& request) {
+        T::router().get("/create", [this](const Request& request) {
             Todo todo;
             for (auto i : todo.fields()) {
                 if (request.hasParameter(i)) {
@@ -67,7 +70,7 @@ struct CrudServer : public T {
                 ->alert("Todo created", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
-        T::get("/edit", [](const Request& request) {
+        T::router().get("/edit", [](const Request& request) {
             using namespace Input;
             Todo todo;
             if (todo.pop(request.query())) {
@@ -81,7 +84,7 @@ struct CrudServer : public T {
                 return todoNotFound();
             }
         });
-        T::post("/update", [](const Request& request) {
+        T::router().get("/update", [](const Request& request) {
             Todo todo;
             if (todo.pop(request.query())) {
                 for (auto i : todo.fields()) {
@@ -97,7 +100,7 @@ struct CrudServer : public T {
                 return todoNotFound();
             }
         });
-        T::get("/delete", [](const Request& request) {
+        T::router().get("/delete", [](const Request& request) {
             Todo todo;
             if (todo.pop(request.query())) {
                 todo.erase();
@@ -108,7 +111,7 @@ struct CrudServer : public T {
                 return todoNotFound();
             }
         });
-        T::get("/", [](const Request& request) {
+        T::router().get("/", [](const Request& request) {
             return content(Html::List(
                                Todo::listAsPointers(),
                                {"checked", "description"})())
@@ -117,9 +120,10 @@ struct CrudServer : public T {
                 .title("Todo List")
                 .shared_from_this();
         });
-        T::get("/css/style.css", [](const Request& request) {
+        T::router().get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
         });
+        T::defaultHandler(Http::NotFoundHandler);
         T::finish_init();
     }
     static shared_ptr<Response> todoNotFound()

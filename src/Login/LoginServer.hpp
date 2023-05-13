@@ -51,18 +51,18 @@ struct LoginServer : public T {
 
     LoginServer(
         shared_ptr<RequestHandler> secretHandler,
-        shared_ptr<Presentation> presentation)
+        shared_ptr<Html::Presentation> presentation)
         : m_secretHandler(secretHandler)
         , m_presentation(presentation)
     {
-        T::get("/", [this](const Request& request) {
+        T::router().get("/", [this](const Request& request) {
             if (hasValidSession(request) && m_secretHandler) {
                 return forwardToSecretHandler(request);
             } else {
                 return loginForm();
             }
         });
-        T::post("/login", [this](const Request& request) {
+        T::router().get("/login", [this](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
@@ -77,14 +77,14 @@ struct LoginServer : public T {
                 .cookie("session-id", sessionId)
                 .shared_from_this();
         });
-        T::get("/secret", [this](const Request& request) {
+        T::router().get("/secret", [this](const Request& request) {
             if (hasValidSession(request)) {
                 return content("Success");
             } else {
                 return content("Access denied");
             }
         });
-        T::get("/logout", [this](const Request& request) {
+        T::router().get("/logout", [this](const Request& request) {
             if (hasValidSession(request)) {
                 clearSession(request);
                 return redirect("/")
@@ -95,7 +95,7 @@ struct LoginServer : public T {
                 return content("Access denied");
             }
         });
-        T::get("/css/style.css", [](const Request& request) {
+        T::router().get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
         });
         T::defaultHandler([this](const Request& request) {
@@ -121,7 +121,7 @@ struct LoginServer : public T {
 private:
     set<SessionId> m_sessions;
     shared_ptr<RequestHandler> m_secretHandler;
-    shared_ptr<Presentation> m_presentation;
+    shared_ptr<Html::Presentation> m_presentation;
 
     shared_ptr<Response> loginForm()
     {

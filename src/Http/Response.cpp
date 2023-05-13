@@ -1,5 +1,6 @@
 
 #include "Response.hpp"
+namespace Http {
 
 using std::make_shared;
 shared_ptr<Response> Response::create()
@@ -94,3 +95,4 @@ shared_ptr<Response> redirect(const string& url)
         .code(Response::HTTP_FOUND)
         .shared_from_this();
 }
+} // namespace Http

@@ -1,4 +1,6 @@
 #include "Request.hpp"
+namespace Http {
+
 Request::Request(
     string path,
     map<string, string> cookies,
@@ -38,3 +40,4 @@ string Request::path() const
 {
     return m_path;
 }
+} // namespace Http

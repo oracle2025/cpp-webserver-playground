@@ -3,5 +3,5 @@
 TEST_CASE("Web Server")
 {
     TestServer w;
-    w.get("/", [](const Request& request) { return content("Hello World"); });
+    w.router().get("/", [](const Request& request) { return Http::content("Hello World"); });
 }

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace Http {
+
 using std::enable_shared_from_this;
 using std::map;
 using std::shared_ptr;
@@ -37,7 +39,8 @@ struct Response : public enable_shared_from_this<Response> {
 
     Response& appendNavBarAction(const ActionLink& action);
 
-    Response& alert(const string& alert, Html::AlertType type = Html::AlertType::DANGER);
+    Response& alert(
+        const string& alert, Html::AlertType type = Html::AlertType::DANGER);
 
     string content() const;
 
@@ -73,3 +76,4 @@ shared_ptr<Response> content(
     const string& content, const string& mimetype = "text/html");
 
 shared_ptr<Response> redirect(const string& url);
+} // namespace Http

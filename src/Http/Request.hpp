@@ -4,6 +4,7 @@
 
 using std::map;
 using std::string;
+namespace Http {
 
 struct Request {
     Request(
@@ -34,3 +35,4 @@ private:
     string m_query;
     string m_path;
 };
+} // namespace Http

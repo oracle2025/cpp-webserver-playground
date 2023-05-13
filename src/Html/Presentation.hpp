@@ -6,8 +6,9 @@
 #include <string>
 
 using std::ostringstream;
+using std::vector;
+using Http::Response;
 namespace Html {
-
 struct Presentation {
     static string render(const Response& response);
     static string renderAlert(const Alert& alert);
