@@ -45,13 +45,13 @@
 
 using namespace Http;
 
-template<typename T>
+template<typename T, typename F>
 struct CrudComponent : public T {
     CrudComponent()
     {
         T::router().get("/new", [](const Request& request) {
             using namespace Input;
-            Todo todo;
+            F todo;
             return content(Form(todo, "/create", "post")
                                .appendElement(Submit("Create Todo")())())
                 ->appendNavBarAction({"Start", "/"})
@@ -59,7 +59,7 @@ struct CrudComponent : public T {
                 .shared_from_this();
         });
         T::router().get("/create", [this](const Request& request) {
-            Todo todo;
+            F todo;
             for (auto i : todo.fields()) {
                 if (request.hasParameter(i)) {
                     todo.set(i, request.parameter(i));
@@ -72,7 +72,7 @@ struct CrudComponent : public T {
         });
         T::router().get("/edit", [](const Request& request) {
             using namespace Input;
-            Todo todo;
+            F todo;
             if (todo.pop(request.query())) {
                 return content(
                            Form(todo, string("/update?") + todo.key(), "post")
@@ -85,7 +85,7 @@ struct CrudComponent : public T {
             }
         });
         T::router().get("/update", [](const Request& request) {
-            Todo todo;
+            F todo;
             if (todo.pop(request.query())) {
                 for (auto i : todo.fields()) {
                     if (request.hasParameter(i)) {
@@ -101,7 +101,7 @@ struct CrudComponent : public T {
             }
         });
         T::router().get("/delete", [](const Request& request) {
-            Todo todo;
+            F todo;
             if (todo.pop(request.query())) {
                 todo.erase();
                 return redirect("/")
@@ -113,7 +113,7 @@ struct CrudComponent : public T {
         });
         T::router().get("/", [](const Request& request) {
             return content(Html::List(
-                               Todo::listAsPointers(),
+                               F::listAsPointers(),
                                {"checked", "description"})())
                 ->appendAction({"Create new Todo", "/new"})
                 .appendNavBarAction({"Start", "/"})

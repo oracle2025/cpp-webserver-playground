@@ -5,7 +5,7 @@
 
 int CrudServerApplication::main(const vector<string>& args)
 {
-    CrudComponent<PocoWebServer> server;
+    CrudComponent<PocoWebServer, Todo> server;
     server.start();
     waitForTerminationRequest();
     server.stop();

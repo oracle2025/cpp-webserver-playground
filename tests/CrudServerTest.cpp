@@ -22,7 +22,7 @@ using Poco::Data::Session;
 
 TEST_CASE("Crud Server")
 {
-    CrudComponent<TestServer> w;
+    CrudComponent<TestServer, Todo> w;
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");
     g_session = &session;

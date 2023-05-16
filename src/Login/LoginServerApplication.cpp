@@ -7,7 +7,7 @@
 int LoginServerApplication::main(const vector<string>& args)
 {
     LoginComponent<PocoWebServer> server(
-        std::make_shared<CrudComponent<SimpleWebServer>>(),
+        std::make_shared<CrudComponent<SimpleWebServer, Todo>>(),
         std::make_shared<Presentation>());
     server.start();
     waitForTerminationRequest();

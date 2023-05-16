@@ -24,18 +24,6 @@ string time_string()
     return std::ctime(&t_c);
 }
 
-string join(std::vector<string> const& strings, string delim)
-{
-    if (strings.empty()) {
-        return {};
-    }
-
-    return accumulate(
-        strings.begin() + 1,
-        strings.end(),
-        strings[0],
-        [&delim](string x, string y) { return x + delim + y; });
-}
 
 std::vector<Todo> Todo::list()
 {
@@ -78,10 +66,9 @@ void Todo::insert()
     id = Poco::UUIDGenerator::defaultGenerator().createRandom().toString();
     created_at = time_string();
     updated_at = time_string();
-    insert << "INSERT INTO Todo VALUES(?, ?, ?, ?, ?)", use(id),
-        use(m_description), use(created_at), use(updated_at), use(checked);
-
-    insert.execute();
+    typedef Poco::Tuple<string, string, string, string, int> TodoTuple;
+    TodoTuple todo_tuple(id, m_description, created_at, updated_at, checked);
+    insert << "INSERT INTO Todo VALUES(?, ?, ?, ?, ?)", use(todo_tuple), now;
 }
 
 void Todo::update()

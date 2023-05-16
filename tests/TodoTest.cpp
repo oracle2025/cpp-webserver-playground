@@ -2,8 +2,10 @@
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
+#include <Poco/Data/RecordSet.h>
 using Poco::Data::Session;
 #include "Data/Todo.hpp"
+#include <sstream>
 
 TEST_CASE("todo")
 {
@@ -37,5 +39,12 @@ TEST_CASE("todo")
             t.pop(id);
             CHECK(t.description() == "Buy Milk and Eggs");
         }
+    }
+    SUBCASE("erase")
+    {
+        Todo t;
+        t.pop(id);
+        t.erase();
+        CHECK(Todo::list().size() == 0);
     }
 }
