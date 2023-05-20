@@ -1,20 +1,24 @@
 #include "Person.hpp"
-
+#include "RecordImpl.hpp"
+#include "FieldTypes.hpp"
 #include "String/repeat.hpp"
 #include "doctest.h"
-#include "FieldTypes.hpp"
+#include "RecordImpl.hpp"
 
 #include <Poco/Data/RecordSet.h>
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 #include <Poco/Data/Statement.h>
+#include <Poco/UUIDGenerator.h>
 using Poco::Data::Session;
+using std::make_shared;
+using std::shared_ptr;
 using std::string;
 using std::vector;
-using std::shared_ptr;
-using std::make_shared;
 
 struct Person {
+    using RecordType = Poco::Tuple<string, string, string, int>;
+    RecordType data;
     string& id;
     string& name;
     string& address;
@@ -35,11 +39,6 @@ struct Person {
         , age(data.get<3>())
     {
     }
-    struct ColumnType {
-        string name;
-        string type;
-    };
-    using RecordType = Poco::Tuple<string, string, string, int>;
     string table_name() const
     {
         return "Persons";
@@ -47,144 +46,34 @@ struct Person {
     vector<ColumnType> columns() const
     {
         return {
-            {"name", "VARCHAR"},
-            {"address", "VARCHAR"},
-            {"age", "INTEGER(3)"},
+            {"name", "VARCHAR", HtmlInputType::TEXT},
+            {"address", "VARCHAR", HtmlInputType::TEXT},
+            {"age", "INTEGER(3)", HtmlInputType::NUMBER},
         };
     }
-    RecordType data;
+    void set(const string& key, const string& value)
+    {
+        if (key == "name") {
+            name = value;
+        } else if (key == "address") {
+            address = value;
+        } else if (key == "age") {
+            age = atoi(value.c_str());
+        }
+    }
+    string get(const string& key) const
+    {
+        if (key == "name") {
+            return name;
+        } else if (key == "address") {
+            return address;
+        } else if (key == "age") {
+            return std::to_string(age);
+        }
+        return "";
+    }
 };
 
-template<typename T>
-struct RecordImpl : public T {
-    void createTable(Session& session)
-    {
-        using namespace Poco::Data::Keywords;
-        session << "DROP TABLE IF EXISTS " + T::table_name(), now;
-        session << createStatement(T::columns()), now;
-    }
-
-    string createStatement(const vector<typename T::ColumnType>& columns) const
-    {
-        string statement = "CREATE TABLE " + T::table_name() + " (";
-        statement += "id VARCHAR, ";
-        for (auto& column : columns) {
-            statement += column.name + " " + column.type + ", ";
-        }
-        statement = statement.substr(0, statement.length() - 2);
-        statement += ")";
-        return statement;
-    }
-
-    void insertInto(Session& session)
-    {
-        using namespace Poco::Data::Keywords;
-        using Poco::Data::Statement;
-        using String::repeat;
-        Statement insert(session);
-        insert << "INSERT INTO " + T::table_name() + " VALUES(" + "?, "
-                + repeat("?", ", ", T::columns().size()) + ")",
-            use(T::data), now;
-    }
-    bool pop(Session& session, const string& _id)
-    {
-        using namespace Poco::Data::Keywords;
-        using Poco::Data::Statement;
-        using String::repeat;
-        T::id = _id;
-        Statement select(session);
-        typename T::RecordType record;
-        select << "SELECT * FROM " + T::table_name() + " WHERE id = ?",
-            use(T::id), into(T::data), range(0, 1);
-        if (select.execute() == 0) {
-            return false;
-        }
-        return true;
-    }
-    vector<RecordImpl<T>> list(Session& session)
-    {
-        vector<RecordImpl<T>> result;
-        using Poco::Data::Statement;
-        using namespace Poco::Data::Keywords;
-        RecordImpl<T> record;
-        Statement select(session);
-        select << selectStatement(T::columns()), into(record.data), range(0, 1);
-        while (!select.done()) {
-            if (select.execute()) {
-                result.push_back(record);
-            }
-        }
-        return result;
-    }
-    vector<shared_ptr<RecordImpl<T>>> listAsPointers(Session& session)
-    {
-        vector<shared_ptr<RecordImpl<T>>> result;
-        using Poco::Data::Statement;
-        using namespace Poco::Data::Keywords;
-        RecordImpl<T> record;
-        Statement select(session);
-        select << selectStatement(T::columns()), into(record.data), range(0, 1);
-        while (!select.done()) {
-            if (select.execute()) {
-                result.push_back(make_shared<RecordImpl<T>>(record));
-            }
-        }
-        return result;
-    }
-    string selectStatement(const vector<typename T::ColumnType>& columns) const
-    {
-        string statement = "SELECT ";
-        statement += "id, ";
-        for (auto& column : columns) {
-            statement += column.name + ", ";
-        }
-        statement = statement.substr(0, statement.length() - 2);
-        statement += " FROM " + T::table_name();
-        return statement;
-    }
-    bool update(Session& session, const string& _id)
-    {
-        using namespace Poco::Data::Keywords;
-        using Poco::Data::Statement;
-        using String::repeat;
-        T::id = _id;
-        Statement update(session);
-        update << updateStatement(T::columns()), use(T::data), use(T::id);
-        if (update.execute() == 0) {
-            return false;
-        }
-        return true;
-    }
-    string updateStatement(const vector<typename T::ColumnType>& columns) const
-    {
-        string statement = "UPDATE " + T::table_name() + " SET ";
-        statement += "id = ?, ";
-        for (auto& column : columns) {
-            statement += column.name + " = ?, ";
-        }
-        statement = statement.substr(0, statement.length() - 2);
-        statement += " WHERE id = ?";
-        return statement;
-    }
-    bool erase(Session& session, const string& _id)
-    {
-        using namespace Poco::Data::Keywords;
-        using Poco::Data::Statement;
-        T::id = _id;
-        Statement erase(session);
-        erase << "DELETE FROM " + T::table_name() + " WHERE id = ?", use(T::id);
-        if (erase.execute() == 0) {
-            return false;
-        }
-        return true;
-    }
-    void set(const string& key, const string& value);
-    std::map<string, string> values() const;
-    string key() const;
-    std::vector<string> fields() const;
-    HtmlInputType inputType(const string& field) const;
-
-};
 
 TEST_CASE("PersonRecord")
 {
@@ -246,6 +135,6 @@ TEST_CASE("PersonRecord")
         RecordImpl<Person> record;
         auto all = record.listAsPointers(session);
         CHECK(all.size() == 1);
-        CHECK(all[0]->name == "Peter");
+        CHECK(all[0]->values()["name"] == "Peter");
     }
 }

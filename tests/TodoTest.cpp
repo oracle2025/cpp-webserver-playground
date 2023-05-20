@@ -12,39 +12,46 @@ TEST_CASE("todo")
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");
     g_session = &session;
-    Todo::create_table();
-    Todo todo = {"0123", "Buy Milk", time_string(), time_string(), 0};
+    using TodoType = RecordImpl<TodoDefinition>;
+    TodoType todo = TodoType::RecordType {"0123", "Buy Milk", time_string(), time_string(), 0};
+    todo.create_table();
     todo.insert();
     auto id = todo.key();
     SUBCASE("list")
     {
-        auto result = Todo::list();
+        auto result = todo.list();
         CHECK(result.size() == 1);
         CHECK(result[0].key() == id);
     }
     SUBCASE("pop")
     {
-        Todo t;
+        TodoType t;
         t.pop(id);
         CHECK(t.description() == "Buy Milk");
     }
     SUBCASE("update")
     {
-        Todo t;
+        TodoType t;
         t.pop(id);
         t.set("description", "Buy Milk and Eggs");
         t.update();
         {
-            Todo t;
+            TodoType t;
             t.pop(id);
             CHECK(t.description() == "Buy Milk and Eggs");
         }
     }
     SUBCASE("erase")
     {
-        Todo t;
+        TodoType t;
         t.pop(id);
         t.erase();
         CHECK(Todo::list().size() == 0);
+    }
+    SUBCASE("todoDefintion")
+    {
+        RecordImpl<TodoDefinition> t;
+        t.pop(id);
+        CHECK(t.description() == "Buy Milk");
     }
 }

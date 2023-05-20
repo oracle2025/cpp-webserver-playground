@@ -112,8 +112,9 @@ struct CrudComponent : public T {
             }
         });
         T::router().get("/", [](const Request& request) {
+            F todo;
             return content(Html::List(
-                               F::listAsPointers(),
+                               todo.listAsPointers(),
                                {"checked", "description"})())
                 ->appendAction({"Create new Todo", "/new"})
                 .appendNavBarAction({"Start", "/"})
