@@ -15,10 +15,11 @@ int main()
         Poco::Data::SQLite::Connector::registerConnector();
         Session session("SQLite", ":memory:");
         g_session = &session;
-        Todo::create_table();
-        Todo todo = {"0123", "Buy Milk", "", "", 0};
+        using TodoType = RecordImpl<TodoDefinition>;
+        TodoType todo = TodoType::RecordType{"0123", "Buy Milk", "", "", 0};
+        todo.create_table();
         todo.insert();
-        todo = {"0123", "Empty Trash", "", "", 0};
+        todo = TodoType::RecordType{"0123", "Empty Trash", "", "", 0};
         todo.insert();
         CrudServerApplication app;
         static char buffer[MAX_INPUT];

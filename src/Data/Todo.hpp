@@ -52,6 +52,11 @@ struct TodoDefinition {
         , checked(data.get<4>())
     {
     }
+    TodoDefinition& operator=(const TodoDefinition &other)
+    {
+        data = other.data;
+        return *this;
+    }
     string table_name() const
     {
         return "Todo";

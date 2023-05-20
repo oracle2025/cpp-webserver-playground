@@ -23,6 +23,7 @@ struct ColumnType {
 template<typename T>
 struct RecordImpl : public T, public Record {
     RecordImpl() = default;
+    RecordImpl(const RecordImpl<T>&) = default;
     RecordImpl(const typename T::RecordType& data)
         : T(data)
     {
