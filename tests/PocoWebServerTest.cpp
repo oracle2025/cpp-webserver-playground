@@ -14,16 +14,16 @@ TEST_CASE("Poco Web Server")
         Poco::Data::SQLite::Connector::registerConnector();
         Session session("SQLite", ":memory:");
         g_session = &session;
-        Todo::create_table();
-        Todo todo = {"0123", "Buy Milk", "", "", 0};
+        Todo todo = Todo::RecordType{"0123", "Buy Milk", "", "", 0};
+        todo.create_table();
         todo.insert();
-        todo = {"0123", "Empty Trash", "", "", 0};
+        todo = Todo::RecordType{"0123", "Empty Trash", "", "", 0};
         todo.insert();
         CrudServerApplication app;
         static char buffer[MAX_INPUT];
         strncpy(buffer, "app", MAX_INPUT);
         char* argv[] = {buffer};
-        //app.run(1, argv);
+        // app.run(1, argv);
     } catch (Poco::Exception& exc) {
         cerr << exc.displayText() << endl;
     }

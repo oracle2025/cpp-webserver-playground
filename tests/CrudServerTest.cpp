@@ -26,7 +26,10 @@ TEST_CASE("Crud Server")
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");
     g_session = &session;
-    Todo::create_table();
+    {
+        Todo t;
+        t.create_table();
+    }
     SUBCASE("UUID to string")
     {
         Poco::UUID id("7f74fe03-d834-4d5e-bde7-58712c755781");
