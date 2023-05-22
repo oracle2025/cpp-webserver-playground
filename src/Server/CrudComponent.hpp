@@ -2,9 +2,9 @@
 
 #include "Data/Todo.hpp"
 #include "Form.hpp"
+#include "Http/NotFoundHandler.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
-#include "Http/NotFoundHandler.hpp"
 #include "List.hpp"
 #include "Submit.hpp"
 #include "style.hpp"
@@ -103,9 +103,47 @@ struct CrudComponent : public T {
         T::router().get("/delete", [](const Request& request) {
             F todo;
             if (todo.pop(request.query())) {
-                todo.erase();
-                return redirect("/")
-                    ->alert("Todo deleted", Html::AlertType::WARNING)
+                for (auto& i : request.allParameters()) {
+                    std::cout << "Param: " << i.first << " = " << i.second
+                              << std::endl;
+                }
+                if (request.hasParameter("confirmed")) {
+                    todo.erase();
+                    return redirect("/")
+                        ->alert("Todo deleted", Html::AlertType::WARNING)
+                        .shared_from_this();
+                } else if (request.hasParameter("canceled")) {
+                    return redirect("/")
+                        ->alert("Delete canceled", Html::AlertType::INFO)
+                        .shared_from_this();
+                } else
+
+                {
+                    return redirect("/confirm?" + todo.key())
+                        ->alert(
+                            "Are you sure you want to delete this todo?",
+                            Html::AlertType::WARNING)
+                        .shared_from_this();
+                }
+            } else {
+                return todoNotFound();
+            }
+        });
+        T::router().get("/confirm", [](const Request& request) {
+            using namespace Input;
+            F todo;
+            if (todo.pop(request.query())) {
+                return content(Form(
+                                   {Submit("Delete " + todo.description())
+                                        .name("confirmed")
+                                        .value("yes")(),
+                                    Submit("Cancel")
+                                        .name("canceled")
+                                        .value("yes")()},
+                                   "/delete?" + todo.key(),
+                                   "post")())
+                    ->appendNavBarAction({"Start", "/"})
+                    .title("Confirm Delete")
                     .shared_from_this();
             } else {
                 return todoNotFound();
@@ -113,9 +151,9 @@ struct CrudComponent : public T {
         });
         T::router().get("/", [](const Request& request) {
             F todo;
-            return content(Html::List(
-                               todo.listAsPointers(),
-                               {"checked", "description"})())
+            return content(
+                       Html::List(
+                           todo.listAsPointers(), {"checked", "description"})())
                 ->appendAction({"Create new Todo", "/new"})
                 .appendNavBarAction({"Start", "/"})
                 .title("Todo List")
