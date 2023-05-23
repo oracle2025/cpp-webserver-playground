@@ -67,8 +67,6 @@ border-radius: 4px;
 box-sizing: border-box;
 }
 button[type=submit] {
-background-color: #4CAF50;
-color: white;
 padding: 14px 20px;
 margin: 8px 0;
 border: none;
@@ -76,8 +74,26 @@ border-radius: 4px;
 cursor: pointer;
 width: 100%;
 }
-button[type=submit]:hover {
+button[type=submit].btn-success {
+    background-color: #4CAF50;
+    color: white;
+}
+button[type=submit].btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+button[type=submit].btn-light {
+    color: #212529;
+    background-color: #f8f9fa;
+}
+button[type=submit]:hover.btn-success {
 background-color: #45a049;
+}
+button[type=submit]:hover.btn-danger {
+background-color: #c82333;
+}
+button[type=submit]:hover.btn-light {
+background-color: #e2e6ea;
 }
 table {
 border-collapse: collapse;

@@ -47,44 +47,47 @@ using namespace Http;
 
 template<typename T, typename F>
 struct CrudComponent : public T {
-    CrudComponent()
+    CrudComponent(const string& prefix)
     {
-        T::router().get("/new", [](const Request& request) {
+        T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
             F todo;
-            return content(Form(todo, "/create", "post")
+            return content(Form(todo, prefix + "/create", "post")
                                .appendElement(Submit("Create Todo")())())
-                ->appendNavBarAction({"Start", "/"})
+                ->appendNavBarAction({"Start", prefix + "/"})
                 .title("Create Todo")
                 .shared_from_this();
         });
-        T::router().get("/create", [this](const Request& request) {
-            F todo;
-            for (auto i : todo.fields()) {
-                if (request.hasParameter(i)) {
-                    todo.set(i, request.parameter(i));
+        T::router().get(
+            prefix + "/create", [this, prefix](const Request& request) {
+                F todo;
+                for (auto i : todo.fields()) {
+                    if (request.hasParameter(i)) {
+                        todo.set(i, request.parameter(i));
+                    }
                 }
-            }
-            todo.insert();
-            return redirect("/edit?" + todo.key())
-                ->alert("Todo created", Html::AlertType::SUCCESS)
-                .shared_from_this();
-        });
-        T::router().get("/edit", [](const Request& request) {
+                todo.insert();
+                return redirect(prefix + "/edit?" + todo.key())
+                    ->alert("Todo created", Html::AlertType::SUCCESS)
+                    .shared_from_this();
+            });
+        T::router().get(prefix + "/edit", [prefix](const Request& request) {
             using namespace Input;
             F todo;
             if (todo.pop(request.query())) {
-                return content(
-                           Form(todo, string("/update?") + todo.key(), "post")
-                               .appendElement(Submit("Update Todo")())())
-                    ->appendNavBarAction({"Start", "/"})
+                return content(Form(
+                                   todo,
+                                   string(prefix + "/update?") + todo.key(),
+                                   "post")
+                                   .appendElement(Submit("Update Todo")())())
+                    ->appendNavBarAction({"Start", prefix + "/"})
                     .title("Edit Todo")
                     .shared_from_this();
             } else {
-                return todoNotFound();
+                return todoNotFound(prefix);
             }
         });
-        T::router().get("/update", [](const Request& request) {
+        T::router().get(prefix + "/update", [prefix](const Request& request) {
             F todo;
             if (todo.pop(request.query())) {
                 for (auto i : todo.fields()) {
@@ -93,14 +96,14 @@ struct CrudComponent : public T {
                     }
                 }
                 todo.update();
-                return redirect("/edit?" + todo.key())
+                return redirect(prefix + "/edit?" + todo.key())
                     ->alert("Todo updated", Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
-                return todoNotFound();
+                return todoNotFound(prefix);
             }
         });
-        T::router().get("/delete", [](const Request& request) {
+        T::router().get(prefix + "/delete", [prefix](const Request& request) {
             F todo;
             if (todo.pop(request.query())) {
                 for (auto& i : request.allParameters()) {
@@ -109,55 +112,59 @@ struct CrudComponent : public T {
                 }
                 if (request.hasParameter("confirmed")) {
                     todo.erase();
-                    return redirect("/")
+                    return redirect(prefix + "/")
                         ->alert("Todo deleted", Html::AlertType::WARNING)
                         .shared_from_this();
                 } else if (request.hasParameter("canceled")) {
-                    return redirect("/")
+                    return redirect(prefix + "/")
                         ->alert("Delete canceled", Html::AlertType::INFO)
                         .shared_from_this();
-                } else
-
-                {
-                    return redirect("/confirm?" + todo.key())
+                } else {
+                    return redirect(prefix + "/confirm?" + todo.key())
                         ->alert(
                             "Are you sure you want to delete this todo?",
                             Html::AlertType::WARNING)
                         .shared_from_this();
                 }
             } else {
-                return todoNotFound();
+                return todoNotFound(prefix);
             }
         });
-        T::router().get("/confirm", [](const Request& request) {
+        T::router().get(prefix + "/confirm", [prefix](const Request& request) {
             using namespace Input;
             F todo;
             if (todo.pop(request.query())) {
                 return content(Form(
-                                   {Submit("Delete " + todo.description())
-                                        .name("confirmed")
-                                        .value("yes")(),
-                                    Submit("Cancel")
+                                   {Submit("Cancel")
                                         .name("canceled")
-                                        .value("yes")()},
-                                   "/delete?" + todo.key(),
+                                        .value("yes")
+                                        .buttonClass("light")(),
+                                    Submit("Delete " + todo.description())
+                                        .name("confirmed")
+                                        .value("yes")
+                                        .buttonClass("danger")()},
+                                   prefix + "/delete?" + todo.key(),
                                    "post")())
-                    ->appendNavBarAction({"Start", "/"})
+                    ->appendNavBarAction({"Start", prefix + "/"})
                     .title("Confirm Delete")
                     .shared_from_this();
             } else {
-                return todoNotFound();
+                return todoNotFound(prefix);
             }
         });
-        T::router().get("/", [](const Request& request) {
+        T::router().get(prefix + "/", [prefix](const Request& request) {
             F todo;
             return content(
                        Html::List(
-                           todo.listAsPointers(), {"checked", "description"})())
-                ->appendAction({"Create new Todo", "/new"})
-                .appendNavBarAction({"Start", "/"})
+                           todo.listAsPointers(), {"checked", "description"})
+                           .prefix(prefix)())
+                ->appendAction({"Create new Todo", prefix + "/new"})
+                .appendNavBarAction({"Start", prefix + "/"})
                 .title("Todo List")
                 .shared_from_this();
+        });
+        T::router().get("/", [prefix](const Request& request) {
+            return redirect(prefix + "/");
         });
         T::router().get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
@@ -165,11 +172,11 @@ struct CrudComponent : public T {
         T::defaultHandler(Http::NotFoundHandler);
         T::finish_init();
     }
-    static shared_ptr<Response> todoNotFound()
+    static shared_ptr<Response> todoNotFound(const string& prefix)
     {
         return content("Todo not found")
             ->code(Response::NOT_FOUND)
-            .appendNavBarAction({"Start", "/"})
+            .appendNavBarAction({"Start", prefix + "/"})
             .shared_from_this();
     }
 };

@@ -34,11 +34,11 @@ string List::operator()()
                 break;
             }
         }
-        str << R"(<td><a href="/edit?)" << record->key()
+        str << R"(<td><a href=")" << m_prefix << R"(/edit?)" << record->key()
             << R"(" class="edit button">)"
             << R"(✏️ <span class="label">Edit</span></a>)"
                "</td>";
-        str << R"(<td><a href="/delete?)" << record->key()
+        str << R"(<td><a href=")" << m_prefix << R"(/delete?)" << record->key()
             << R"(" class="remove button">)"
             << R"(♻️ <span class="label">Delete</span></a>)"
                "</td>";
@@ -51,5 +51,10 @@ List::List(vector<shared_ptr<Record>> records, vector<string> columns)
     : records(std::move(records))
     , columns(std::move(columns))
 {
+}
+List& List::prefix(const string& prefix)
+{
+    m_prefix = prefix;
+    return *this;
 }
 } // namespace Html

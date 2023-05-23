@@ -15,10 +15,12 @@ class List {
 public:
     explicit List(vector<shared_ptr<Record>> records, vector<string> columns);
     string operator()();
+    List& prefix(const string& prefix);
 
 private:
     vector<std::shared_ptr<Record>> records;
     vector<string> columns;
+    string m_prefix;
 };
 
 } // namespace Html

@@ -3,13 +3,10 @@
 #include "FieldTypes.hpp"
 #include "String/repeat.hpp"
 #include "doctest.h"
-#include "RecordImpl.hpp"
 
-#include <Poco/Data/RecordSet.h>
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 #include <Poco/Data/Statement.h>
-#include <Poco/UUIDGenerator.h>
 using Poco::Data::Session;
 using std::make_shared;
 using std::shared_ptr;
