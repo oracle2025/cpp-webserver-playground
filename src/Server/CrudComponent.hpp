@@ -163,9 +163,11 @@ struct CrudComponent : public T {
                 .title("Todo List")
                 .shared_from_this();
         });
-        T::router().get("/", [prefix](const Request& request) {
-            return redirect(prefix + "/");
-        });
+        if (!prefix.empty()) {
+            T::router().get("/", [prefix](const Request& request) {
+                return redirect(prefix + "/");
+            });
+        }
         T::router().get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
         });
