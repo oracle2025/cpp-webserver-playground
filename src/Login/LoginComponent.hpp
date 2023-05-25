@@ -3,6 +3,7 @@
 #include "Form.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "Http/Session.hpp"
 #include "Impl/SimpleWebServer.hpp"
 #include "Password.hpp"
 #include "Presentation.hpp"
@@ -36,27 +37,15 @@ struct LoginComponent : public T {
             && (parameters.at("password") == password);
     }
 
-    bool hasValidSession(const Request& request) const
-    {
-        return request.hasCookie("session-id")
-            && m_sessions.count(SessionId{request.cookie("session-id")});
-    }
-
-    void clearSession(const Request& request)
-    {
-        if (request.hasCookie("session-id")) {
-            m_sessions.erase(SessionId{request.cookie("session-id")});
-        }
-    }
-
     LoginComponent(
         shared_ptr<RequestHandler> secretHandler,
         shared_ptr<Html::Presentation> presentation)
         : m_secretHandler(secretHandler)
         , m_presentation(presentation)
     {
+        using Http::Session;
         T::router().get("/", [this](const Request& request) {
-            if (hasValidSession(request) && m_secretHandler) {
+            if (Session(request).hasValidSession() && m_secretHandler) {
                 return forwardToSecretHandler(request);
             } else {
                 return loginForm();
@@ -67,26 +56,28 @@ struct LoginComponent : public T {
                 return content("Invalid Request");
             }
             if (!isValidUser(request.allParameters())) {
-                return redirect("/")->alert("Invalid Login", Html::AlertType::DANGER)
+                return redirect("/")
+                    ->alert("Invalid Login", Html::AlertType::DANGER)
                     .shared_from_this();
             }
-            auto sessionId = generateRandomSessionId();
-            m_sessions.insert(sessionId);
-            return redirect("/")
-                ->alert("Logged in successfully", Html::AlertType::SUCCESS)
-                .cookie("session-id", sessionId)
-                .shared_from_this();
+            auto response
+                = redirect("/")
+                      ->alert(
+                          "Logged in successfully", Html::AlertType::SUCCESS)
+                      .shared_from_this();
+            Session(request).createSession(*response);
+            return response;
         });
         T::router().get("/secret", [this](const Request& request) {
-            if (hasValidSession(request)) {
+            if (Session(request).hasValidSession()) {
                 return content("Success");
             } else {
                 return content("Access denied");
             }
         });
         T::router().get("/logout", [this](const Request& request) {
-            if (hasValidSession(request)) {
-                clearSession(request);
+            if (Session(request).hasValidSession()) {
+                Session(request).clearSession();
                 return redirect("/")
                     ->cookie("session-id", "")
                     .alert("Logged out", Html::AlertType::INFO)
@@ -99,11 +90,11 @@ struct LoginComponent : public T {
             return content(STYLE_SHEET, "text/css");
         });
         T::defaultHandler([this](const Request& request) {
-            if (hasValidSession(request)) {
+            if (Session(request).hasValidSession()) {
                 return forwardToSecretHandler(request);
             } else {
-                return content("Access denied")
-                    ->code(Response::UNAUTHORIZED)
+                return redirect("/")
+                    ->alert("Please login", Html::AlertType::INFO)
                     .shared_from_this();
             }
         });
@@ -119,7 +110,6 @@ struct LoginComponent : public T {
     }
 
 private:
-    set<SessionId> m_sessions;
     shared_ptr<RequestHandler> m_secretHandler;
     shared_ptr<Html::Presentation> m_presentation;
 
@@ -130,9 +120,6 @@ private:
             {Text("username")(), Password("password")(), Submit("Login")()},
             "/login",
             "post")();
-        return content(text)
-            ->title("Login")
-            .shared_from_this();
+        return content(text)->title("Login").shared_from_this();
     }
 };
-

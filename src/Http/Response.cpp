@@ -15,7 +15,7 @@ Response& Response::content(const string& content, const string& mimetype)
 }
 Response& Response::code(int code)
 {
-    m_code = code;
+    m_status = code;
     return *this;
 }
 Response& Response::cookie(const string& name, const string& value)
@@ -31,9 +31,9 @@ map<string, string> Response::cookies() const
 {
     return m_cookies;
 }
-int Response::code() const
+int Response::status() const
 {
-    return m_code;
+    return m_status;
 }
 string Response::mimetype() const
 {

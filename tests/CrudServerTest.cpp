@@ -44,12 +44,12 @@ TEST_CASE("Crud Server")
     SUBCASE("404 Not found")
     {
         auto response = w.handle({"/edit?invalid-uuid"});
-        CHECK_EQ(response->code(), 404);
+        CHECK_EQ(response->status(), 404);
     }
     SUBCASE("Create")
     {
         auto response = w.handle({"/new"});
-        CHECK_EQ(response->code(), 200);
+        CHECK_EQ(response->status(), 200);
         CHECK(response->content().find("Create") != string::npos);
     }
     SUBCASE("List")

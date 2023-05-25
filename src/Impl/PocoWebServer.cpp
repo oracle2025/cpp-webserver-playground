@@ -65,6 +65,7 @@ void PocoWebServer::finish_init()
                         uri.getPath(), cookiesMap, parameters, uri.getQuery()));
                     for (auto& [key, value] : result->cookies()) {
                         HTTPCookie cookie(key, value);
+                        cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
                         if (value.empty()) {
                             cookie.setMaxAge(0);
                         }
@@ -76,19 +77,21 @@ void PocoWebServer::finish_init()
                         response.addCookie(
                             {"alert-type", result->alert().typeAsString()});
                     } else {
-                        {
+                        if (cookiesMap.count("alert-type") > 0) {
                             HTTPCookie cookie("alert-type", "");
                             cookie.setMaxAge(0);
+                            cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
                             response.addCookie(cookie);
                         }
-                        {
+                        if (cookiesMap.count("alert") > 0) {
                             HTTPCookie cookie("alert", "");
                             cookie.setMaxAge(0);
+                            cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
                             response.addCookie(cookie);
                         }
                     }
                     response.setContentType(result->mimetype());
-                    if (result->code() == Response::HTTP_FOUND
+                    if (result->status() == Response::HTTP_FOUND
                         && (!result->location().empty())) {
                         response.redirect(result->location());
                     }

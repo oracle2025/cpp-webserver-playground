@@ -48,7 +48,7 @@ struct Response : public enable_shared_from_this<Response> {
 
     map<string, string> cookies() const;
 
-    int code() const;
+    int status() const;
 
     string mimetype() const;
 
@@ -63,7 +63,7 @@ struct Response : public enable_shared_from_this<Response> {
 private:
     string m_content;
     map<string, string> m_cookies;
-    int m_code = OK;
+    int m_status = OK;
     string m_mimetype = "text/html";
     string m_location;
     vector<ActionLink> m_actions;
