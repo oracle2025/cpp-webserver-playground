@@ -1,11 +1,12 @@
 
 #include "Session.hpp"
+
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 
 namespace Http {
 
-set<SessionId> Session::m_sessions;
+map<SessionId, SessionData> Session::m_sessions;
 
 Session::Session(const Request& request)
     : request(request)
@@ -14,7 +15,8 @@ Session::Session(const Request& request)
 bool Session::hasValidSession() const
 {
     return request.hasCookie("session-id")
-        && m_sessions.count(SessionId{request.cookie("session-id")});
+        && m_sessions.find(SessionId{request.cookie("session-id")})
+        != m_sessions.end();
 }
 void Session::clearSession()
 {
@@ -22,10 +24,19 @@ void Session::clearSession()
         m_sessions.erase(SessionId{request.cookie("session-id")});
     }
 }
-void Session::createSession(Response& response)
+SessionData& Session::createSession(Response& response)
 {
     auto sessionId = generateRandomSessionId();
-    m_sessions.insert(sessionId);
+    m_sessions[sessionId] = {};
     response.cookie("session-id", sessionId);
+    return m_sessions[sessionId];
+}
+SessionData& Session::current()
+{
+    if (!hasValidSession()) {
+        throw std::runtime_error("Invalid Session");
+    }
+    auto session = m_sessions.find(SessionId{request.cookie("session-id")});
+    return session->second;
 }
 } // namespace Http

@@ -26,6 +26,7 @@ Poco::UUID SessionId::asUUID() const
 {
     return uuid;
 }
+
 SessionId generateRandomSessionId()
 {
     return SessionId{Poco::UUIDGenerator::defaultGenerator().createRandom()};

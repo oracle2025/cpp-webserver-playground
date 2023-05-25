@@ -21,6 +21,8 @@ class Router : public map<string, handler_type> {
 public:
     handler_type &findHandlerOrReturnDefault(const string& path, handler_type& defaultHandler);
 
+    shared_ptr<Response> handle(const Request& request);
+
     Router& get(const string& path, handler_type handler);
 
 };

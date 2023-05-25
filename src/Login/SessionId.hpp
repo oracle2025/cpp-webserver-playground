@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Poco/UUID.h>
 
 #include <string>
@@ -14,6 +15,7 @@ struct SessionId : public string {
     SessionId& operator=(const Poco::UUID& b);
 
     Poco::UUID asUUID() const;
+
 
 private:
     Poco::UUID uuid;

@@ -1,25 +1,27 @@
 #pragma once
 
 #include "Login/SessionId.hpp"
+#include "Http/SessionData.hpp"
 
-#include <set>
+#include <map>
 
 namespace Http {
 
 class Request;
 class Response;
-using std::set;
+using std::map;
 
 class Session {
 public:
     Session(const Request& request);
     bool hasValidSession() const;
     void clearSession();
-    void createSession(Response& response);
+    SessionData& createSession(Response& response);
+    SessionData& current();
 
 private:
     const Request& request;
-    static set<SessionId> m_sessions;
+    static map<SessionId, SessionData> m_sessions;
 };
 
 } // namespace Http
