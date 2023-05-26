@@ -1,4 +1,5 @@
 #include "PocoWebServer.hpp"
+#include "Http/Session.hpp"
 
 #include <iostream>
 
@@ -61,8 +62,10 @@ void PocoWebServer::finish_init()
                     for (auto& [key, value] : form) {
                         parameters[key] = value;
                     }
-                    auto result = handler(Request(
-                        uri.getPath(), cookiesMap, parameters, uri.getQuery()));
+                    const Request req(
+                        uri.getPath(), cookiesMap, parameters, uri.getQuery());
+                    auto result = handler(req);
+                    Http::Session::addAlertToSession(req, *result);
                     for (auto& [key, value] : result->cookies()) {
                         HTTPCookie cookie(key, value);
                         cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
@@ -71,37 +74,12 @@ void PocoWebServer::finish_init()
                         }
                         response.addCookie(cookie);
                     }
-                    if (!result->alert().message().empty()) {
-                        response.addCookie(
-                            {"alert", result->alert().message()});
-                        response.addCookie(
-                            {"alert-type", result->alert().typeAsString()});
-                    } else {
-                        if (cookiesMap.count("alert-type") > 0) {
-                            HTTPCookie cookie("alert-type", "");
-                            cookie.setMaxAge(0);
-                            cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
-                            response.addCookie(cookie);
-                        }
-                        if (cookiesMap.count("alert") > 0) {
-                            HTTPCookie cookie("alert", "");
-                            cookie.setMaxAge(0);
-                            cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
-                            response.addCookie(cookie);
-                        }
-                    }
                     response.setContentType(result->mimetype());
                     if (result->status() == Response::HTTP_FOUND
                         && (!result->location().empty())) {
                         response.redirect(result->location());
                     }
                     auto& responseStream = response.send();
-                    if (cookiesMap.count("alert") > 0
-                        && cookiesMap.count("alert-type") > 0) {
-                        result->alert(
-                            cookiesMap["alert"],
-                            Html::Alert::fromString(cookiesMap["alert-type"]));
-                    }
                     responseStream << m_presentation->render(*result);
                 }
 

@@ -73,3 +73,7 @@ TEST_CASE("Alert after multiple redirects")
     auto r = w.handle({"/redirect_and_alert"});
     CHECK(r->status() == 302);
 }
+
+TEST_CASE("Session is removed after last Alert is displayed")
+{
+}
