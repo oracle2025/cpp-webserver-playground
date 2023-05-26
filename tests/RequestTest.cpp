@@ -9,7 +9,7 @@ TEST_CASE("Request Session")
     Http::Response response;
     Http::Session session(request);
 
-    session.hasValidSession();
+    session.isLoggedIn();
     session.clearSession();
     session.createSession(response);
 }

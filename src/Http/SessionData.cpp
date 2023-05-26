@@ -18,4 +18,16 @@ const SessionData::Alert& SessionData::getAlert() const
 {
     return m_alert.value();
 }
+void SessionData::login()
+{
+    m_isLoggedIn = true;
+}
+void SessionData::logout()
+{
+    m_isLoggedIn = false;
+}
+bool SessionData::isLoggedIn() const
+{
+    return m_isLoggedIn;
+}
 } // namespace Http

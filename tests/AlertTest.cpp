@@ -48,23 +48,7 @@ struct SimpleSessionServer {
     shared_ptr<Http::Response> handle(const Http::Request& request)
     {
         auto response = m_router.handle(request);
-        Session session(request);
-        if (session.hasValidSession()) {
-            auto current = session.current();
-            if (current.hasAlert()) {
-                response->alert(
-                    current.getAlert().message(),
-                    current.getAlert().alertType());
-                current.clearAlert();
-            } else if (!response->alert().message().empty()) {
-                current.alert(response->alert());
-            }
-        } else {
-            auto& current = session.createSession(*response);
-            if (!response->alert().message().empty()) {
-                current.alert(response->alert());
-            }
-        }
+        Session::addAlertToSession(request, *response);
         return response;
     }
 
@@ -85,4 +69,7 @@ TEST_CASE("Alert after redirect")
 
 TEST_CASE("Alert after multiple redirects")
 {
+    SimpleAlertComponent<SimpleSessionServer> w;
+    auto r = w.handle({"/redirect_and_alert"});
+    CHECK(r->status() == 302);
 }

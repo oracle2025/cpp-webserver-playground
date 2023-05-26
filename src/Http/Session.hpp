@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Login/SessionId.hpp"
 #include "Http/SessionData.hpp"
+#include "Login/SessionId.hpp"
 
 #include <map>
 
@@ -14,10 +14,11 @@ using std::map;
 class Session {
 public:
     Session(const Request& request);
-    bool hasValidSession() const;
+    bool isLoggedIn() const;
     void clearSession();
     SessionData& createSession(Response& response);
-    SessionData& current();
+    SessionData& current(Response& response);
+    static void addAlertToSession(const Request& request, Response& response);
 
 private:
     const Request& request;

@@ -19,8 +19,15 @@ public:
 
     const Alert& getAlert() const;
 
+    void login();
+
+    void logout();
+
+    bool isLoggedIn() const;
+
 private:
     optional<Alert> m_alert;
+    bool m_isLoggedIn = false;
 };
 
 } // namespace Http

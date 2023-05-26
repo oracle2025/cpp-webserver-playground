@@ -45,7 +45,7 @@ struct LoginComponent : public T {
     {
         using Http::Session;
         T::router().get("/", [this](const Request& request) {
-            if (Session(request).hasValidSession() && m_secretHandler) {
+            if (Session(request).isLoggedIn() && m_secretHandler) {
                 return forwardToSecretHandler(request);
             } else {
                 return loginForm();
@@ -65,23 +65,24 @@ struct LoginComponent : public T {
                       ->alert(
                           "Logged in successfully", Html::AlertType::SUCCESS)
                       .shared_from_this();
-            Session(request).createSession(*response);
+            Session(request).clearSession();
+            Session(request).current(*response).login();
             return response;
         });
         T::router().get("/secret", [this](const Request& request) {
-            if (Session(request).hasValidSession()) {
+            if (Session(request).isLoggedIn()) {
                 return content("Success");
             } else {
                 return content("Access denied");
             }
         });
         T::router().get("/logout", [this](const Request& request) {
-            if (Session(request).hasValidSession()) {
-                Session(request).clearSession();
-                return redirect("/")
-                    ->cookie("session-id", "")
-                    .alert("Logged out", Html::AlertType::INFO)
-                    .shared_from_this();
+            if (Session(request).isLoggedIn()) {
+                auto response = redirect("/")
+                               ->alert("Logged out", Html::AlertType::INFO)
+                               .shared_from_this();
+                Session(request).current(*response).logout();
+                return response;
             } else {
                 return content("Access denied");
             }
@@ -90,7 +91,7 @@ struct LoginComponent : public T {
             return content(STYLE_SHEET, "text/css");
         });
         T::defaultHandler([this](const Request& request) {
-            if (Session(request).hasValidSession()) {
+            if (Session(request).isLoggedIn()) {
                 return forwardToSecretHandler(request);
             } else {
                 return redirect("/")

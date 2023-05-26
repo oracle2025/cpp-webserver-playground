@@ -12,11 +12,12 @@ Session::Session(const Request& request)
     : request(request)
 {
 }
-bool Session::hasValidSession() const
+bool Session::isLoggedIn() const
 {
     return request.hasCookie("session-id")
-        && m_sessions.find(SessionId{request.cookie("session-id")})
-        != m_sessions.end();
+        && (m_sessions.find(SessionId{request.cookie("session-id")})
+            != m_sessions.end())
+        && m_sessions[SessionId{request.cookie("session-id")}].isLoggedIn();
 }
 void Session::clearSession()
 {
@@ -31,12 +32,28 @@ SessionData& Session::createSession(Response& response)
     response.cookie("session-id", sessionId);
     return m_sessions[sessionId];
 }
-SessionData& Session::current()
+SessionData& Session::current(Response& response)
 {
-    if (!hasValidSession()) {
-        throw std::runtime_error("Invalid Session");
+    if (!request.hasCookie("session-id")) {
+        return createSession(response);
     }
     auto session = m_sessions.find(SessionId{request.cookie("session-id")});
+    if (session == m_sessions.end()) {
+        return createSession(response);
+    }
     return session->second;
+}
+void Session::addAlertToSession(const Request& request, Response& response)
+{
+    Session session(request);
+    auto &current = session.current(response);
+    if (current.hasAlert()) {
+        response.alert(
+            current.getAlert().message(),
+            current.getAlert().alertType());
+        current.clearAlert();
+    } else if (!response.alert().message().empty()) {
+        current.alert(response.alert());
+    }
 }
 } // namespace Http
