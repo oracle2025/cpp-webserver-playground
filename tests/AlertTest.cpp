@@ -27,6 +27,14 @@ struct SimpleAlertComponent : public T {
         T::router().get("/hello", [](const Request& request) {
             return content("Hello World");
         });
+        T::router().get("/alert_and_redirect_twice", [](const Request& request) {
+            return redirect("/redirect")
+                ->alert("This is an Alert", Html::AlertType::SUCCESS)
+                .shared_from_this();
+        });
+        T::router().get("/redirect", [](const Request& request) {
+            return redirect("/hello");
+        });
     }
 };
 
@@ -70,8 +78,17 @@ TEST_CASE("Alert after redirect")
 TEST_CASE("Alert after multiple redirects")
 {
     SimpleAlertComponent<SimpleSessionServer> w;
-    auto r = w.handle({"/redirect_and_alert"});
+    auto r = w.handle({"/alert_and_redirect_twice"});
     CHECK(r->status() == 302);
+    auto cookieJar = r->cookies();
+    Request request = {r->location(), cookieJar};
+    r = w.handle(request);
+    CHECK(r->status() == 302);
+    cookieJar.merge(r->cookies());
+    request = {r->location(), cookieJar};
+    r = w.handle(request);
+    auto page = Html::Presentation().render(*r);
+    CHECK(page.find("This is an Alert") != string::npos);
 }
 
 TEST_CASE("Session is removed after last Alert is displayed")

@@ -50,13 +50,16 @@ SessionData& Session::current(Response& response)
 void Session::addAlertToSession(const Request& request, Response& response)
 {
     Session session(request);
-    auto& current = session.current(response);
-    if (current.hasAlert()) {
+    auto& sessionData = session.current(response);
+    if (sessionData.hasAlert()) {
         response.alert(
-            current.getAlert().message(), current.getAlert().alertType());
-        current.clearAlert();
+            sessionData.getAlert().message(),
+            sessionData.getAlert().alertType());
+        if (response.status() == Response::OK) {
+            sessionData.clearAlert();
+        }
     } else if (!response.alert().message().empty()) {
-        current.alert(response.alert());
+        sessionData.alert(response.alert());
     }
 }
 } // namespace Http
