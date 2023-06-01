@@ -1,4 +1,5 @@
 #include "Data/Todo.hpp"
+#include "Data/User.hpp"
 #include "LoginServerApplication.hpp"
 
 #include <iostream>
@@ -19,6 +20,13 @@ int main(int argc, char** argv)
         todo.insert();
         todo = Todo::RecordType{"0123", "Empty Trash", "", "", 0};
         todo.insert();
+
+        User user;
+        user.create_table();
+        user.username = "admin";
+        user.setPassword("Adm1n!"); // generates random salt
+        user.insert();
+
         LoginServerApplication app;
         return app.run(argc, argv);
     } catch (Poco::Exception& exc) {

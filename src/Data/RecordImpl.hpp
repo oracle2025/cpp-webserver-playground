@@ -6,7 +6,6 @@
 
 #include <Poco/Data/Session.h>
 
-using Poco::Data::Session;
 using std::make_shared;
 using std::shared_ptr;
 using std::string;
@@ -22,6 +21,7 @@ struct ColumnType {
 
 template<typename T>
 struct RecordImpl : public T, public Record {
+    using Session = Poco::Data::Session;
     RecordImpl() = default;
     RecordImpl(const RecordImpl<T>&) = default;
     RecordImpl(const typename T::RecordType& data)

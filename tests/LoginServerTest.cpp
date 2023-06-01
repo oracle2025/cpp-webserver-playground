@@ -1,9 +1,20 @@
+#include "Data/User.hpp"
 #include "Login/LoginComponent.hpp"
 #include "Server/TestServer.hpp"
 #include "doctest.h"
 
+#include <Poco/Data/SQLite/Connector.h>
+
 TEST_CASE("Login Server")
 {
+    Poco::Data::SQLite::Connector::registerConnector();
+    Poco::Data::Session session("SQLite", ":memory:");
+    g_session = &session;
+    User user;
+    user.create_table();
+    user.username = "admin";
+    user.setPassword("Adm1n!");
+    user.insert();
     LoginComponent<TestServer> w(nullptr, nullptr);
     SUBCASE("Login")
     {

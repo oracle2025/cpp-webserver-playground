@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Html/Alert.hpp"
+#include "Data/User.hpp"
 
 #include <optional>
 
@@ -19,7 +20,7 @@ public:
 
     const Alert& getAlert() const;
 
-    void login();
+    void login(User& user);
 
     void logout();
 

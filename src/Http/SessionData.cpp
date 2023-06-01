@@ -18,7 +18,7 @@ const SessionData::Alert& SessionData::getAlert() const
 {
     return m_alert.value();
 }
-void SessionData::login()
+void SessionData::login(User& user)
 {
     m_isLoggedIn = true;
 }

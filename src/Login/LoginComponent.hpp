@@ -14,6 +14,7 @@
 #include "Submit.hpp"
 #include "Text.hpp"
 #include "doctest.h"
+#include "Data/User.hpp"
 
 #include <map>
 #include <set>
@@ -29,12 +30,10 @@ struct LoginComponent : public T {
         return parameters.count("username") && parameters.count("password");
     }
 
-    static bool isValidUser(const map<string, string>& parameters)
+    static bool isValidUser(const map<string, string>& parameters, User &user)
     {
-        const auto username = "admin";
-        const auto password = "Adm1n!";
-        return (parameters.at("username") == username)
-            && (parameters.at("password") == password);
+        return user.isValidUser(parameters.at("username"),
+            parameters.at("password"));
     }
 
     LoginComponent(
@@ -55,7 +54,8 @@ struct LoginComponent : public T {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
-            if (!isValidUser(request.allParameters())) {
+            User user;
+            if (!isValidUser(request.allParameters(), user)) {
                 return redirect("/")
                     ->alert("Invalid Login", Html::AlertType::DANGER)
                     .shared_from_this();
@@ -66,7 +66,7 @@ struct LoginComponent : public T {
                           "Logged in successfully", Html::AlertType::SUCCESS)
                       .shared_from_this();
             Session(request).clearSession();
-            Session(request).current(*response).login();
+            Session(request).current(*response).login(user);
             return response;
         });
         T::router().get("/secret", [this](const Request& request) {
