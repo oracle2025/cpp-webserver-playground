@@ -8,7 +8,7 @@
 #include "List.hpp"
 #include "Submit.hpp"
 #include "style.hpp"
-
+#include "Confirm.hpp"
 /*
  * A Simple Todo List:
  * Data Model:
@@ -134,19 +134,8 @@ struct CrudComponent : public T {
             using namespace Input;
             F todo;
             if (todo.pop(request.query())) {
-                return content(Form(
-                                   {Submit("Cancel")
-                                        .name("canceled")
-                                        .value("yes")
-                                        .buttonClass("light")(),
-                                    Submit("Delete " + todo.description())
-                                        .name("confirmed")
-                                        .value("yes")
-                                        .buttonClass("danger")()},
-                                   prefix + "/delete?" + todo.key(),
-                                   "post")())
+                return Confirm(prefix, todo, todo.description())()
                     ->appendNavBarAction({"Start", prefix + "/"})
-                    .title("Confirm Delete")
                     .shared_from_this();
             } else {
                 return todoNotFound(prefix);
