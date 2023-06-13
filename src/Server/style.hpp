@@ -47,7 +47,7 @@ background-color: #fff;
 padding: 20px 0px;
 max-width: 500px;
 margin: auto;
-margin-top: 50px;
+margin-top: 0px;
 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 }
 span.label {
@@ -138,7 +138,7 @@ border-radius: 4px;
         padding: 20px;
         max-width: 500px;
         margin: auto;
-        margin-top: 50px;
+        margin-top: 0px;
         box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
 }
 span.label {

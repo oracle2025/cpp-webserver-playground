@@ -22,7 +22,7 @@ if (${Poco_FOUND})
             src/Impl/PocoWebServer.cpp src/Impl/PocoWebServer.hpp src/Login/LoginServerApplication.cpp
             src/Login/LoginServerApplication.hpp src/Server/CrudServerApplication.cpp src/Server/CrudServerApplication.hpp
             src/Http/RequestHandler.hpp src/Server/style.hpp src/Data/FieldTypes.hpp src/Html/Presentation.cpp
-            src/Html/Presentation.hpp src/Html/Page.cpp src/Html/Page.hpp src/Html/ActionLink.cpp src/Html/ActionLink.hpp src/Input/CheckBoxSelect.cpp src/Input/CheckBoxSelect.hpp src/Html/AlertType.hpp src/Html/Alert.cpp src/Html/Alert.hpp src/Http/Router.cpp src/Http/Router.hpp src/Http/NotFoundHandler.hpp src/Http/NotFoundHandler.cpp src/Data/RecordFactory.hpp src/Data/Person.cpp src/Data/Person.hpp src/String/join.cpp src/String/join.hpp src/String/repeat.hpp src/String/repeat.cpp src/Data/RecordImpl.hpp src/String/createRandomUUID.cpp src/String/createRandomUUID.hpp src/Http/Session.cpp src/Http/Session.hpp src/Http/SessionData.cpp src/Http/SessionData.hpp src/Data/User.cpp src/Data/User.hpp src/Server/Confirm.cpp src/Server/Confirm.hpp)
+            src/Html/Presentation.hpp src/Html/Page.cpp src/Html/Page.hpp src/Html/ActionLink.cpp src/Html/ActionLink.hpp src/Input/CheckBoxSelect.cpp src/Input/CheckBoxSelect.hpp src/Html/AlertType.hpp src/Html/Alert.cpp src/Html/Alert.hpp src/Http/Router.cpp src/Http/Router.hpp src/Http/NotFoundHandler.hpp src/Http/NotFoundHandler.cpp src/Data/RecordFactory.hpp src/Data/Person.cpp src/Data/Person.hpp src/String/join.cpp src/String/join.hpp src/String/repeat.hpp src/String/repeat.cpp src/Data/RecordImpl.hpp src/String/createRandomUUID.cpp src/String/createRandomUUID.hpp src/Http/Session.cpp src/Http/Session.hpp src/Http/SessionData.cpp src/Http/SessionData.hpp src/Data/User.cpp src/Data/User.hpp src/Server/Confirm.cpp src/Server/Confirm.hpp src/Data/MigrationsV0.cpp src/Data/MigrationsV0.hpp src/Data/Migration.cpp src/Data/Migration.hpp src/Data/SessionImpl.cpp src/Data/MigrationsV1.cpp src/Data/MigrationsV1.hpp)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
             Threads::Threads Poco::DataSQLite)
@@ -40,13 +40,20 @@ if (${Poco_FOUND})
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
+    add_executable(test-migration src/Data/Migration.cpp tests/doctest.cpp src/Data/SessionImpl.cpp)
+    target_link_libraries(test-migration Poco::DataSQLite)
+    target_include_directories(test-migration PRIVATE tests)
+
     enable_testing()
     add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
+    add_test(NAME test-migration COMMAND $<TARGET_FILE:test-migration>)
 
     add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(crud-server webservers)
+
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
+
     install(TARGETS login-server DESTINATION bin)
 endif ()
 
