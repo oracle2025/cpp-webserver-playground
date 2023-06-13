@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Http/SessionData.hpp"
-#include "Login/SessionId.hpp"
+#include "SessionId.hpp"
 
 #include <map>
 

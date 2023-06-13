@@ -1,4 +1,5 @@
 #include "PocoWebServer.hpp"
+
 #include "Http/Session.hpp"
 
 #include <iostream>
@@ -64,7 +65,24 @@ void PocoWebServer::finish_init()
                     }
                     const Request req(
                         uri.getPath(), cookiesMap, parameters, uri.getQuery());
-                    auto result = handler(req);
+                    shared_ptr<Response> result;
+                    try {
+                        result = handler(req);
+                    } catch (const std::exception& e) {
+                        using HTTPResponse = Poco::Net::HTTPResponse;
+                        std::cout << "Exception: " << e.what() << std::endl;
+                        response.setStatus(
+                            HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+                        response.send() << "Internal Server Error\n";
+                        return;
+                    } catch (...) {
+                        using HTTPResponse = Poco::Net::HTTPResponse;
+                        std::cout << "Unknown exception" << std::endl;
+                        response.setStatus(
+                            HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+                        response.send() << "Internal Server Error\n";
+                        return;
+                    }
                     Http::Session::addAlertToSession(req, *result);
                     for (auto& [key, value] : result->cookies()) {
                         HTTPCookie cookie(key, value);

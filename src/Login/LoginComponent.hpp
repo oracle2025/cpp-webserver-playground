@@ -10,7 +10,6 @@
 #include "Server/CrudComponent.hpp"
 #include "Server/TestServer.hpp"
 #include "Server/style.hpp"
-#include "SessionId.hpp"
 #include "Submit.hpp"
 #include "Text.hpp"
 #include "doctest.h"

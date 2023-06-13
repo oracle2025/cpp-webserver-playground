@@ -10,8 +10,8 @@ namespace Data {
 void MigrationsV0::perform()
 {
     Migration migration;
-    if (migration.version() == 0) {
-        return; // Return if the database is already at version 0
+    if (migration.hasVersion()) {
+        return;
     }
     Todo todo;
     todo.create_table();
