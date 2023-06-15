@@ -1,11 +1,12 @@
 #include "User.hpp"
+
 #include "RecordImpl.hpp"
+#include "backward.hpp"
 #include "doctest.h"
 
 TEST_CASE("UserRecord")
 {
     RecordImpl<UserDefinition> user;
-
 }
 UserDefinition::UserDefinition()
     : data{"", "", "", ""}
@@ -46,22 +47,33 @@ string UserDefinition::table_name() const
 bool UserDefinition::isValidUser(const string& user, const string& password)
 {
     User u;
-    if (findUser(*g_session, user, u)){
+    if (findUser(*g_session, user, u)) {
         return u.password == password + u.salt;
     }
     return false;
 }
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
 {
-    using namespace Poco::Data::Keywords;
-    using Poco::Data::Statement;
-    using String::repeat;
-    Statement select(session);
-    string copy(username);
-    select << "SELECT * FROM " + user.table_name() + " WHERE username = ?",
-        use(copy), into(user.data), range(0, 1);
-    if (select.execute() == 0) {
-        return false;
+    try {
+
+        using namespace Poco::Data::Keywords;
+        using Poco::Data::Statement;
+        using String::repeat;
+        Statement select(session);
+        string copy(username);
+        select << "SELECT * FROM " + user.table_name() + " WHERE username = ?",
+            use(copy), into(user.data), range(0, 1);
+        if (select.execute() == 0) {
+            return false;
+        }
+        return true;
+    } catch (Poco::Exception& e) {
+        using namespace backward;
+        StackTrace st;
+        st.load_here(32);
+        Printer p;
+        p.print(st);
+        std::cout << e.displayText() << std::endl;
+        throw e;
     }
-    return true;
 }

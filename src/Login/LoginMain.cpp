@@ -26,11 +26,11 @@ int main(int argc, char** argv)
         todo = Todo::RecordType{"0123", "Empty Trash", "", "", 0};
         todo.insert();*/
 
-        User user;
+        /*User user;
         user.create_table();
         user.username = "admin";
         user.setPassword("Adm1n!"); // generates random salt
-        user.insert();
+        user.insert();*/
 
         LoginServerApplication app;
         return app.run(argc, argv);

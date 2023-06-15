@@ -68,6 +68,13 @@ void PocoWebServer::finish_init()
                     shared_ptr<Response> result;
                     try {
                         result = handler(req);
+                    } catch (const Poco::Exception& e) {
+                        using HTTPResponse = Poco::Net::HTTPResponse;
+                        std::cout << "Exception: " << e.displayText() << std::endl;
+                        response.setStatus(
+                            HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+                        response.send() << "Internal Server Error\n";
+                        return;
                     } catch (const std::exception& e) {
                         using HTTPResponse = Poco::Net::HTTPResponse;
                         std::cout << "Exception: " << e.what() << std::endl;
