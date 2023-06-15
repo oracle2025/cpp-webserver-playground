@@ -8,10 +8,6 @@ set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 find_package(Threads)
 find_package(Poco COMPONENTS Net Util Data DataSQLite)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBDWARF REQUIRED libdwarf)
-pkg_check_modules(LIBELF REQUIRED libelf)
-
 include(FetchContent)
 
 # Also requires one of: libbfd (gnu binutils), libdwarf, libdw (elfutils)
@@ -137,11 +133,13 @@ if(${Poco_FOUND})
     tests/RequestTest.cpp)
   target_link_libraries(tests webservers)
   target_include_directories(tests PRIVATE tests)
+  add_backward(tests)
 
   add_executable(test-migration src/Data/Migration.cpp tests/doctest.cpp
                                 src/Data/SessionImpl.cpp)
   target_link_libraries(test-migration Poco::DataSQLite)
   target_include_directories(test-migration PRIVATE tests)
+  add_backward(test-migration)
 
   enable_testing()
   add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
@@ -149,9 +147,11 @@ if(${Poco_FOUND})
 
   add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp)
   target_link_libraries(crud-server webservers)
+  add_backward(crud-server)
 
   add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
   target_link_libraries(login-server webservers)
+  add_backward(login-server)
 
   install(TARGETS login-server DESTINATION bin)
 endif()
