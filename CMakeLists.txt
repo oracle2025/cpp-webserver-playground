@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 
+include( GNUInstallDirs )
+set (TODO_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo)
+add_definitions(-DTODO_DATABASE_DIR="${TODO_DATABASE_DIR}")
+
+install(DIRECTORY DESTINATION ${TODO_DATABASE_DIR})
+
+
 find_package(Threads)
 find_package(Poco COMPONENTS Net Util Data DataSQLite)
 find_package(spdlog)

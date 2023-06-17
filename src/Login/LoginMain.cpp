@@ -1,31 +1,33 @@
 #include "Data/MigrationsV1.hpp"
-#include "Data/Todo.hpp"
-#include "Data/User.hpp"
 #include "LoginServerApplication.hpp"
-
-#include <iostream>
-using std::cerr;
-using std::endl;
+#include "spdlog/spdlog.h"
+#include "Trace/trace.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
+
+#include <iostream>
+
+extern Poco::Data::Session* g_session;
+
 using Poco::Data::Session;
 int main(int argc, char** argv)
 {
     using MigrationsV1 = Data::MigrationsV1;
     try {
         Poco::Data::SQLite::Connector::registerConnector();
-        Session session("SQLite", ":memory:");
+        Session session("SQLite", TODO_DATABASE_DIR "/todo.sqlite");
         g_session = &session;
         MigrationsV1 migration;
         migration.perform();
-
-
-
         LoginServerApplication app;
         return app.run(argc, argv);
-    } catch (Poco::Exception& exc) {
-        cerr << exc.displayText() << endl;
+
+    } catch (...) {
+        std::ostringstream str;
+        Trace::backtrace(std::current_exception(), str);
+        spdlog::error("Exception: {}", str.str());
+
         return EXIT_FAILURE;
     }
 }
