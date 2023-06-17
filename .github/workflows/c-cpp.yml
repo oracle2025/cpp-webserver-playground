@@ -15,12 +15,10 @@ jobs:
     - uses: actions/checkout@v2
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: libpoco-dev libelf-dev libdwarf-dev
+        packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev
         version: 1.0
     - name: configure
       run: mkdir build && cd build && cmake ..
-    - name: dependencies
-      run: cd build && make libpoco && make spdlog && cmake ..
     - name: make
       run: cd build && make
     - name: make test
