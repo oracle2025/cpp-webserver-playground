@@ -22,6 +22,9 @@ public:
     void setPassword(const string& password);
     string table_name() const;
     bool isValidUser(const string& user, const string& password);
+
+    UserDefinition(const RecordType& d);
+    UserDefinition(const UserDefinition& u);
 };
 
 using User = RecordImpl<UserDefinition>;

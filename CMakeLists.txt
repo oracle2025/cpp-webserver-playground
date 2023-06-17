@@ -140,6 +140,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_backward(tests)
 
     add_executable(test-migration src/Data/Migration.cpp tests/doctest.cpp
+
             src/Data/SessionImpl.cpp)
     target_link_libraries(test-migration Poco::DataSQLite)
     target_include_directories(test-migration PRIVATE tests)

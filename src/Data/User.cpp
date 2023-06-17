@@ -53,6 +53,22 @@ bool UserDefinition::isValidUser(const string& user, const string& password)
     }
     return false;
 }
+UserDefinition::UserDefinition(const UserDefinition::RecordType& d)
+    : data{d}
+    , id(data.get<0>())
+    , username(data.get<1>())
+    , password(data.get<2>())
+    , salt(data.get<3>())
+{
+}
+UserDefinition::UserDefinition(const UserDefinition& u)
+    : data{u.data}
+    , id(data.get<0>())
+    , username(data.get<1>())
+    , password(data.get<2>())
+    , salt(data.get<3>())
+{
+}
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
 {
     using namespace Poco::Data::Keywords;

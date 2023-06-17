@@ -3,6 +3,7 @@
 #include "Data/Record.hpp"
 #include "String/createRandomUUID.hpp"
 #include "String/repeat.hpp"
+#include "Trace/trace.hpp"
 
 #include <Poco/Data/Session.h>
 
@@ -33,14 +34,16 @@ struct RecordImpl : public T, public Record {
         createTable(*g_session);
     }
     void createTable(Session& session)
-    {
+    try {
         using namespace Poco::Data::Keywords;
         session << "DROP TABLE IF EXISTS " + T::table_name(), now;
         session << createStatement(T::columns()), now;
+    } catch (...) {
+        TRACE_RETHROW("Could not create table");
     }
 
     string createStatement(const vector<ColumnType>& columns) const
-    {
+    try {
         string statement = "CREATE TABLE " + T::table_name() + " (";
         statement += "id VARCHAR, ";
         for (auto& column : columns) {
@@ -49,6 +52,8 @@ struct RecordImpl : public T, public Record {
         statement = statement.substr(0, statement.length() - 2);
         statement += ")";
         return statement;
+    } catch (...) {
+        TRACE_RETHROW("Could not create statement");
     }
 
     void insert()
@@ -56,7 +61,7 @@ struct RecordImpl : public T, public Record {
         insertInto(*g_session);
     }
     void insertInto(Session& session)
-    {
+    try {
         using namespace Poco::Data::Keywords;
         using Poco::Data::Statement;
         using String::repeat;
@@ -65,13 +70,15 @@ struct RecordImpl : public T, public Record {
         insert << "INSERT INTO " + T::table_name() + " VALUES(" + "?, "
                 + repeat("?", ", ", T::columns().size()) + ")",
             use(T::data), now;
+    } catch (...) {
+        TRACE_RETHROW("Could not insert");
     }
     bool pop(const string& _id)
     {
         return pop(*g_session, _id);
     }
     bool pop(Session& session, const string& _id)
-    {
+    try {
         using namespace Poco::Data::Keywords;
         using Poco::Data::Statement;
         using String::repeat;
@@ -84,13 +91,15 @@ struct RecordImpl : public T, public Record {
             return false;
         }
         return true;
+    } catch (...) {
+        TRACE_RETHROW("Could not pop");
     }
     vector<RecordImpl<T>> list()
     {
         return list(*g_session);
     }
     vector<RecordImpl<T>> list(Session& session)
-    {
+    try {
         vector<RecordImpl<T>> result;
         using Poco::Data::Statement;
         using namespace Poco::Data::Keywords;
@@ -103,13 +112,15 @@ struct RecordImpl : public T, public Record {
             }
         }
         return result;
+    } catch (...) {
+        TRACE_RETHROW("Could not select");
     }
     vector<shared_ptr<Record>> listAsPointers()
     {
         return listAsPointers(*g_session);
     }
     vector<shared_ptr<Record>> listAsPointers(Session& session)
-    {
+    try {
         vector<shared_ptr<Record>> result;
         using Poco::Data::Statement;
         using namespace Poco::Data::Keywords;
@@ -122,9 +133,11 @@ struct RecordImpl : public T, public Record {
             }
         }
         return result;
+    } catch (...) {
+        TRACE_RETHROW("Could not list");
     }
     string selectStatement(const vector<ColumnType>& columns) const
-    {
+    try {
         string statement = "SELECT ";
         statement += "id, ";
         for (auto& column : columns) {
@@ -133,6 +146,8 @@ struct RecordImpl : public T, public Record {
         statement = statement.substr(0, statement.length() - 2);
         statement += " FROM " + T::table_name();
         return statement;
+    } catch (...) {
+        TRACE_RETHROW("Could not create statement");
     }
     bool update()
     {
@@ -143,7 +158,7 @@ struct RecordImpl : public T, public Record {
         return update(*g_session, _id);
     }
     bool update(Session& session, const string& _id)
-    {
+    try {
         using namespace Poco::Data::Keywords;
         using Poco::Data::Statement;
         using String::repeat;
@@ -154,9 +169,11 @@ struct RecordImpl : public T, public Record {
             return false;
         }
         return true;
+    } catch (...) {
+        TRACE_RETHROW("Could not update");
     }
     string updateStatement(const vector<ColumnType>& columns) const
-    {
+    try {
         string statement = "UPDATE " + T::table_name() + " SET ";
         statement += "id = ?, ";
         for (auto& column : columns) {
@@ -165,6 +182,8 @@ struct RecordImpl : public T, public Record {
         statement = statement.substr(0, statement.length() - 2);
         statement += " WHERE id = ?";
         return statement;
+    } catch (...) {
+        TRACE_RETHROW("Could not create statement");
     }
     bool erase()
     {
@@ -175,7 +194,7 @@ struct RecordImpl : public T, public Record {
         return erase(*g_session, _id);
     }
     bool erase(Session& session, const string& _id)
-    {
+    try {
         using namespace Poco::Data::Keywords;
         using Poco::Data::Statement;
         T::id = _id;
@@ -185,6 +204,8 @@ struct RecordImpl : public T, public Record {
             return false;
         }
         return true;
+    } catch (...) {
+        TRACE_RETHROW("Could not delete");
     }
 
     string key() const override
