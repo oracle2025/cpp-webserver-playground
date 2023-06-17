@@ -1,6 +1,7 @@
 #include "User.hpp"
 
 #include "RecordImpl.hpp"
+#include "Trace/trace.hpp"
 #include "backward.hpp"
 #include "doctest.h"
 
@@ -54,26 +55,19 @@ bool UserDefinition::isValidUser(const string& user, const string& password)
 }
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
 {
+    using namespace Poco::Data::Keywords;
+    using Poco::Data::Statement;
+    using String::repeat;
+    Statement select(session);
+    string copy(username);
+    select << "SELECT * FROM " + user.table_name() + " WHERE username = ?",
+        use(copy), into(user.data), range(0, 1);
     try {
-
-        using namespace Poco::Data::Keywords;
-        using Poco::Data::Statement;
-        using String::repeat;
-        Statement select(session);
-        string copy(username);
-        select << "SELECT * FROM " + user.table_name() + " WHERE username = ?",
-            use(copy), into(user.data), range(0, 1);
         if (select.execute() == 0) {
             return false;
         }
         return true;
-    } catch (Poco::Exception& e) {
-        using namespace backward;
-        StackTrace st;
-        st.load_here(32);
-        Printer p;
-        p.print(st);
-        std::cout << e.displayText() << std::endl;
-        throw e;
+    } catch (...) {
+        TRACE_RETHROW("Could not find user");
     }
 }

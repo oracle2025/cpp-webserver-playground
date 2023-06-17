@@ -1,6 +1,8 @@
 #include "PocoWebServer.hpp"
 
 #include "Http/Session.hpp"
+#include "Trace/trace.hpp"
+#include "spdlog/spdlog.h"
 
 #include <iostream>
 
@@ -53,7 +55,7 @@ void PocoWebServer::finish_init()
                     NameValueCollection cookies;
                     request.getCookies(cookies);
                     Poco::URI uri(request.getURI());
-                    std::cout << "Request: " << uri.toString() << std::endl;
+                    spdlog::info("Request: {}", uri.toString());
                     HTMLForm form(request, request.stream());
                     map<string, string> parameters;
                     map<string, string> cookiesMap;
@@ -68,23 +70,11 @@ void PocoWebServer::finish_init()
                     shared_ptr<Response> result;
                     try {
                         result = handler(req);
-                    } catch (const Poco::Exception& e) {
-                        using HTTPResponse = Poco::Net::HTTPResponse;
-                        std::cout << "Exception: " << e.displayText() << std::endl;
-                        response.setStatus(
-                            HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
-                        response.send() << "Internal Server Error\n";
-                        return;
-                    } catch (const std::exception& e) {
-                        using HTTPResponse = Poco::Net::HTTPResponse;
-                        std::cout << "Exception: " << e.what() << std::endl;
-                        response.setStatus(
-                            HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
-                        response.send() << "Internal Server Error\n";
-                        return;
                     } catch (...) {
+                        std::ostringstream str;
+                        Trace::backtrace(std::current_exception(), str);
+                        spdlog::error("Exception: {}", str.str());
                         using HTTPResponse = Poco::Net::HTTPResponse;
-                        std::cout << "Unknown exception" << std::endl;
                         response.setStatus(
                             HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
                         response.send() << "Internal Server Error\n";
