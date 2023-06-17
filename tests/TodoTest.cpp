@@ -16,7 +16,7 @@ TEST_CASE("todo")
     g_session = &session;
 
     Data::MigrationsV0 m;
-    //m.perform();
+    m.perform();
 
     Todo todo = Todo::RecordType{
         "0123", "Buy Milk", time_string(), time_string(), 0};
