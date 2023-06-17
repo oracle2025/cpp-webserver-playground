@@ -19,6 +19,8 @@ jobs:
         version: 1.0
     - name: configure
       run: mkdir build && cd build && cmake ..
+    - name: dependencies
+      run: cd build && make libpoco && make spdlog && cmake ..
     - name: make
       run: cd build && make
     - name: make test
