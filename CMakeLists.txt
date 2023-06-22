@@ -114,7 +114,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Trace/trace.hpp
             src/Trace/Exception.cpp
             src/Trace/Exception.hpp
-            ${BACKWARD_ENABLE})
+            ${BACKWARD_ENABLE} src/User/PasswordChangeComponent.hpp)
     add_backward(webservers)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
@@ -141,7 +141,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/CrudServerTest.cpp
             tests/TodoTest.cpp
             tests/AlertTest.cpp
-            tests/RequestTest.cpp)
+            tests/RequestTest.cpp tests/PasswordChangeTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
     add_backward(tests)
@@ -157,7 +157,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
     add_test(NAME test-migration COMMAND $<TARGET_FILE:test-migration>)
 
-    add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp)
+    add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp src/User/PasswordChangeComponent.hpp)
     target_link_libraries(crud-server webservers)
     add_backward(crud-server)
 

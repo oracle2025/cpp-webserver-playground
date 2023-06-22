@@ -6,7 +6,6 @@
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 
-#include <iostream>
 
 extern Poco::Data::Session* g_session;
 
@@ -16,7 +15,8 @@ int main(int argc, char** argv)
     using MigrationsV1 = Data::MigrationsV1;
     try {
         Poco::Data::SQLite::Connector::registerConnector();
-        Session session("SQLite", TODO_DATABASE_DIR "/todo.sqlite");
+        Session session("SQLite", "todo.sqlite");
+        //Session session("SQLite", TODO_DATABASE_DIR "/todo.sqlite");
         g_session = &session;
         MigrationsV1 migration;
         migration.perform();
