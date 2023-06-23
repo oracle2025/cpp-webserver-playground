@@ -25,13 +25,13 @@ string List::operator()()
             case HtmlInputType::CHECKBOX:
                 str << R"(<td style="width: 20px;">)";
                 str << R"(<input type="hidden" name=")" << record->key()
-                    << R"(" value="0" />)";
+                    << R"(" value="no" />)";
                 if (values[column] == "yes") {
                     str << R"(<input type="checkbox" name=")" << record->key()
-                        << R"(" checked value="1" onchange="submitForm(this);"></td>)";
+                        << R"(" checked value="yes" onchange="submitForm(this);"></td>)";
                 } else {
                     str << R"(<input type="checkbox" name=")" << record->key()
-                        << R"(" value="1" onchange="submitForm(this);"></td>)";
+                        << R"(" value="yes" onchange="submitForm(this);"></td>)";
                 }
                 break;
             default:

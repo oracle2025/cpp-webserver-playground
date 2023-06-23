@@ -104,11 +104,21 @@ struct CrudController : public T {
             }
         });
         T::router().get(prefix + "/mark", [prefix](const Request& request) {
+            F todo;
             std::ostringstream str;
-            for (const auto &[key, value]:request.allParameters()){
-                str << key << " = " << value << std::endl << "<br>";
+            for (const auto& [key, value] : request.allParameters()) {
+                todo.pop(key);
+                if (todo.get("checked") != value) {
+                    str << todo.get("description") << " is now "
+                        << (value == "yes" ? "checked" : "unchecked")
+                        << std::endl;
+                }
+                todo.set("checked", value);
+                todo.update();
             }
-            return content(str.str());
+            return redirect(prefix + "/")
+                ->alert("Todo " + str.str(), Html::AlertType::SUCCESS)
+                .shared_from_this();
         });
         T::router().get(prefix + "/delete", [prefix](const Request& request) {
             F todo;
