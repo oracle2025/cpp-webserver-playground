@@ -15,11 +15,11 @@ jobs:
     - uses: actions/checkout@v2
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev
+        packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev ninja-build
         version: 1.0
     - name: configure
-      run: mkdir build && cd build && cmake ..
-    - name: make
-      run: cd build && make
+      run: mkdir build && cd build && cmake -G Ninja ..
+    - name: ninja
+      run: cd build && ninja
     - name: make test
       run: cd build && make test
