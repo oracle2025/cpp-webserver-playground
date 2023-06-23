@@ -2,6 +2,7 @@
 #include "Exception.hpp"
 
 #include <Poco/Exception.h>
+#include <filesystem>
 
 namespace Trace {
 Exception::Exception(
@@ -10,10 +11,11 @@ Exception::Exception(
     , filename(filename)
     , line(line)
 {
+    using path = std::filesystem::path;
     stacktrace.load_here(32);
     stacktrace.skip_n_firsts(2);
     _message
-        = std::string(filename) + ":" + std::to_string(line) + " : " + message;
+        = path(filename).filename().string() + ":" + std::to_string(line) + " : " + message;
 }
 
 void backtrace(std::exception_ptr ex, std::ostream& out, int level)
