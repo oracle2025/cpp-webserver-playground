@@ -1,13 +1,13 @@
 #include "LoginServerApplication.hpp"
 
 #include "Impl/PocoWebServer.hpp"
-#include "LoginComponent.hpp"
+#include "LoginController.hpp"
 #include "doctest.h"
 
 int LoginServerApplication::main(const vector<string>& args)
 {
-    LoginComponent<PocoWebServer> server(
-        std::make_shared<CrudComponent<SimpleWebServer, Todo>>("/todo"),
+    LoginController<PocoWebServer> server(
+        std::make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
         std::make_shared<Presentation>());
     server.start();
     waitForTerminationRequest();

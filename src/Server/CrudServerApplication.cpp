@@ -1,11 +1,11 @@
 #include "CrudServerApplication.hpp"
 
-#include "CrudComponent.hpp"
+#include "CrudController.hpp"
 #include "Impl/PocoWebServer.hpp"
 
 int CrudServerApplication::main(const vector<string>& args)
 {
-    CrudComponent<PocoWebServer, Todo> server("/todo");
+    CrudController<PocoWebServer, Todo> server("/todo");
     server.start();
     waitForTerminationRequest();
     server.stop();

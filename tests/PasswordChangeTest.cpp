@@ -1,5 +1,5 @@
 #include "Data/MigrationsV1.hpp"
-#include "Login/LoginComponent.hpp"
+#include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
 #include "User/PasswordChangeComponent.hpp"
 #include "doctest.h"
@@ -32,7 +32,7 @@ TEST_CASE("Change Password")
     User user;
     auto id = user.list()[0].id;
 
-    LoginComponent<TestServer> w(
+    LoginController<TestServer> w(
         std::make_shared<PasswordChangeComponent<TestServer>>("/password"),
         nullptr);
     SUBCASE("Change password")

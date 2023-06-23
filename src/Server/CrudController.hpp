@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Confirm.hpp"
 #include "Data/Todo.hpp"
 #include "Form.hpp"
 #include "Http/NotFoundHandler.hpp"
@@ -8,7 +9,6 @@
 #include "List.hpp"
 #include "Submit.hpp"
 #include "style.hpp"
-#include "Confirm.hpp"
 /*
  * A Simple Todo List:
  * Data Model:
@@ -46,8 +46,8 @@
 using namespace Http;
 
 template<typename T, typename F>
-struct CrudComponent : public T {
-    CrudComponent(const string& prefix)
+struct CrudController : public T {
+    CrudController(const string& prefix)
     {
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
@@ -103,6 +103,13 @@ struct CrudComponent : public T {
                 return todoNotFound(prefix);
             }
         });
+        T::router().get(prefix + "/mark", [prefix](const Request& request) {
+            std::ostringstream str;
+            for (const auto &[key, value]:request.allParameters()){
+                str << key << " = " << value << std::endl << "<br>";
+            }
+            return content(str.str());
+        });
         T::router().get(prefix + "/delete", [prefix](const Request& request) {
             F todo;
             if (todo.pop(request.query())) {
@@ -143,10 +150,14 @@ struct CrudComponent : public T {
         });
         T::router().get(prefix + "/", [prefix](const Request& request) {
             F todo;
-            return content(
-                       Html::List(
-                           todo.listAsPointers(), {"checked", "description"})
-                           .prefix(prefix)())
+            using namespace Input;
+            return content(Form(
+                               {Html::List(
+                                    todo.listAsPointers(),
+                                    {"checked", "description"})
+                                    .prefix(prefix)()},
+                               prefix + "/mark",
+                               "post")())
                 ->appendAction({"Create new Todo", prefix + "/new"})
                 .appendNavBarAction({"Start", prefix + "/"})
                 .title("Todo List")

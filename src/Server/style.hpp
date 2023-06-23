@@ -2,9 +2,10 @@
 
 constexpr auto STYLE_SHEET = R"(body {
 font-family: Arial, sans-serif;
-background-color: #f4f4f4;
 margin: 0px;
+  background-color: #fefefe;
 }
+
 .header {
     margin-top: 0px;
     padding-top: 0px;
@@ -42,14 +43,7 @@ margin: 0px;
 .header ul li.right {
     float: right;
 }
-.container {
-background-color: #fff;
-padding: 20px 0px;
-max-width: 500px;
-margin: auto;
-margin-top: 0px;
-box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-}
+
 span.label {
 display: none;
 }
@@ -132,15 +126,24 @@ border-radius: 4px;
   width: 0;
   white-space: nowrap;
 }
+.container {
+padding: 20px 0px;
+max-width: 500px;
+margin: auto;
+margin-top: 0px;
+}
 @media (min-width:540px)  {
 .container {
-        background-color: #fff;
         padding: 20px;
         max-width: 500px;
         margin: auto;
         margin-top: 0px;
-        box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+        background-color: #fefefe;
 }
+    body {
+    background-color: #f4f4f4;
+    }
 span.label {
         display: inline;
 }

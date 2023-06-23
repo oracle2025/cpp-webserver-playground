@@ -16,17 +16,22 @@ string List::operator()()
         if (even % 2) {
             str << R"(<tr class="uneven">)";
         } else {
-            str << "<tr>";
+            str << "<tr>\n";
         }
         even++;
         auto values = record->values();
         for (const auto& column : columns) {
             switch (record->inputType(column)) {
             case HtmlInputType::CHECKBOX:
+                str << R"(<td style="width: 20px;">)";
+                str << R"(<input type="hidden" name=")" << record->key()
+                    << R"(" value="0" />)";
                 if (values[column] == "yes") {
-                    str << R"(<td style="width: 20px;"><input type="checkbox" checked></td>)";
+                    str << R"(<input type="checkbox" name=")" << record->key()
+                        << R"(" checked value="1" onchange="submitForm(this);"></td>)";
                 } else {
-                    str << R"(<td style="width: 20px;"><input type="checkbox"></td>)";
+                    str << R"(<input type="checkbox" name=")" << record->key()
+                        << R"(" value="1" onchange="submitForm(this);"></td>)";
                 }
                 break;
             default:
@@ -42,7 +47,7 @@ string List::operator()()
             << R"(" class="remove button">)"
             << R"(♻️ <span class="label">Delete</span></a>)"
                "</td>";
-        str << "</tr>";
+        str << "</tr>\n";
     }
     str << "</table>\n";
     return str.str();

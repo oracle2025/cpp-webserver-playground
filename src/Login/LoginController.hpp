@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Data/User.hpp"
 #include "Form.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
@@ -7,13 +8,12 @@
 #include "Impl/SimpleWebServer.hpp"
 #include "Password.hpp"
 #include "Presentation.hpp"
-#include "Server/CrudComponent.hpp"
+#include "Server/CrudController.hpp"
 #include "Server/TestServer.hpp"
 #include "Server/style.hpp"
 #include "Submit.hpp"
 #include "Text.hpp"
 #include "doctest.h"
-#include "Data/User.hpp"
 
 #include <map>
 #include <set>
@@ -23,7 +23,7 @@ using std::set;
 using std::string;
 
 template<typename T>
-struct LoginComponent : public T {
+struct LoginController : public T {
     static bool isLoginAttempt(const map<string, string>& parameters)
     {
         return parameters.count("username") && parameters.count("password");
@@ -35,7 +35,7 @@ struct LoginComponent : public T {
             parameters.at("password"));
     }
 
-    LoginComponent(
+    LoginController(
         shared_ptr<RequestHandler> secretHandler,
         shared_ptr<Html::Presentation> presentation)
         : m_secretHandler(secretHandler)

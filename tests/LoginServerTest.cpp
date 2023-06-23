@@ -1,6 +1,6 @@
 #include "Data/MigrationsV1.hpp"
 #include "Data/User.hpp"
-#include "Login/LoginComponent.hpp"
+#include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
 #include "doctest.h"
 
@@ -15,7 +15,7 @@ TEST_CASE("Login Server")
     Data::MigrationsV1 m;
     //m.perform();
 
-    LoginComponent<TestServer> w(nullptr, nullptr);
+    LoginController<TestServer> w(nullptr, nullptr);
     SUBCASE("Login")
     {
         CHECK(w.handle({"/secret"})->content() == "Access denied");

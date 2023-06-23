@@ -60,8 +60,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Server/TestServer.hpp
             src/Http/SessionId.cpp
             src/Http/SessionId.hpp
-            src/Login/LoginComponent.hpp
-            src/Server/CrudComponent.hpp
+            src/Login/LoginController.hpp
+            src/Server/CrudController.hpp
             src/Impl/PocoWebServer.cpp
             src/Impl/PocoWebServer.hpp
             src/Login/LoginServerApplication.cpp
