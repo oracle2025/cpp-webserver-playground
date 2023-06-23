@@ -13,7 +13,7 @@ TEST_CASE("Login Server")
     g_session = &session;
 
     Data::MigrationsV1 m;
-    //m.perform();
+    m.perform();
 
     LoginController<TestServer> w(nullptr, nullptr);
     SUBCASE("Login")
