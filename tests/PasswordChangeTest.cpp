@@ -17,7 +17,7 @@ bool loginSuccess(const string& user, const string& password, RequestHandler& w)
             response = w.handle({response->location(), cookieJar});
             cookieJar.merge(response->cookies());
         }
-        return response->content() == "User not found";
+        return response->title().find("Change Password") != string::npos;
 }
 
 TEST_CASE("Change Password")
@@ -30,7 +30,6 @@ TEST_CASE("Change Password")
     m.perform();
 
     User user;
-    auto id = user.list()[0].id;
 
     LoginController<TestServer> w(
         std::make_shared<PasswordChangeComponent<TestServer>>("/password"),
@@ -45,7 +44,7 @@ TEST_CASE("Change Password")
         auto response = w.handle({"/login", {}, params});
         auto cookieJar = response->cookies();
         auto actual
-            = w.handle({"/password/", cookieJar, {}, id})->content();
+            = w.handle({"/password/", cookieJar, {}})->content();
         CHECK(actual.find("current_password") != string::npos);
         CHECK(actual.find("new_password") != string::npos);
         CHECK(actual.find("confirm_password") != string::npos);
@@ -54,7 +53,7 @@ TEST_CASE("Change Password")
         params["new_password"] = "S3cr3t&";
         params["confirm_password"] = "S3cr3t&";
 
-        response = w.handle({"/password/update", cookieJar, params, id});
+        response = w.handle({"/password/update", cookieJar, params});
         CHECK(response->content() == "Password updated successfully");
         CHECK(loginSuccess("admin", "S3cr3t&", w));
 

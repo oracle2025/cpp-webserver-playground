@@ -30,7 +30,7 @@ struct PasswordChangeComponent : public T {
                                {Password("current_password")(),
                                 Password("new_password")(),
                                 Password("confirm_password")()},
-                               string(prefix + "/update?") + user.key(),
+                               string(prefix + "/update"),
                                "post")
                                .appendElement(Submit("Update Password")())())
                     ->appendNavBarAction({"Start", prefix + "/"})
@@ -46,7 +46,7 @@ struct PasswordChangeComponent : public T {
         });
         T::router().get(prefix + "/update", [prefix](const Request& request) {
             User user;
-            if (user.pop(request.query())) {
+            if (user.pop(Session(request).userId())) {
                 if (request.parameter("new_password")
                     != request.parameter("confirm_password")) {
                     return content("Passwords do not match")
