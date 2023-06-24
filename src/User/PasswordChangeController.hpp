@@ -15,11 +15,11 @@ using Http::content;
 using std::string;
 
 template<typename T>
-struct PasswordChangeComponent : public T {
+struct PasswordChangeController : public T {
     using Request = Http::Request;
     using Response = Http::Response;
     using Session = Http::Session;
-    PasswordChangeComponent(const string& prefix)
+    PasswordChangeController(const string& prefix)
     {
         T::router().get(prefix + "/", [prefix](const Request& request) {
             using namespace Input;

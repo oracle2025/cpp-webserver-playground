@@ -1,7 +1,7 @@
 #include "Data/MigrationsV1.hpp"
 #include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
-#include "User/PasswordChangeComponent.hpp"
+#include "User/PasswordChangeController.hpp"
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -32,7 +32,7 @@ TEST_CASE("Change Password")
     User user;
 
     LoginController<TestServer> w(
-        std::make_shared<PasswordChangeComponent<TestServer>>("/password"),
+        std::make_shared<PasswordChangeController<TestServer>>("/password"),
         nullptr);
     SUBCASE("Change password")
     {

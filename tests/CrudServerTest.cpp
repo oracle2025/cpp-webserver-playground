@@ -43,7 +43,7 @@ TEST_CASE("Crud Server")
     }
     SUBCASE("404 Not found")
     {
-        auto response = w.handle({"/edit?invalid-uuid"});
+        auto response = w.handle({"/edit", {}, {}, "invalid-uuid"});
         CHECK_EQ(response->status(), 404);
     }
     SUBCASE("Create")
