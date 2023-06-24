@@ -4,6 +4,7 @@
 #include "Data/Todo.hpp"
 #include "Form.hpp"
 #include "Http/NotFoundHandler.hpp"
+#include "Http/NullHandler.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "List.hpp"
@@ -181,7 +182,7 @@ struct CrudController : public T {
         T::router().get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
         });
-        T::defaultHandler(Http::NotFoundHandler);
+        T::defaultHandler(Http::NullHandler);
         T::finish_init();
     }
     static shared_ptr<Response> todoNotFound(const string& prefix)

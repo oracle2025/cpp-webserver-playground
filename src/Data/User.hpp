@@ -21,8 +21,14 @@ public:
     string get(const string& key) const;
     void setPassword(const string& password);
     string table_name() const;
-    bool isValidUser(const string& user, const string& password);
-
+    template<class T>
+    bool isValidUser(const string& username, const string& password, T& user) const
+    {
+        if (findUser(*g_session, username, user)) {
+            return user.password == password + user.salt;
+        }
+        return false;
+    }
     UserDefinition(const RecordType& d);
     UserDefinition(const UserDefinition& u);
 };

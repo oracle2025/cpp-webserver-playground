@@ -4,6 +4,7 @@
 #include "Http/NotFoundHandler.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "Http/Session.hpp"
 #include "Input/Form.hpp"
 #include "Input/Password.hpp"
 #include "Input/Submit.hpp"
@@ -17,13 +18,13 @@ template<typename T>
 struct PasswordChangeComponent : public T {
     using Request = Http::Request;
     using Response = Http::Response;
+    using Session = Http::Session;
     PasswordChangeComponent(const string& prefix)
     {
         T::router().get(prefix + "/", [prefix](const Request& request) {
             using namespace Input;
             User user;
-            if (user.pop(request.query())) { // current session user
-                                             // request.session().get("user")
+            if (user.pop(Session(request).userId())) { // current session user
                 return content(
                            Form(
                                {Password("current_password")(),
@@ -53,7 +54,10 @@ struct PasswordChangeComponent : public T {
                         .appendNavBarAction({"Start", prefix + "/"})
                         .shared_from_this();
                 }
-                if (!user.isValidUser(user.username, request.parameter("current_password"))) {
+                if (!user.isValidUser(
+                        user.username,
+                        request.parameter("current_password"),
+                        user)) {
                     return content("Current password is incorrect")
                         ->code(Response::NOT_FOUND)
                         .appendNavBarAction({"Start", prefix + "/"})

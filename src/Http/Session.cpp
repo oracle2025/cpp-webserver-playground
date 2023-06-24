@@ -19,6 +19,16 @@ bool Session::isLoggedIn() const
             != m_sessions.end())
         && m_sessions[SessionId{request.cookie("session-id")}].isLoggedIn();
 }
+string Session::userId() const
+{
+    if (request.hasCookie("session-id")
+        && (m_sessions.find(SessionId{request.cookie("session-id")})
+            != m_sessions.end())) {
+
+        return m_sessions[SessionId{request.cookie("session-id")}].userId();
+    }
+    TRACE_THROW("Session::userId() called without session-id cookie");
+}
 void Session::clearSession()
 {
     if (request.hasCookie("session-id")) {
@@ -62,4 +72,5 @@ void Session::addAlertToSession(const Request& request, Response& response)
         sessionData.alert(response.alert());
     }
 }
+
 } // namespace Http

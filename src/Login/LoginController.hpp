@@ -32,7 +32,7 @@ struct LoginController : public T {
     static bool isValidUser(const map<string, string>& parameters, User &user)
     {
         return user.isValidUser(parameters.at("username"),
-            parameters.at("password"));
+            parameters.at("password"), user);
     }
 
     LoginController(

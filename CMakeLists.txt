@@ -114,7 +114,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Trace/trace.hpp
             src/Trace/Exception.cpp
             src/Trace/Exception.hpp
-            ${BACKWARD_ENABLE} src/User/PasswordChangeComponent.hpp)
+            ${BACKWARD_ENABLE} src/User/PasswordChangeComponent.hpp src/Http/RequestDispatcher.cpp src/Http/RequestDispatcher.hpp src/Http/NullHandler.cpp src/Http/NullHandler.hpp)
     add_backward(webservers)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data

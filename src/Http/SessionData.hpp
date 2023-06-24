@@ -7,6 +7,7 @@
 
 namespace Http {
 using std::optional;
+using std::string;
 
 class SessionData {
 public:
@@ -26,9 +27,12 @@ public:
 
     bool isLoggedIn() const;
 
+    string userId() const;
+
 private:
     optional<Alert> m_alert;
     bool m_isLoggedIn = false;
+    string m_userId;
 };
 
 } // namespace Http

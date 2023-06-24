@@ -45,14 +45,7 @@ string UserDefinition::table_name() const
 {
     return "Users";
 }
-bool UserDefinition::isValidUser(const string& user, const string& password)
-{
-    User u;
-    if (findUser(*g_session, user, u)) {
-        return u.password == password + u.salt;
-    }
-    return false;
-}
+
 UserDefinition::UserDefinition(const UserDefinition::RecordType& d)
     : data{d}
     , id(data.get<0>())

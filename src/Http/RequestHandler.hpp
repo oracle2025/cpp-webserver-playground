@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 
-using std::shared_ptr;
 namespace Http {
+using std::shared_ptr;
 struct Response;
 struct Request;
 
