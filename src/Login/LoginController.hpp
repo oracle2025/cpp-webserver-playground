@@ -29,10 +29,10 @@ struct LoginController : public T {
         return parameters.count("username") && parameters.count("password");
     }
 
-    static bool isValidUser(const map<string, string>& parameters, User &user)
+    static bool isValidUser(const map<string, string>& parameters, User& user)
     {
-        return user.isValidUser(parameters.at("username"),
-            parameters.at("password"), user);
+        return user.isValidUser(
+            parameters.at("username"), parameters.at("password"), user);
     }
 
     LoginController(
@@ -72,18 +72,32 @@ struct LoginController : public T {
             if (Session(request).isLoggedIn()) {
                 return content("Success");
             } else {
-                return content("Access denied");
+                return content("Access denied")
+                    ->code(Response::UNAUTHORIZED)
+                    .shared_from_this();
             }
         });
         T::router().get("/logout", [this](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 auto response = redirect("/")
-                               ->alert("Logged out", Html::AlertType::INFO)
-                               .shared_from_this();
+                                    ->alert("Logged out", Html::AlertType::INFO)
+                                    .shared_from_this();
                 Session(request).current(*response).logout();
                 return response;
             } else {
-                return content("Access denied");
+                return content("Access denied")
+                    ->code(Response::UNAUTHORIZED)
+                    .shared_from_this();
+            }
+        });
+        T::router().get("/sessions", [this](const Request& request) {
+            if (Session(request).isLoggedIn()) {
+                return content(Html::List(
+                    Session::listAll(), {"id", "user_id", "is_logged_in"})());
+            } else {
+                return content("Access denied")
+                    ->code(Response::UNAUTHORIZED)
+                    .shared_from_this();
             }
         });
         T::router().get("/css/style.css", [](const Request& request) {

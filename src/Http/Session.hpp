@@ -21,6 +21,7 @@ public:
     SessionData& current(Response& response);
     static void addAlertToSession(const Request& request, Response& response);
 
+    static vector<shared_ptr<Record>> listAll();
 private:
     const Request& request;
     static map<SessionId, SessionData> m_sessions;
