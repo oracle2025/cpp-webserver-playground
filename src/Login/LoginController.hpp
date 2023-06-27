@@ -105,6 +105,7 @@ struct LoginController : public T {
     {
         return m_secretHandler->handle(request)
             ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
+            .appendNavBarAction({"👤 Account", "/password/", "right"})
             .shared_from_this();
         ;
     }

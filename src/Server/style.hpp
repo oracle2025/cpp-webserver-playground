@@ -127,7 +127,7 @@ border-radius: 4px;
   white-space: nowrap;
 }
 .container {
-padding: 20px 0px;
+padding: 20px 5px;
 max-width: 500px;
 margin: auto;
 margin-top: 0px;
