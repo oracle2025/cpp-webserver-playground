@@ -114,7 +114,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Trace/trace.hpp
             src/Trace/Exception.cpp
             src/Trace/Exception.hpp
-            ${BACKWARD_ENABLE} src/User/PasswordChangeController.hpp src/Http/RequestDispatcher.cpp src/Http/RequestDispatcher.hpp src/Http/NullHandler.cpp src/Http/NullHandler.hpp)
+            ${BACKWARD_ENABLE} src/User/PasswordChangeController.hpp src/Http/RequestDispatcher.cpp src/Http/RequestDispatcher.hpp src/Http/NullHandler.cpp src/Http/NullHandler.hpp src/Signup/SignupController.hpp)
     add_backward(webservers)
 
     target_link_libraries(webservers Poco::Net Poco::Util Poco::Data
@@ -141,7 +141,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/CrudServerTest.cpp
             tests/TodoTest.cpp
             tests/AlertTest.cpp
-            tests/RequestTest.cpp tests/PasswordChangeTest.cpp)
+            tests/RequestTest.cpp tests/PasswordChangeTest.cpp tests/SignupTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
     add_backward(tests)
