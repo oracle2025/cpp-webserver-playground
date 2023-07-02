@@ -111,7 +111,7 @@ struct LoginController : public T {
             } else if (!m_publicHandler) {
             } else if (auto response = m_publicHandler->handle(request)) {
                 return response
-                    ->appendNavBarAction({"🔒 Login", "/login", "right"})
+                    ->appendNavBarAction({"🔒 Login", "/", "right"})
                     .shared_from_this();
             }
             return redirect("/")
@@ -144,7 +144,7 @@ private:
             "post")();
         return content(text)
             ->title("Login")
-            .appendNavBarAction({"Signup", "/signup/"})
+            .appendNavBarAction({"Signup", "/signup/", "right"})
             .shared_from_this();
     }
 };

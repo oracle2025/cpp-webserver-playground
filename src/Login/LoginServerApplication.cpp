@@ -4,6 +4,7 @@
 #include "Impl/PocoWebServer.hpp"
 #include "LoginController.hpp"
 #include "User/PasswordChangeController.hpp"
+#include "Signup/SignupController.hpp"
 #include "doctest.h"
 
 using std::make_shared;
@@ -16,7 +17,7 @@ int LoginServerApplication::main(const vector<string>& args)
             make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
             make_shared<PasswordChangeController<SimpleWebServer>>(
                 "/password")}),
-        nullptr,
+        make_shared<Signup::SignupController<SimpleWebServer>>("/signup"),
         std::make_shared<Presentation>());
     server.start();
     waitForTerminationRequest();

@@ -22,13 +22,13 @@ struct SignupController : public T {
     SignupController(const string& prefix)
     {
         using namespace Input;
-        T::router().get(prefix + "/", [](const Request& request) {
+        T::router().get(prefix + "/", [prefix](const Request& request) {
             return content(Form(
                                {Text("username")(),
                                 Password("password")(),
                                 Password("confirm_password")(),
                                 Submit("Signup")()},
-                               "/signup",
+                               prefix + "/submit",
                                "post")())
                 ->title("Signup")
                 .shared_from_this();
