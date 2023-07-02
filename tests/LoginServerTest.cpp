@@ -15,7 +15,7 @@ TEST_CASE("Login Server")
     Data::MigrationsV1 m;
     m.perform();
 
-    LoginController<TestServer> w(nullptr, nullptr);
+    LoginController<TestServer> w(nullptr, nullptr, nullptr);
     SUBCASE("Login")
     {
         CHECK(w.handle({"/secret"})->content() == "Access denied");

@@ -8,16 +8,16 @@
 
 bool loginSuccess(const string& user, const string& password, RequestHandler& w)
 {
-        map<string, string> params;
-        params["username"] = user;
-        params["password"] = password;
-        auto response = w.handle({"/login", {}, params});
-        auto cookieJar = response->cookies();
-        while(response->status() == 302) {
-            response = w.handle({response->location(), cookieJar});
-            cookieJar.merge(response->cookies());
-        }
-        return response->title().find("Change Password") != string::npos;
+    map<string, string> params;
+    params["username"] = user;
+    params["password"] = password;
+    auto response = w.handle({"/login", {}, params});
+    auto cookieJar = response->cookies();
+    while (response->status() == 302) {
+        response = w.handle({response->location(), cookieJar});
+        cookieJar.merge(response->cookies());
+    }
+    return response->title().find("Change Password") != string::npos;
 }
 
 TEST_CASE("Change Password")
@@ -33,6 +33,7 @@ TEST_CASE("Change Password")
 
     LoginController<TestServer> w(
         std::make_shared<PasswordChangeController<TestServer>>("/password"),
+        nullptr,
         nullptr);
     SUBCASE("Change password")
     {
@@ -43,8 +44,7 @@ TEST_CASE("Change Password")
         params["password"] = "Adm1n!";
         auto response = w.handle({"/login", {}, params});
         auto cookieJar = response->cookies();
-        auto actual
-            = w.handle({"/password/", cookieJar, {}})->content();
+        auto actual = w.handle({"/password/", cookieJar, {}})->content();
         CHECK(actual.find("current_password") != string::npos);
         CHECK(actual.find("new_password") != string::npos);
         CHECK(actual.find("confirm_password") != string::npos);
@@ -56,7 +56,6 @@ TEST_CASE("Change Password")
         response = w.handle({"/password/update", cookieJar, params});
         CHECK(response->content() == "Password updated successfully");
         CHECK(loginSuccess("admin", "S3cr3t&", w));
-
     }
     /*
      * 1) Login with existing password

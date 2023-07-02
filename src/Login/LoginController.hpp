@@ -37,8 +37,10 @@ struct LoginController : public T {
 
     LoginController(
         shared_ptr<RequestHandler> secretHandler,
+        shared_ptr<RequestHandler> publicHandler,
         shared_ptr<Html::Presentation> presentation)
         : m_secretHandler(secretHandler)
+        , m_publicHandler(publicHandler)
         , m_presentation(presentation)
     {
         using Http::Session;
@@ -49,7 +51,7 @@ struct LoginController : public T {
                 return loginForm();
             }
         });
-        T::router().get("/login", [this](const Request& request) {
+        T::router().get("/login", [](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
@@ -106,11 +108,15 @@ struct LoginController : public T {
         T::defaultHandler([this](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 return forwardToSecretHandler(request);
-            } else {
-                return redirect("/")
-                    ->alert("Please login", Html::AlertType::INFO)
+            } else if (!m_publicHandler) {
+            } else if (auto response = m_publicHandler->handle(request)) {
+                return response
+                    ->appendNavBarAction({"🔒 Login", "/login", "right"})
                     .shared_from_this();
             }
+            return redirect("/")
+                ->alert("Please login", Html::AlertType::INFO)
+                .shared_from_this();
         });
         T::setPresentation(m_presentation);
         T::finish_init();
@@ -126,6 +132,7 @@ struct LoginController : public T {
 
 private:
     shared_ptr<RequestHandler> m_secretHandler;
+    shared_ptr<RequestHandler> m_publicHandler;
     shared_ptr<Html::Presentation> m_presentation;
 
     shared_ptr<Response> loginForm()

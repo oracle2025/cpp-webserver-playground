@@ -58,6 +58,8 @@ struct SignupController : public T {
             Session(request).current(*response).login(user);
             return response;
         });
+        T::defaultHandler(Http::NullHandler);
+        T::finish_init();
     }
 };
 

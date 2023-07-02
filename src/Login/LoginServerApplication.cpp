@@ -16,6 +16,7 @@ int LoginServerApplication::main(const vector<string>& args)
             make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
             make_shared<PasswordChangeController<SimpleWebServer>>(
                 "/password")}),
+        nullptr,
         std::make_shared<Presentation>());
     server.start();
     waitForTerminationRequest();

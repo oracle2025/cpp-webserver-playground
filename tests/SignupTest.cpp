@@ -1,4 +1,5 @@
 #include "Data/MigrationsV1.hpp"
+#include "Login/LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "TestServer.hpp"
 #include "doctest.h"
@@ -16,12 +17,33 @@ TEST_CASE("Signup")
     Data::MigrationsV1 m;
     m.perform();
 
-    SignupController<TestServer> w("/signup");
-
-    map<string, string> params;
-    params["username"] = "porky";
-    params["password"] = "S3cr3t!";
-    params["confirm_password"] = "S3cr3t!";
-    auto response = w.handle({"/signup/submit", {}, params});
-    CHECK(response->alert().message() == "User created");
+    SUBCASE("Signup")
+    {
+        SignupController<TestServer> w("/signup");
+        map<string, string> params;
+        params["username"] = "porky";
+        params["password"] = "S3cr3t!";
+        params["confirm_password"] = "S3cr3t!";
+        auto response = w.handle({"/signup/submit", {}, params});
+        CHECK(response->alert().message() == "User created");
+    }
+    SUBCASE("Signup and Login")
+    {
+        LoginController<TestServer> w(
+            make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
+            make_shared<SignupController<SimpleWebServer>>("/signup"),
+            std::make_shared<Html::Presentation>());
+        CHECK(w.handle({"/secret"})->content() == "Access denied");
+        auto response = w.handle({"/signup/"});
+        CHECK((response->content().find("username") != string::npos));
+        auto cookieJar = response->cookies();
+        map<string, string> params;
+        params["username"] = "porky";
+        params["password"] = "S3cr3t!";
+        params["confirm_password"] = "S3cr3t!";
+        response = w.handle({"/signup/submit", cookieJar, params});
+        CHECK(response->alert().message() == "User created");
+        cookieJar.merge(response->cookies());
+        CHECK(w.handle({"/secret", cookieJar})->content() == "Success");
+    }
 }
