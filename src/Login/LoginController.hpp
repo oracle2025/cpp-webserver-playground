@@ -142,6 +142,9 @@ private:
             {Text("username")(), Password("password")(), Submit("Login")()},
             "/login",
             "post")();
-        return content(text)->title("Login").shared_from_this();
+        return content(text)
+            ->title("Login")
+            .appendNavBarAction({"Signup", "/signup/"})
+            .shared_from_this();
     }
 };
