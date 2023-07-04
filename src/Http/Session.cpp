@@ -117,5 +117,9 @@ vector<shared_ptr<Record>> Session::listAll()
     }
     return result;
 }
+void Session::clearAll()
+{
+    m_sessions.clear();
+}
 
 } // namespace Http

@@ -85,6 +85,7 @@ struct LoginController : public T {
                                     ->alert("Logged out", Html::AlertType::INFO)
                                     .shared_from_this();
                 Session(request).current(*response).logout();
+                Session(request).clearSession();
                 return response;
             } else {
                 return content("Access denied")
