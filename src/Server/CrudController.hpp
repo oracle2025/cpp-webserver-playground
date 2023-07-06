@@ -60,7 +60,7 @@ struct CrudController : public T {
                 .shared_from_this();
         });
         T::router().get(
-            prefix + "/create", [this, prefix](const Request& request) {
+            prefix + "/create", [prefix](const Request& request) {
                 F todo;
                 for (auto i : todo.fields()) {
                     if (request.hasParameter(i)) {

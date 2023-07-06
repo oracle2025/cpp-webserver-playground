@@ -29,6 +29,8 @@ public:
         }
         return false;
     }
+    void set(const string& key, const string& value);
+    string description() const;
     UserDefinition(const RecordType& d);
     UserDefinition(const UserDefinition& u);
 };

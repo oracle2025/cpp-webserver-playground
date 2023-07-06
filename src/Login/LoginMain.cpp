@@ -15,9 +15,9 @@ int main(int argc, char** argv)
     using MigrationsV1 = Data::MigrationsV1;
     try {
         Poco::Data::SQLite::Connector::registerConnector();
-        //Session session("SQLite", "todo.sqlite");
+        Session session("SQLite", "todo.sqlite");
         const auto connectionString = TODO_DATABASE_DIR "/todo.sqlite";
-        Session session("SQLite", connectionString);
+        //Session session("SQLite", connectionString);
         g_session = &session;
         MigrationsV1 migration;
         migration.perform();

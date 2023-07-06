@@ -62,6 +62,20 @@ UserDefinition::UserDefinition(const UserDefinition& u)
     , salt(data.get<3>())
 {
 }
+void UserDefinition::set(const string& key, const string& value)
+{
+    if (key == "username") {
+        username = value;
+    } else if (key == "password") {
+        setPassword(value);
+    } else if (key == "salt") {
+        salt = value;
+    }
+}
+string UserDefinition::description() const
+{
+    return "User: " + username;
+}
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
 {
     using namespace Poco::Data::Keywords;

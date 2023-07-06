@@ -19,7 +19,7 @@ void PocoWebServer::finish_init()
     using HTTPServerResponse = Poco::Net::HTTPServerResponse;
     using HTMLForm = Poco::Net::HTMLForm;
     using NameValueCollection = Poco::Net::NameValueCollection;
-    ServerSocket socket(SocketAddress("localhost", 8080));
+    ServerSocket socket(SocketAddress("localhost", SERVER_PORT));
     auto pParams = new HTTPServerParams();
     class HandlerFactory : public HTTPRequestHandlerFactory {
     public:
@@ -84,6 +84,7 @@ void PocoWebServer::finish_init()
                     for (auto& [key, value] : result->cookies()) {
                         HTTPCookie cookie(key, value);
                         cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);
+                        cookie.setPath("/");
                         if (value.empty()) {
                             cookie.setMaxAge(0);
                         }

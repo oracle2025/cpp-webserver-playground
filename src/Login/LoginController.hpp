@@ -70,7 +70,7 @@ struct LoginController : public T {
             Session(request).current(*response).login(user);
             return response;
         });
-        T::router().get("/secret", [this](const Request& request) {
+        T::router().get("/secret", [](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 return content("Success");
             } else {
@@ -79,7 +79,7 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/logout", [this](const Request& request) {
+        T::router().get("/logout", [](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 auto response = redirect("/")
                                     ->alert("Logged out", Html::AlertType::INFO)
@@ -93,7 +93,7 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/sessions", [this](const Request& request) {
+        T::router().get("/sessions", [](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 return content(Html::List(
                     Session::listAll(), {"id", "user_id", "is_logged_in"})());
