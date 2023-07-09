@@ -54,9 +54,9 @@ struct CrudController : public T {
             using namespace Input;
             F todo;
             return content(Form(todo, prefix + "/create", "post")
-                               .appendElement(Submit("Create Todo")())())
+                               .appendElement(Submit("Create " + F::presentableName())())())
                 ->appendNavBarAction({"Start", prefix + "/"})
-                .title("Create Todo")
+                .title("Create " + F::presentableName())
                 .shared_from_this();
         });
         T::router().get(
@@ -80,9 +80,9 @@ struct CrudController : public T {
                                    todo,
                                    string(prefix + "/update?") + todo.key(),
                                    "post")
-                                   .appendElement(Submit("Update Todo")())())
+                                   .appendElement(Submit("Update " + F::presentableName())())())
                     ->appendNavBarAction({"Start", prefix + "/"})
-                    .title("Edit Todo")
+                    .title("Edit " + F::presentableName())
                     .shared_from_this();
             } else {
                 return todoNotFound(prefix);
@@ -98,7 +98,7 @@ struct CrudController : public T {
                 }
                 todo.update();
                 return redirect(prefix + "/edit?" + todo.key())
-                    ->alert("Todo updated", Html::AlertType::SUCCESS)
+                    ->alert(F::presentableName() + " updated", Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
                 return todoNotFound(prefix);
@@ -124,10 +124,6 @@ struct CrudController : public T {
         T::router().get(prefix + "/delete", [prefix](const Request& request) {
             F todo;
             if (todo.pop(request.query())) {
-                for (auto& i : request.allParameters()) {
-                    std::cout << "Param: " << i.first << " = " << i.second
-                              << std::endl;
-                }
                 if (request.hasParameter("confirmed")) {
                     todo.erase();
                     return redirect(prefix + "/")
@@ -162,16 +158,17 @@ struct CrudController : public T {
         T::router().get(prefix + "/", [prefix](const Request& request) {
             F todo;
             using namespace Input;
+            auto columns = todo.presentableFields();
             return content(Form(
                                {Html::List(
                                     todo.listAsPointers(),
-                                    {"checked", "description"})
+                                    columns)
                                     .prefix(prefix)()},
                                prefix + "/mark",
                                "post")())
-                ->appendAction({"Create new Todo", prefix + "/new"})
+                ->appendAction({"Create new " + F::presentableName(), prefix + "/new"})
                 .appendNavBarAction({"Start", prefix + "/"})
-                .title("Todo List")
+                .title(F::presentableName() + " List")
                 .shared_from_this();
         });
         if (!prefix.empty()) {
@@ -187,7 +184,7 @@ struct CrudController : public T {
     }
     static shared_ptr<Response> todoNotFound(const string& prefix)
     {
-        return content("Todo not found")
+        return content(F::presentableName() + " not found")
             ->code(Response::NOT_FOUND)
             .appendNavBarAction({"Start", prefix + "/"})
             .shared_from_this();

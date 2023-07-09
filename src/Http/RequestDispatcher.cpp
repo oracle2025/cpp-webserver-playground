@@ -1,5 +1,7 @@
 #include "RequestDispatcher.hpp"
 
+#include "Http/NotFoundHandler.hpp"
+
 namespace Http {
 
 RequestDispatcher::RequestDispatcher(RequestHandlerList handlers)
@@ -14,7 +16,7 @@ shared_ptr<Response> RequestDispatcher::handle(const Request& request)
             return response;
         }
     }
-    return nullptr;
+    return Http::NotFoundHandler(request);
 }
 
 } // namespace Http

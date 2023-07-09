@@ -124,9 +124,10 @@ struct LoginController : public T {
     }
     shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {
+        using Http::Session;
         return m_secretHandler->handle(request)
             ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
-            .appendNavBarAction({"👤 Account", "/password/", "right"})
+            .appendNavBarAction({"👤 " + Session(request).userName(), "/password/", "right"})
             .shared_from_this();
         ;
     }

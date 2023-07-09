@@ -62,6 +62,8 @@ struct TodoDefinition {
     void set(const string& key, const string& value);
     string get(const string& key) const;
     string description() const;
+    vector<string> presentableFields() const;
+    static string presentableName();
 };
 
 using Todo = RecordImpl<TodoDefinition>;

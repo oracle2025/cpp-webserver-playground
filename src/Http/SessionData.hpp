@@ -28,11 +28,13 @@ public:
     bool isLoggedIn() const;
 
     string userId() const;
+    string userName() const;
 
 private:
     optional<Alert> m_alert;
     bool m_isLoggedIn = false;
     string m_userId;
+    string m_userName;
 };
 
 } // namespace Http

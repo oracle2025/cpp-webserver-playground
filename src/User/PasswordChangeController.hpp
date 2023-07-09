@@ -79,7 +79,7 @@ struct PasswordChangeController : public T {
                 return redirect(prefix + "/");
             });
         }
-        T::defaultHandler(Http::NotFoundHandler);
+        T::defaultHandler(Http::NullHandler);
         T::finish_init();
     }
 };

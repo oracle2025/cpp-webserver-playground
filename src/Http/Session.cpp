@@ -1,9 +1,9 @@
 
 #include "Session.hpp"
 
+#include "Data/FieldTypes.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
-#include "Data/FieldTypes.hpp"
 
 namespace Http {
 
@@ -83,17 +83,20 @@ struct SessionDataRecord : public Record {
     {
         return id;
     };
-    std::vector<string> fields() const override{
+    std::vector<string> fields() const override
+    {
         return {"id", "user_id", "is_logged_in"};
     };
-    std::map<string, string> values() const override{
+    std::map<string, string> values() const override
+    {
         return {
             {"id", id},
             {"user_id", data.userId()},
             {"is_logged_in", data.isLoggedIn() ? "true" : "false"},
         };
     };
-    HtmlInputType inputType(const string& field)  const override{
+    HtmlInputType inputType(const string& field) const override
+    {
         if (field == "id") {
             return HtmlInputType::TEXT;
         }
@@ -120,6 +123,16 @@ vector<shared_ptr<Record>> Session::listAll()
 void Session::clearAll()
 {
     m_sessions.clear();
+}
+string Session::userName() const
+{
+    if (request.hasCookie("session-id")
+        && (m_sessions.find(SessionId{request.cookie("session-id")})
+            != m_sessions.end())) {
+
+        return m_sessions[SessionId{request.cookie("session-id")}].userName();
+    }
+    TRACE_THROW("Session::userId() called without session-id cookie");
 }
 
 } // namespace Http

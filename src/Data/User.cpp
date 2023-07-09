@@ -76,6 +76,14 @@ string UserDefinition::description() const
 {
     return "User: " + username;
 }
+vector<string> UserDefinition::presentableFields() const
+{
+    return {"username"};
+}
+string UserDefinition::presentableName()
+{
+    return "User";
+}
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
 {
     using namespace Poco::Data::Keywords;

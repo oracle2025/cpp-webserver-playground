@@ -22,6 +22,7 @@ void SessionData::login(User& user)
 {
     m_isLoggedIn = true;
     m_userId = user.id;
+    m_userName = user.username;
 }
 void SessionData::logout()
 {
@@ -34,5 +35,9 @@ bool SessionData::isLoggedIn() const
 string SessionData::userId() const
 {
     return m_userId;
+}
+string SessionData::userName() const
+{
+    return m_userName;
 }
 } // namespace Http

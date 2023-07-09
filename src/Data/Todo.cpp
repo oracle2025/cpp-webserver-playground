@@ -64,3 +64,11 @@ string TodoDefinition::table_name() const
 {
     return "Todo";
 }
+vector<string> TodoDefinition::presentableFields() const
+{
+    return {"checked", "description"};
+}
+string TodoDefinition::presentableName()
+{
+    return "Todo";
+}

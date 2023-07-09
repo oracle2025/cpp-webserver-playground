@@ -33,6 +33,8 @@ public:
     string description() const;
     UserDefinition(const RecordType& d);
     UserDefinition(const UserDefinition& u);
+    vector<string> presentableFields() const;
+    static string presentableName();
 };
 
 using User = RecordImpl<UserDefinition>;
