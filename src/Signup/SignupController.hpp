@@ -17,8 +17,8 @@ using Http::redirect;
 template<typename T>
 struct SignupController : public T {
     using Request = Http::Request;
-    using Response = Http::Response;
     using Session = Http::Session;
+    using Response = Http::Response;
     SignupController(const string& prefix)
     {
         using namespace Input;

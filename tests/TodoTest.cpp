@@ -5,7 +5,7 @@
 #include <Poco/Data/Session.h>
 using Poco::Data::Session;
 #include "Data/Todo.hpp"
-#include "Data/MigrationsV0.hpp"
+#include "Data/MigrationsV2.hpp"
 
 #include <sstream>
 
@@ -15,7 +15,7 @@ TEST_CASE("todo")
     Session session("SQLite", ":memory:");
     g_session = &session;
 
-    Data::MigrationsV0 m;
+    Data::MigrationsV2 m;
     m.perform();
 
     Todo todo = Todo::RecordType{

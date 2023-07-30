@@ -6,6 +6,7 @@
 #include "Http/NotFoundHandler.hpp"
 #include "Http/NullHandler.hpp"
 #include "Http/Request.hpp"
+#include "Http/Session.hpp"
 #include "Http/Response.hpp"
 #include "List.hpp"
 #include "Submit.hpp"
@@ -44,34 +45,39 @@
         std::chrono::system_clock::now();
  */
 
-using namespace Http;
+using Http::content;
+using Http::redirect;
 
 template<typename T, typename F>
 struct CrudController : public T {
+    using Response = Http::Response;
+    using Request = Http::Request;
     CrudController(const string& prefix)
     {
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
             F todo;
             return content(Form(todo, prefix + "/create", "post")
-                               .appendElement(Submit("Create " + F::presentableName())())())
+                               .appendElement(Submit(
+                                   "Create " + F::presentableName())())())
                 ->appendNavBarAction({"Start", prefix + "/"})
                 .title("Create " + F::presentableName())
                 .shared_from_this();
         });
-        T::router().get(
-            prefix + "/create", [prefix](const Request& request) {
-                F todo;
-                for (auto i : todo.fields()) {
-                    if (request.hasParameter(i)) {
-                        todo.set(i, request.parameter(i));
-                    }
+        T::router().get(prefix + "/create", [prefix](const Request& request) {
+            using Http::Session;
+            F todo(request);
+            for (auto i : todo.fields()) {
+                if (request.hasParameter(i)) {
+                    todo.set(i, request.parameter(i));
                 }
-                todo.insert();
-                return redirect(prefix + "/edit?" + todo.key())
-                    ->alert("Todo created", Html::AlertType::SUCCESS)
-                    .shared_from_this();
-            });
+                todo.set("user_id", Session(request).userId());
+            }
+            todo.insert();
+            return redirect(prefix + "/edit?" + todo.key())
+                ->alert("Todo created", Html::AlertType::SUCCESS)
+                .shared_from_this();
+        });
         T::router().get(prefix + "/edit", [prefix](const Request& request) {
             using namespace Input;
             F todo;
@@ -80,7 +86,8 @@ struct CrudController : public T {
                                    todo,
                                    string(prefix + "/update?") + todo.key(),
                                    "post")
-                                   .appendElement(Submit("Update " + F::presentableName())())())
+                                   .appendElement(Submit(
+                                       "Update " + F::presentableName())())())
                     ->appendNavBarAction({"Start", prefix + "/"})
                     .title("Edit " + F::presentableName())
                     .shared_from_this();
@@ -98,7 +105,9 @@ struct CrudController : public T {
                 }
                 todo.update();
                 return redirect(prefix + "/edit?" + todo.key())
-                    ->alert(F::presentableName() + " updated", Html::AlertType::SUCCESS)
+                    ->alert(
+                        F::presentableName() + " updated",
+                        Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
                 return todoNotFound(prefix);
@@ -156,17 +165,16 @@ struct CrudController : public T {
             }
         });
         T::router().get(prefix + "/", [prefix](const Request& request) {
-            F todo;
+            F todo(request);
             using namespace Input;
             auto columns = todo.presentableFields();
             return content(Form(
-                               {Html::List(
-                                    todo.listAsPointers(),
-                                    columns)
+                               {Html::List(todo.listAsPointers(), columns)
                                     .prefix(prefix)()},
                                prefix + "/mark",
                                "post")())
-                ->appendAction({"Create new " + F::presentableName(), prefix + "/new"})
+                ->appendAction(
+                    {"Create new " + F::presentableName(), prefix + "/new"})
                 .appendNavBarAction({"Start", prefix + "/"})
                 .title(F::presentableName() + " List")
                 .shared_from_this();

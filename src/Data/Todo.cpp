@@ -34,6 +34,8 @@ string TodoDefinition::get(const string& key) const
         return updated_at;
     } else if (key == "checked") {
         return checked ? "yes" : "no";
+    } else if (key == "user_id") {
+        return user_id;
     }
     return "";
 }
@@ -49,6 +51,8 @@ void TodoDefinition::set(const string& key, const string& value)
         updated_at = value;
     } else if (key == "checked") {
         value == "yes" ? checked = 1 : checked = 0;
+    } else if (key == "user_id") {
+        user_id = value;
     }
 }
 vector<ColumnType> TodoDefinition::columns() const
@@ -58,13 +62,14 @@ vector<ColumnType> TodoDefinition::columns() const
         {"created_at", "VARCHAR", HtmlInputType::HIDDEN},
         {"updated_at", "VARCHAR", HtmlInputType::HIDDEN},
         {"checked", "INTEGER(3)", HtmlInputType::CHECKBOX},
+        {"user_id", "VARCHAR", HtmlInputType::HIDDEN},
     };
 }
 string TodoDefinition::table_name() const
 {
     return "Todo";
 }
-vector<string> TodoDefinition::presentableFields() const
+vector<string> TodoDefinition::presentableFields()
 {
     return {"checked", "description"};
 }

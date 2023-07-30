@@ -60,6 +60,14 @@ struct Response : public enable_shared_from_this<Response> {
 
     const Html::Alert& alert() const;
 
+    bool sendFile() const;
+
+    Response& sendFile(const string& filename);
+
+    string filename() const;
+
+    Response& mimetype(const string& mimetype);
+
 private:
     string m_content;
     map<string, string> m_cookies;
@@ -70,6 +78,8 @@ private:
     vector<ActionLink> m_navbarActions;
     string m_title;
     Html::Alert m_alert;
+    bool m_sendFile = false;
+    string m_filename;
 };
 
 shared_ptr<Response> content(

@@ -13,7 +13,7 @@ void loginLogout(LoginController<TestServer>& w, map<string, string>& cookieJar)
     params["username"] = "admin";
     params["password"] = "Adm1n!";
     auto response = w.handle({"/login", cookieJar, params});
-    cookieJar =response->cookies();
+    cookieJar = response->cookies();
     response = w.handle({"/secret", cookieJar});
     CHECK(response->content() == "Success");
     response = w.handle({"/logout", cookieJar});
@@ -22,6 +22,7 @@ void loginLogout(LoginController<TestServer>& w, map<string, string>& cookieJar)
 
 TEST_CASE("Login Server")
 {
+    using Http::Session;
     Poco::Data::SQLite::Connector::registerConnector();
     Poco::Data::Session session("SQLite", ":memory:");
     g_session = &session;
@@ -51,7 +52,7 @@ TEST_CASE("Login Server")
     SUBCASE("Login 100 times")
     {
         map<string, string> cookieJar;
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             loginLogout(w, cookieJar);
         }
         CHECK(Session::listAll().size() == 0);
@@ -59,9 +60,9 @@ TEST_CASE("Login Server")
     SUBCASE("Access Denied 100 times")
     {
         map<string, string> cookieJar;
-        for(int i = 0; i < 100; i++) {
-            CHECK(w.handle({"/secret", cookieJar})->content()
-                == "Access denied");
+        for (int i = 0; i < 100; i++) {
+            CHECK(
+                w.handle({"/secret", cookieJar})->content() == "Access denied");
         }
         CHECK(Session::listAll().size() == 0);
     }

@@ -5,14 +5,17 @@
 #include "LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "User/PasswordChangeController.hpp"
+#include "Filter/ByOwner.hpp"
 #include "doctest.h"
 
 using std::make_shared;
+using Http::RequestDispatcher;
+using Http::RequestHandlerList;
 
 int LoginServerApplication::main(const vector<string>& args)
 {
     auto secretHandlers = RequestHandlerList{
-        make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
+        make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
         make_shared<PasswordChangeController<SimpleWebServer>>("/password")};
 #ifdef ENABLE_USER_LIST
     secretHandlers.push_back(

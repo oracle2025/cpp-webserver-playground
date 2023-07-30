@@ -1,4 +1,4 @@
-#include "Data/MigrationsV1.hpp"
+#include "Data/MigrationsV2.hpp"
 #include "LoginServerApplication.hpp"
 #include "spdlog/spdlog.h"
 #include "Trace/trace.hpp"
@@ -12,14 +12,14 @@ extern Poco::Data::Session* g_session;
 using Poco::Data::Session;
 int main(int argc, char** argv)
 {
-    using MigrationsV1 = Data::MigrationsV1;
+    using MigrationsV2 = Data::MigrationsV2;
     try {
         Poco::Data::SQLite::Connector::registerConnector();
         Session session("SQLite", "todo.sqlite");
         const auto connectionString = TODO_DATABASE_DIR "/todo.sqlite";
         //Session session("SQLite", connectionString);
         g_session = &session;
-        MigrationsV1 migration;
+        MigrationsV2 migration;
         migration.perform();
         LoginServerApplication app;
         return app.run(argc, argv);

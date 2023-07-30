@@ -19,28 +19,32 @@ extern Poco::Data::Session* g_session;
 using std::string;
 
 struct TodoDefinition {
-    using RecordType = Poco::Tuple<string, string, string, string, bool>;
+    using RecordType = Poco::Tuple<string, string, string, string, bool, string>;
     RecordType data;
     string& id;
     string& m_description;
     string& created_at;
     string& updated_at;
     bool& checked;
-    TodoDefinition(const RecordType &d)
+    string& user_id;
+    TodoDefinition(const RecordType& d)
         : data{d}
         , id(data.get<0>())
         , m_description(data.get<1>())
         , created_at(data.get<2>())
         , updated_at(data.get<3>())
         , checked(data.get<4>())
+        , user_id(data.get<5>())
     {
-    }    TodoDefinition()
+    }
+    TodoDefinition()
         : data{"", "", "", "", false}
         , id(data.get<0>())
         , m_description(data.get<1>())
         , created_at(data.get<2>())
         , updated_at(data.get<3>())
         , checked(data.get<4>())
+        , user_id(data.get<5>())
     {
     }
     TodoDefinition(const TodoDefinition& t)
@@ -50,9 +54,10 @@ struct TodoDefinition {
         , created_at(data.get<2>())
         , updated_at(data.get<3>())
         , checked(data.get<4>())
+        , user_id(data.get<5>())
     {
     }
-    TodoDefinition& operator=(const TodoDefinition &other)
+    TodoDefinition& operator=(const TodoDefinition& other)
     {
         data = other.data;
         return *this;
@@ -62,7 +67,7 @@ struct TodoDefinition {
     void set(const string& key, const string& value);
     string get(const string& key) const;
     string description() const;
-    vector<string> presentableFields() const;
+    static vector<string> presentableFields();
     static string presentableName();
 };
 

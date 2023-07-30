@@ -135,7 +135,13 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/Http/NullHandler.hpp
     src/Signup/SignupController.hpp
     src/Filter/ByOwner.cpp
-    src/Filter/ByOwner.hpp)
+    src/Filter/ByOwner.hpp
+    src/Data/MigrationsV2.cpp
+    src/Data/MigrationsV2.hpp
+    src/ImageBrowser/ImageBrowserController.hpp
+    src/ImageBrowser/ImageBrowserApplication.cpp)
+  target_compile_definitions(
+          webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
   add_backward(webservers)
 
   target_link_libraries(
@@ -170,7 +176,9 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     tests/AlertTest.cpp
     tests/RequestTest.cpp
     tests/PasswordChangeTest.cpp
-    tests/SignupTest.cpp)
+    tests/SignupTest.cpp
+    tests/ByOwnerTest.cpp
+    tests/ImageBrowserTest.cpp)
   target_link_libraries(tests webservers)
   target_include_directories(tests PRIVATE tests)
   add_backward(tests)
@@ -193,6 +201,11 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
   add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
   target_link_libraries(login-server webservers)
   add_backward(login-server)
+
+  add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
+                                      tests/doctest_impl.cpp)
+  target_link_libraries(image-browser-server webservers)
+  add_backward(image-browser-server)
 
   install(TARGETS login-server DESTINATION bin)
 endif()

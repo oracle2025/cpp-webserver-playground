@@ -20,10 +20,15 @@ struct ColumnType {
     HtmlInputType inputType;
 };
 
+namespace Http {
+class Request;
+}
+
 template<typename T>
 struct RecordImpl : public T, public Record {
     using Session = Poco::Data::Session;
     RecordImpl() = default;
+    RecordImpl(const Http::Request& request){};
     RecordImpl(const RecordImpl<T>&) = default;
     RecordImpl(const typename T::RecordType& data)
         : T(data)

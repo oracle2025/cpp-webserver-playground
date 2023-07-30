@@ -84,6 +84,25 @@ vector<ActionLink> Response::navBarActions() const
 {
     return m_navbarActions;
 }
+bool Response::sendFile() const
+{
+    return m_sendFile;
+}
+Response& Response::sendFile(const string& filename)
+{
+    m_sendFile = true;
+    m_filename = filename;
+    return *this;
+}
+string Response::filename() const
+{
+    return m_filename;
+}
+Response& Response::mimetype(const string& mimetype)
+{
+    m_mimetype = mimetype;
+    return *this;
+}
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();

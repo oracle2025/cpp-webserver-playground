@@ -5,7 +5,7 @@
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
-
+extern Poco::Data::Session* g_session;
 namespace Data {
 void MigrationsV0::perform()
 {
@@ -13,8 +13,11 @@ void MigrationsV0::perform()
     if (migration.hasVersion()) {
         return;
     }
-    Todo todo;
-    todo.create_table();
+    using namespace Poco::Data::Keywords;
+    auto createStatement
+        = "CREATE TABLE Todo (id VARCHAR, description VARCHAR, created_at "
+          "VARCHAR, updated_at VARCHAR, checked INTEGER(3))";
+    *g_session << createStatement, now;
     migration.version(0);
 }
 } // namespace Data

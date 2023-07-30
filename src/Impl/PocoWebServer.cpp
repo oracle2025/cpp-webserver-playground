@@ -95,8 +95,12 @@ void PocoWebServer::finish_init()
                         && (!result->location().empty())) {
                         response.redirect(result->location());
                     }
-                    auto& responseStream = response.send();
-                    responseStream << m_presentation->render(*result);
+                    if (result->sendFile()) {
+                        response.sendFile(result->filename(), result->mimetype());
+                    } else {
+                        auto& responseStream = response.send();
+                        responseStream << m_presentation->render(*result);
+                    }
                 }
 
             private:
