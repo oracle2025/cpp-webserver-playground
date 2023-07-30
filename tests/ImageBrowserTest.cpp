@@ -12,7 +12,11 @@ TEST_CASE("Image Browser")
     SUBCASE("Index")
     {
         auto response = w.handle({"/imagebrowser/"});
-        CHECK(response->content() == "ImageBrowserController");
+        CHECK(response->content() == R"(<img width=128 height=128 src="/imagebrowser/images/?P1090403.JPG"><br />
+<img width=128 height=128 src="/imagebrowser/images/?P1090417.JPG"><br />
+<img width=128 height=128 src="/imagebrowser/images/?P1090399.JPG"><br />
+<img width=128 height=128 src="/imagebrowser/images/?P1090392.JPG"><br />
+)");
     }
     SUBCASE("List Dir")
     {
@@ -32,8 +36,8 @@ TEST_CASE("Image Browser")
     {
         using std::vector;
         auto input = vector<string>{"P1090403.JPG", "P1090404.JPG"};
-        auto expected = R"(<img src="/imagebrowser/images/?P1090403.JPG"><br />
-<img src="/imagebrowser/images/?P1090404.JPG"><br />
+        auto expected = R"(<img width=128 height=128 src="/imagebrowser/images/?P1090403.JPG"><br />
+<img width=128 height=128 src="/imagebrowser/images/?P1090404.JPG"><br />
 )";
         CHECK_EQ(ImageBrowserController<TestServer>::generateHtml(input), expected);
     }

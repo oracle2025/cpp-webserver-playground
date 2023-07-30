@@ -89,6 +89,30 @@ TEST_CASE("By Owner")
             == string::npos);
     }
     SUBCASE("Edit Items") {
+        // /edit?uuid-1234-5678-9012-3456 -> Form
+        // /edit?uuid-1234-5678-9012-3456 -> Access Denied or 404
+        map<string, string> cookieJar;
+        
+        loginAs(w, "alice", cookieJar);
+        addItem(w, "Buy Milk", cookieJar);
+
+        auto response = w.handle({"/item/", cookieJar});
+        CHECK_FALSE(response->content().find("Buy Milk")
+            == string::npos);
+
+        auto content = response->content();
+        auto uuid_found = content.find("name=\"");
+        uuid_found += string("name=\"").size();
+        content = content.substr(uuid_found);
+        auto uuid_end = content.find("\"");
+        auto uuid = content.substr(0, uuid_end);
+
+        response = w.handle({"/item/edit", cookieJar, {}, uuid});
+        CHECK_EQ(response->status(), 200);
+
+        loginAs(w, "bob", cookieJar);
+        response = w.handle({"/item/edit", cookieJar, {}, uuid});
+        CHECK_EQ(response->status(), 401);
 
     }
     SUBCASE("Delete Items") {
