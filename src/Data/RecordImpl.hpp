@@ -99,6 +99,11 @@ struct RecordImpl : public T, public Record {
     } catch (...) {
         TRACE_RETHROW("Could not pop");
     }
+    void reset()
+    {
+        T::data = {};
+        T::id = "";
+    }
     vector<RecordImpl<T>> list()
     {
         return list(*g_session);

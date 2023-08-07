@@ -41,7 +41,14 @@ void ByOwner::set(const string& field, const string& value)
 }
 bool ByOwner::pop(const string& query)
 {
-    return m_todo.pop(query);
+    if(m_todo.pop(query)) {
+        if(m_todo.values()["user_id"] != m_userId){
+            m_todo.reset();
+            return false;
+        }
+        return true;
+    }
+    return false;
 }
 void ByOwner::insert()
 {

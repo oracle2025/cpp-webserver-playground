@@ -80,7 +80,7 @@ struct CrudController : public T {
         });
         T::router().get(prefix + "/edit", [prefix](const Request& request) {
             using namespace Input;
-            F todo;
+            F todo(request);
             if (todo.pop(request.query())) {
                 return content(Form(
                                    todo,
@@ -96,7 +96,7 @@ struct CrudController : public T {
             }
         });
         T::router().get(prefix + "/update", [prefix](const Request& request) {
-            F todo;
+            F todo(request);
             if (todo.pop(request.query())) {
                 for (auto i : todo.fields()) {
                     if (request.hasParameter(i)) {
@@ -131,7 +131,7 @@ struct CrudController : public T {
                 .shared_from_this();
         });
         T::router().get(prefix + "/delete", [prefix](const Request& request) {
-            F todo;
+            F todo(request);
             if (todo.pop(request.query())) {
                 if (request.hasParameter("confirmed")) {
                     todo.erase();

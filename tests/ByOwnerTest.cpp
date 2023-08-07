@@ -32,6 +32,15 @@ void addItem(
     auto r = w.handle({"/item/create", cookieJar, params});
     //    CHECK(r->content() == "Success");
 }
+string extractUUID(const string& content)
+{
+    auto uuid_found = content.find("name=\"");
+    uuid_found += string("name=\"").size();
+    auto substr = content.substr(uuid_found);
+    auto uuid_end = substr.find("\"");
+    auto uuid = substr.substr(0, uuid_end);
+    return uuid;
+}
 TEST_CASE("By Owner")
 {
     LoginController<TestServer> w(
@@ -88,37 +97,76 @@ TEST_CASE("By Owner")
             w.handle({"/item/", cookieJar})->content().find("Buy Bread")
             == string::npos);
     }
-    SUBCASE("Edit Items") {
+    SUBCASE("Edit Items")
+    {
         // /edit?uuid-1234-5678-9012-3456 -> Form
         // /edit?uuid-1234-5678-9012-3456 -> Access Denied or 404
         map<string, string> cookieJar;
-        
+
         loginAs(w, "alice", cookieJar);
         addItem(w, "Buy Milk", cookieJar);
 
         auto response = w.handle({"/item/", cookieJar});
-        CHECK_FALSE(response->content().find("Buy Milk")
-            == string::npos);
+        CHECK_FALSE(response->content().find("Buy Milk") == string::npos);
 
-        auto content = response->content();
-        auto uuid_found = content.find("name=\"");
-        uuid_found += string("name=\"").size();
-        content = content.substr(uuid_found);
-        auto uuid_end = content.find("\"");
-        auto uuid = content.substr(0, uuid_end);
+        auto uuid = extractUUID(response->content());
 
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
         CHECK_EQ(response->status(), 200);
 
         loginAs(w, "bob", cookieJar);
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
-        CHECK_EQ(response->status(), 401);
-
+        CHECK_EQ(response->status(), 404);
     }
-    SUBCASE("Delete Items") {
+    SUBCASE("Delete Items")
+    {
+        map<string, string> cookieJar;
 
+        loginAs(w, "alice", cookieJar);
+        addItem(w, "Buy Milk", cookieJar);
+
+        auto response = w.handle({"/item/", cookieJar});
+        CHECK_FALSE(response->content().find("Buy Milk") == string::npos);
+
+        auto uuid = extractUUID(response->content());
+
+        loginAs(w, "bob", cookieJar);
+
+        response = w.handle({"/item/delete", cookieJar, {}, uuid});
+        CHECK_EQ(response->status(), 404);
+
+        loginAs(w, "alice", cookieJar);
+        response = w.handle({"/item/edit", cookieJar, {}, uuid});
+        CHECK_EQ(response->status(), 200);
+
+        response = w.handle({"/item/delete", cookieJar, {{"confirmed", "true"}}, uuid});
+        CHECK_EQ(response->status(), 302);
+        response = w.handle({"/item/edit", cookieJar, {}, uuid});
+        CHECK_EQ(response->status(), 404);
     }
-    SUBCASE("Update Items") {
+    SUBCASE("Update Items")
+    {
+        map<string, string> cookieJar;
 
+        loginAs(w, "alice", cookieJar);
+        addItem(w, "Buy Milk", cookieJar);
+
+        auto response = w.handle({"/item/", cookieJar});
+        CHECK_FALSE(response->content().find("Buy Milk") == string::npos);
+
+        auto uuid = extractUUID(response->content());
+
+        loginAs(w, "bob", cookieJar);
+
+        response = w.handle({"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
+        CHECK_EQ(response->status(), 404);
+
+        loginAs(w, "alice", cookieJar);
+        response = w.handle({"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
+        CHECK_EQ(response->status(), 302);
+
+        response = w.handle({"/item/", cookieJar});
+        CHECK(response->content().find("Buy Milk") == string::npos);
+        CHECK_FALSE(response->content().find("Buy Cream") == string::npos);
     }
 }
