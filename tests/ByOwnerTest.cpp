@@ -139,7 +139,8 @@ TEST_CASE("By Owner")
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
         CHECK_EQ(response->status(), 200);
 
-        response = w.handle({"/item/delete", cookieJar, {{"confirmed", "true"}}, uuid});
+        response = w.handle(
+            {"/item/delete", cookieJar, {{"confirmed", "true"}}, uuid});
         CHECK_EQ(response->status(), 302);
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
         CHECK_EQ(response->status(), 404);
@@ -158,15 +159,46 @@ TEST_CASE("By Owner")
 
         loginAs(w, "bob", cookieJar);
 
-        response = w.handle({"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
+        response = w.handle(
+            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
         CHECK_EQ(response->status(), 404);
 
         loginAs(w, "alice", cookieJar);
-        response = w.handle({"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
+        response = w.handle(
+            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
         CHECK_EQ(response->status(), 302);
 
         response = w.handle({"/item/", cookieJar});
         CHECK(response->content().find("Buy Milk") == string::npos);
         CHECK_FALSE(response->content().find("Buy Cream") == string::npos);
+    }
+    SUBCASE("Mark Item")
+    {
+        map<string, string> cookieJar;
+
+        loginAs(w, "alice", cookieJar);
+        addItem(w, "Buy Milk", cookieJar);
+
+        auto response = w.handle({"/item/", cookieJar});
+        CHECK_FALSE(response->content().find("Buy Milk") == string::npos);
+
+        auto uuid = extractUUID(response->content());
+
+        response = w.handle({"/item/", cookieJar});
+        CHECK_FALSE(
+            response->content().find(
+                R"(input type="checkbox" name=")" + uuid + R"(" value="yes")")
+            == string::npos);
+
+        response = w.handle({"/item/mark", cookieJar, {{uuid, "yes"}}});
+        CHECK_EQ(response->status(), 302);
+
+        response = w.handle({"/item/edit", cookieJar, {}, uuid});
+        CHECK_EQ(response->status(), 200);
+        CHECK_EQ(response->content(), "");
+        R"(option value="yes" selected)";
+    }
+    SUBCASE("Confirm Delete")
+    {
     }
 }

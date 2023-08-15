@@ -114,7 +114,7 @@ struct CrudController : public T {
             }
         });
         T::router().get(prefix + "/mark", [prefix](const Request& request) {
-            F todo;
+            F todo(request);
             std::ostringstream str;
             for (const auto& [key, value] : request.allParameters()) {
                 todo.pop(key);

@@ -128,6 +128,8 @@ struct LoginController : public T {
         return m_secretHandler->handle(request)
             ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction({"👤 " + Session(request).userName(), "/password/", "right"})
+            .appendNavBarAction({"Sessions", "/sessions", "right"})
+            .appendNavBarAction({"Users", "/user/", "right"})
             .shared_from_this();
         ;
     }

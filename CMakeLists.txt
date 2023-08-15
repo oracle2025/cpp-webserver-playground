@@ -45,6 +45,10 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
 
   add_library(
     webservers OBJECT
+          src/stb/stb_image.h
+          src/stb/stb_image_resize.h
+          src/stb/stb_image_write.h
+          src/stb/stb_implementation.cpp
     src/Data/Todo.cpp
     src/Data/Todo.hpp
     src/Html/Table.cpp
