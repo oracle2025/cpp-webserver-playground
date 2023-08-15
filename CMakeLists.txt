@@ -26,7 +26,12 @@ if(ENABLE_USER_LIST)
 endif()
 
 find_package(Threads)
-find_package(Poco COMPONENTS Net Util Data DataSQLite)
+if(APPLE)
+  find_package(Poco COMPONENTS Net Util Data DataSQLite)
+else()
+  find_package(Poco COMPONENTS Net Util Data DataSQLite Crypto)
+  add_definitions(-DUSE_POCO_CRYPTO)
+endif()
 find_package(spdlog)
 
 include(FetchContent)

@@ -5,6 +5,10 @@
 #include "backward.hpp"
 #include "doctest.h"
 
+#ifdef USE_POCO_CRYPTO
+#include <Poco/Crypto/Cipher.h>
+#endif
+
 TEST_CASE("UserRecord")
 {
     RecordImpl<UserDefinition> user;
@@ -39,6 +43,13 @@ string UserDefinition::get(const string& key) const
 void UserDefinition::setPassword(const string& password)
 {
     salt = String::createRandomUUID();
+#ifdef USE_POCO_CRYPTO
+//Poco::Crypto::DigestEngine engine("SHA1");
+    using namspace Poco::Crypto;
+    PBKDF2Engine<HMACEngine<SHA1Engine>> pbkdf2(ssid, 4096, 256);
+    pbkdf2.update("12345");
+    DigestEngine::Digest d = pbkdf2.digest();
+#endif
     this->password = password + salt;
 }
 string UserDefinition::table_name() const
