@@ -7,7 +7,12 @@
 
 #ifdef USE_POCO_CRYPTO
 #include <Poco/Crypto/Cipher.h>
+#include <Poco/PBKDF2Engine.h>
+#include <Poco/HMACEngine.h>
+#include <Poco/SHA1Engine.h>
+#include <Poco/DigestEngine.h>
 #endif
+
 
 TEST_CASE("UserRecord")
 {
@@ -44,12 +49,11 @@ void UserDefinition::setPassword(const string& password)
 {
     salt = String::createRandomUUID();
 #ifdef USE_POCO_CRYPTO
-//Poco::Crypto::DigestEngine engine("SHA1");
-    using namspace Poco::Crypto;
-    PBKDF2Engine<HMACEngine<SHA1Engine>> pbkdf2(ssid, 4096, 256);
-    pbkdf2.update("12345");
-    DigestEngine::Digest d = pbkdf2.digest();
+    Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine>> pbkdf2("salt", 4096, 256);
+    pbkdf2.update("passphrase");
+    Poco::DigestEngine::Digest d = pbkdf2.digest();
 #endif
+
     this->password = password + salt;
 }
 string UserDefinition::table_name() const
