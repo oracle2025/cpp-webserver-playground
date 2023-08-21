@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <Poco/Data/LOB.h>
 
 namespace Data {
 
@@ -9,10 +10,10 @@ using std::string;
 class PasswordSalting {
 public:
     PasswordSalting(const string& password, const string& salt);
-    string hash() const;
-    bool isValid(const string& hash) const;
+    Poco::Data::CLOB hash() const;
+    bool isValid(const Poco::Data::CLOB& hash) const;
 private:
-    string m_hash;
+    Poco::Data::CLOB m_hash;
 };
 
 } // namespace Data

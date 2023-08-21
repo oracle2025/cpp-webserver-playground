@@ -4,6 +4,7 @@
 #include "Data/PasswordSalting.hpp"
 
 #include <Poco/Tuple.h>
+#include <Poco/Data/LOB.h>
 
 #include <string>
 
@@ -13,12 +14,13 @@ namespace Data {
 
 class UserDefinition {
 public:
-    using RecordType = Poco::Tuple<string, string, string, string>;
+    using RecordType = Poco::Tuple<string, string, Poco::Data::CLOB, string>;
     RecordType data;
     string& id;
     string& username;
-    string& password;
+    Poco::Data::CLOB& password;
     string& salt;
+    //Poco::Data::BLOB password_hash;
     UserDefinition();
     vector<ColumnType> columns() const;
     string get(const string& key) const;

@@ -17,14 +17,15 @@ PasswordSalting::PasswordSalting(const string& password, const string& salt)
     auto digest = pbkdf2.digest();
     m_hash = string(digest.begin(), digest.end());
 #else
-    m_hash = password + salt;
+    string salted_password = password + salt;
+    m_hash = Poco::Data::CLOB(salted_password);
 #endif
 }
-string PasswordSalting::hash() const
+Poco::Data::CLOB PasswordSalting::hash() const
 {
     return m_hash;
 }
-bool PasswordSalting::isValid(const string& hash) const
+bool PasswordSalting::isValid(const Poco::Data::CLOB& hash) const
 {
     return hash == m_hash;
 }

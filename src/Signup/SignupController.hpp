@@ -47,7 +47,7 @@ struct SignupController : public T {
                     .shared_from_this();
             }
             user.username = request.parameter("username");
-            user.password = request.parameter("password");
+            user.setPassword(request.parameter("password"));
             user.insert();
 
             auto response

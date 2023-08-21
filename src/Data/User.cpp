@@ -20,7 +20,7 @@ TEST_CASE("UserRecord")
     RecordImpl<UserDefinition> user;
 }
 UserDefinition::UserDefinition()
-    : data{"", "", "", ""}
+    : data{"", "", {}, ""}
     , id(data.get<0>())
     , username(data.get<1>())
     , password(data.get<2>())
@@ -40,7 +40,7 @@ string UserDefinition::get(const string& key) const
     if (key == "username") {
         return username;
     } else if (key == "password") {
-        return password;
+        return "";
     } else if (key == "salt") {
         return salt;
     }
