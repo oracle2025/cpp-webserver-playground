@@ -24,6 +24,25 @@ void MigrationsV1::perform()
 }
 } // namespace Data
 
+TEST_CASE("MigrationV1PasswordSalting")
+{
+    using Session = Poco::Data::Session;
+    Poco::Data::SQLite::Connector::registerConnector();
+    Session session("SQLite", ":memory:");
+    g_session = &session;
+
+    Data::MigrationsV1 m;
+    m.perform();
+
+    Data::User user;
+    user.username = "mary";
+    user.setPassword("Mary!");
+    user.insert();
+
+    CHECK(Data::findUser(session, "mary", user));
+
+    CHECK(Data::User::isValidUser("mary", "Mary!", user));
+}
 TEST_CASE("MigrationV1")
 {
     using Session = Poco::Data::Session;

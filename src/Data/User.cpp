@@ -59,7 +59,7 @@ TEST_CASE("Crypto")
     auto salt = String::createRandomUUID();
     auto passphrase = "passphrase";
     Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine>> pbkdf2(
-        "salt", 4096, 256);
+        salt, 4096, 256);
     pbkdf2.update(passphrase);
     Poco::DigestEngine::Digest d = pbkdf2.digest();
     auto actual = string{d.begin(), d.end()};
@@ -73,12 +73,6 @@ TEST_CASE("Crypto")
 void UserDefinition::setPassword(const string& password)
 {
     salt = String::createRandomUUID();
-#ifdef USE_POCO_CRYPTO
-    Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine>> pbkdf2(
-        "salt", 4096, 256);
-    pbkdf2.update("passphrase");
-    Poco::DigestEngine::Digest d = pbkdf2.digest();
-#endif
     this->password = PasswordSalting(password, salt).hash();
 }
 string UserDefinition::table_name() const

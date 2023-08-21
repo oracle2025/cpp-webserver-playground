@@ -25,8 +25,8 @@ public:
     void setPassword(const string& password);
     string table_name() const;
     template<class T>
-    bool isValidUser(
-        const string& username, const string& password, T& user) const
+    static bool isValidUser(
+        const string& username, const string& password, T& user)
     {
         if (findUser(*g_session, username, user)) {
             return PasswordSalting(password, user.salt).isValid(user.password);
