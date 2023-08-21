@@ -34,7 +34,7 @@ TEST_CASE("MigrationV1")
     Data::MigrationsV1 m;
     m.perform();
 
-    User user;
+    Data::User user;
     for (auto &u:user.list()) {
         CHECK(u.username == "admin");
         CHECK(u.password == "Adm1n!" + u.salt);

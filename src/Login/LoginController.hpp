@@ -29,7 +29,7 @@ struct LoginController : public T {
         return parameters.count("username") && parameters.count("password");
     }
 
-    static bool isValidUser(const map<string, string>& parameters, User& user)
+    static bool isValidUser(const map<string, string>& parameters, Data::User& user)
     {
         return user.isValidUser(
             parameters.at("username"), parameters.at("password"), user);
@@ -55,7 +55,7 @@ struct LoginController : public T {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
-            User user;
+            Data::User user;
             if (!isValidUser(request.allParameters(), user)) {
                 return redirect("/")
                     ->alert("Invalid Login", Html::AlertType::DANGER)

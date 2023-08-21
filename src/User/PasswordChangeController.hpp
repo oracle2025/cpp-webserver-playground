@@ -23,7 +23,7 @@ struct PasswordChangeController : public T {
     {
         T::router().get(prefix + "/", [prefix](const Request& request) {
             using namespace Input;
-            User user;
+            Data::User user;
             if (user.pop(Session(request).userId())) { // current session user
                 return content(
                            Form(
@@ -45,7 +45,7 @@ struct PasswordChangeController : public T {
             }
         });
         T::router().get(prefix + "/update", [prefix](const Request& request) {
-            User user;
+            Data::User user;
             if (user.pop(Session(request).userId())) {
                 if (request.parameter("new_password")
                     != request.parameter("confirm_password")) {

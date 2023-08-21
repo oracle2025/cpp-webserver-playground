@@ -29,7 +29,7 @@ TEST_CASE("Change Password")
     Data::MigrationsV1 m;
     m.perform();
 
-    User user;
+    Data::User user;
 
     LoginController<TestServer> w(
         std::make_shared<PasswordChangeController<TestServer>>("/password"),

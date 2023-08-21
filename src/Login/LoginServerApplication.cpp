@@ -19,7 +19,7 @@ int LoginServerApplication::main(const vector<string>& args)
         make_shared<PasswordChangeController<SimpleWebServer>>("/password")};
 #ifdef ENABLE_USER_LIST
     secretHandlers.push_back(
-        make_shared<CrudController<SimpleWebServer, User>>("/user"));
+        make_shared<CrudController<SimpleWebServer, Data::User>>("/user"));
 #endif
     shared_ptr<RequestHandler> publicHandler = nullptr;
 #ifdef ENABLE_SIGNUP

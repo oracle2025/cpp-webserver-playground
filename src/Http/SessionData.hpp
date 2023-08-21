@@ -21,7 +21,7 @@ public:
 
     const Alert& getAlert() const;
 
-    void login(User& user);
+    void login(Data::User& user);
 
     void logout();
 

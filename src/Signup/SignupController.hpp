@@ -34,7 +34,7 @@ struct SignupController : public T {
                 .shared_from_this();
         });
         T::router().get(prefix + "/submit", [prefix](const Request& request) {
-            User user;
+            Data::User user;
             if (findUser(*g_session, request.parameter("username"), user)) {
                 return redirect(prefix + "/")
                     ->alert("User already exists", Html::AlertType::INFO)
