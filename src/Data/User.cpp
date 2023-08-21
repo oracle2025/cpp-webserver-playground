@@ -46,6 +46,13 @@ string UserDefinition::get(const string& key) const
     }
     return "";
 }
+TEST_CASE("PasswordSalting")
+{
+    auto salt = String::createRandomUUID();
+    auto passphrase = "passphrase";
+    auto hash = PasswordSalting(passphrase, salt).hash();
+    CHECK(PasswordSalting(passphrase, salt).isValid(hash));
+}
 #ifdef USE_POCO_CRYPTO
 TEST_CASE("Crypto")
 {
@@ -62,6 +69,7 @@ TEST_CASE("Crypto")
     CHECK(actual == expected);
 }
 #endif
+
 void UserDefinition::setPassword(const string& password)
 {
     salt = String::createRandomUUID();
