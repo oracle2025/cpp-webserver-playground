@@ -31,7 +31,7 @@ vector<ColumnType> UserDefinition::columns() const
 {
     return {
         {"username", "VARCHAR", HtmlInputType::TEXT},
-        {"password", "VARCHAR", HtmlInputType::TEXT},
+        {"password", "BLOB", HtmlInputType::TEXT},
         {"salt", "VARCHAR", HtmlInputType::TEXT},
     };
 }
