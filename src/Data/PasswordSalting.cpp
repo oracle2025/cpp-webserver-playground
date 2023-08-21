@@ -14,7 +14,8 @@ PasswordSalting::PasswordSalting(const string& password, const string& salt)
 #ifdef USE_POCO_CRYPTO
     Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine>> pbkdf2(salt, 4096, 256);
     pbkdf2.update(password);
-    m_hash = pbkdf2.digest();
+    auto digest = pbkdf2.digest();
+    m_hash = string(digest.begin(), digest.end());
 #else
     m_hash = password + salt;
 #endif

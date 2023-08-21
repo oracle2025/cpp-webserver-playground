@@ -148,7 +148,7 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/Data/MigrationsV2.cpp
     src/Data/MigrationsV2.hpp
     src/ImageBrowser/ImageBrowserController.hpp
-    src/ImageBrowser/ImageBrowserApplication.cpp src/Data/PasswortSalting.cpp src/Data/PasswordSalting.hpp)
+    src/ImageBrowser/ImageBrowserApplication.cpp src/Data/PasswordSalting.cpp src/Data/PasswordSalting.hpp)
   target_compile_definitions(
           webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
   add_backward(webservers)

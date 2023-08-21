@@ -35,8 +35,8 @@ TEST_CASE("MigrationV1")
     m.perform();
 
     Data::User user;
-    for (auto &u:user.list()) {
+    for (auto& u : user.list()) {
         CHECK(u.username == "admin");
-        CHECK(u.password == "Adm1n!" + u.salt);
+        CHECK(Data::PasswordSalting("Adm1n!", u.salt).isValid(u.password));
     }
 }
