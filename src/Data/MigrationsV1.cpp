@@ -39,7 +39,13 @@ TEST_CASE("MigrationV1PasswordSalting")
     user.setPassword("Mary!");
     user.insert();
 
+    auto expected = user.password;
+
     CHECK(Data::findUser(session, "mary", user));
+
+    auto actual = user.password;
+
+    CHECK(expected == actual);
 
     CHECK(Data::User::isValidUser("mary", "Mary!", user));
 }
