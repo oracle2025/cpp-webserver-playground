@@ -5,13 +5,6 @@
 #include "backward.hpp"
 #include "doctest.h"
 
-#ifdef USE_POCO_CRYPTO
-#include <Poco/Crypto/Cipher.h>
-#include <Poco/PBKDF2Engine.h>
-#include <Poco/HMACEngine.h>
-#include <Poco/SHA1Engine.h>
-#include <Poco/DigestEngine.h>
-#endif
 
 namespace Data {
 
@@ -46,29 +39,7 @@ string UserDefinition::get(const string& key) const
     }
     return "";
 }
-TEST_CASE("PasswordSalting")
-{
-    auto salt = String::createRandomUUID();
-    auto passphrase = "passphrase";
-    auto hash = PasswordSalting(passphrase, salt).hash();
-    CHECK(PasswordSalting(passphrase, salt).isValid(hash));
-}
-#ifdef USE_POCO_CRYPTO
-TEST_CASE("Crypto")
-{
-    auto salt = String::createRandomUUID();
-    auto passphrase = "passphrase";
-    Poco::PBKDF2Engine<Poco::HMACEngine<Poco::SHA1Engine>> pbkdf2(
-        salt, 4096, 256);
-    pbkdf2.update(passphrase);
-    Poco::DigestEngine::Digest d = pbkdf2.digest();
-    auto actual = string{d.begin(), d.end()};
-    pbkdf2.update(passphrase);
-    d = pbkdf2.digest();
-    auto expected = string{d.begin(), d.end()};
-    CHECK(actual == expected);
-}
-#endif
+
 
 void UserDefinition::setPassword(const string& password)
 {

@@ -7,10 +7,9 @@ namespace Data {
 
 class MigrationsV2 : public MigrationsV1 {
 public:
-    virtual void perform();
+    void perform() override;
 };
 
-using MigrationsLatest = MigrationsV2;
 
 } // namespace Data
 
