@@ -96,7 +96,7 @@ bool findUser(Poco::Data::Session& session, const string& username, User& user)
     using String::repeat;
     Statement select(session);
     string copy(username);
-    select << "SELECT * FROM " + user.table_name() + " WHERE username = ?",
+    select << "SELECT id, username, password, salt FROM " + user.table_name() + " WHERE username = ?",
         use(copy), into(user.data), range(0, 1);
     try {
         if (select.execute() == 0) {

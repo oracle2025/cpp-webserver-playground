@@ -72,7 +72,8 @@ struct RecordImpl : public T, public Record {
         using String::repeat;
         T::id = String::createRandomUUID();
         Statement insert(session);
-        insert << "INSERT INTO " + T::table_name() + " VALUES(" + "?, "
+        insert << "INSERT INTO " + T::table_name() + " ("
+                + orderedColumnNames(T::columns()) + ")VALUES(" + "?, "
                 + repeat("?", ", ", T::columns().size()) + ")",
             use(T::data), now;
     } catch (...) {
@@ -90,7 +91,8 @@ struct RecordImpl : public T, public Record {
         T::id = _id;
         Statement select(session);
         typename T::RecordType record;
-        select << "SELECT * FROM " + T::table_name() + " WHERE id = ?",
+        select << "SELECT " + orderedColumnNames(T::columns()) + " FROM "
+                + T::table_name() + " WHERE id = ?",
             use(T::id), into(T::data), range(0, 1);
         if (select.execute() == 0) {
             return false;
@@ -149,15 +151,20 @@ struct RecordImpl : public T, public Record {
     string selectStatement(const vector<ColumnType>& columns) const
     try {
         string statement = "SELECT ";
-        statement += "id, ";
-        for (auto& column : columns) {
-            statement += column.name + ", ";
-        }
-        statement = statement.substr(0, statement.length() - 2);
+        statement += orderedColumnNames(columns);
         statement += " FROM " + T::table_name();
         return statement;
     } catch (...) {
         TRACE_RETHROW("Could not create statement");
+    }
+    string orderedColumnNames(const vector<ColumnType>& columns) const
+    {
+        string result = "id, ";
+        for (auto& column : columns) {
+            result += column.name + ", ";
+        }
+        result = result.substr(0, result.length() - 2);
+        return result;
     }
     bool update()
     {
