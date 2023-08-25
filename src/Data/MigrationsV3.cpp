@@ -79,7 +79,7 @@ TEST_CASE("MigrationV3")
     Session session("SQLite", ":memory:");
     g_session = &session;
 
-    Data::MigrationsV1 m;
+    Data::MigrationsV3 m;
     m.perform();
 
     Data::User user;
