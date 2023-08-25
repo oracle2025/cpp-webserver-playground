@@ -1,4 +1,4 @@
-#include "Data/MigrationsV1.hpp"
+#include "Data/MigrationsV3.hpp"
 #include "Data/User.hpp"
 #include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
@@ -27,7 +27,7 @@ TEST_CASE("Login Server")
     Poco::Data::Session session("SQLite", ":memory:");
     g_session = &session;
 
-    Data::MigrationsV1 m;
+    Data::MigrationsLatest m;
     m.perform();
 
     LoginController<TestServer> w(nullptr, nullptr, nullptr);

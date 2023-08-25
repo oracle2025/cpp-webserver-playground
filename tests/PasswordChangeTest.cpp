@@ -1,4 +1,4 @@
-#include "Data/MigrationsV1.hpp"
+#include "Data/MigrationsV3.hpp"
 #include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
 #include "User/PasswordChangeController.hpp"
@@ -26,7 +26,7 @@ TEST_CASE("Change Password")
     Poco::Data::Session session("SQLite", ":memory:");
     g_session = &session;
 
-    Data::MigrationsV1 m;
+    Data::MigrationsLatest m;
     m.perform();
 
     Data::User user;
