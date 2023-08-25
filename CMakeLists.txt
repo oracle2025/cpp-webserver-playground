@@ -225,7 +225,7 @@ if(NOT ${Poco_FOUND})
   ExternalProject_Add(
     libpoco
     GIT_REPOSITORY https://github.com/pocoproject/poco.git
-    GIT_TAG poco-1.10.1-release
+    GIT_TAG poco-1.12.4-release
     GIT_SHALLOW ON
     GIT_PROGRESS OFF
     INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}
