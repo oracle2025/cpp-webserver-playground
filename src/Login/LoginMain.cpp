@@ -1,4 +1,4 @@
-#include "Data/MigrationsV2.hpp"
+#include "Data/MigrationsV3.hpp"
 #include "LoginServerApplication.hpp"
 #include "spdlog/spdlog.h"
 #include "Trace/trace.hpp"
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         const auto connectionString = TODO_DATABASE_DIR "/todo.sqlite";
         //Session session("SQLite", connectionString);
         g_session = &session;
-        MigrationsV2 migration;
+        Data::MigrationsLatest migration;
         migration.perform();
         LoginServerApplication app;
         return app.run(argc, argv);
