@@ -8,7 +8,7 @@ It uses Poco libraries for the web server and SQLite for the database.
 
 ## Dependencies
 
-The easy way to see the dependencies is to look at the [.github/workflows/c-cpp.yml]() file.
+The easy way to see the dependencies is to look at the [.github/workflows/c-cpp.yml](.github/workflows/c-cpp.yml) file.
 
 - [Poco](https://pocoproject.org/) - for the web server
 - [SQLite](https://www.sqlite.org/index.html) - for the database
