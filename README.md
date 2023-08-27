@@ -23,3 +23,7 @@ The easy way to see the dependencies is to look at the [.github/workflows/c-cpp.
 ## Nice features
 
 If an exception happens, the server will log a stacktrace to the console.
+
+## Screenshot
+
+![Screenshot Todo List App](doc/images/cpp-todo-web.png)
