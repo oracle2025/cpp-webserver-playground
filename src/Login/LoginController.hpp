@@ -129,7 +129,9 @@ struct LoginController : public T {
             ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction({"👤 " + Session(request).userName(), "/password/", "right"})
             .appendNavBarAction({"Sessions", "/sessions", "right"})
+#ifdef ENABLE_USER_LIST
             .appendNavBarAction({"Users", "/user/", "right"})
+#endif
             .shared_from_this();
         ;
     }
@@ -148,7 +150,9 @@ private:
             "post")();
         return content(text)
             ->title("Login")
+#ifdef ENABLE_SIGNUP
             .appendNavBarAction({"Signup", "/signup/", "right"})
+#endif
             .shared_from_this();
     }
 };
