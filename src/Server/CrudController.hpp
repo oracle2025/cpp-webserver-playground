@@ -155,7 +155,7 @@ struct CrudController : public T {
         });
         T::router().get(prefix + "/confirm", [prefix](const Request& request) {
             using namespace Input;
-            F todo;
+            F todo(request);
             if (todo.pop(request.query())) {
                 return Confirm(prefix, todo, todo.description())()
                     ->appendNavBarAction({"Start", prefix + "/"})
