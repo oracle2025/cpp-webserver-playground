@@ -85,14 +85,16 @@ struct SessionDataRecord : public Record {
     };
     std::vector<string> fields() const override
     {
-        return {"id", "user_id", "is_logged_in"};
+        return {"id", "user_id", "is_logged_in", "createdAt", "lastUsedAt"};
     };
     std::map<string, string> values() const override
     {
         return {
             {"id", id},
             {"user_id", data.userId()},
-            {"is_logged_in", data.isLoggedIn() ? "true" : "false"},
+            {"is_logged_in", data.isLoggedInConst() ? "true" : "false"},
+            {"createdAt", data.createdAt()},
+            {"lastUsedAt", data.lastUsedAt()},
         };
     };
     HtmlInputType inputType(const string& field) const override

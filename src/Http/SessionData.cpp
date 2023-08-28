@@ -28,8 +28,9 @@ void SessionData::logout()
 {
     m_isLoggedIn = false;
 }
-bool SessionData::isLoggedIn() const
+bool SessionData::isLoggedIn()
 {
+    touch();
     return m_isLoggedIn;
 }
 string SessionData::userId() const
@@ -39,5 +40,26 @@ string SessionData::userId() const
 string SessionData::userName() const
 {
     return m_userName;
+}
+std::time_t SessionData::now()
+{
+    const auto now = std::chrono::system_clock::now();
+    return std::chrono::system_clock::to_time_t(now);
+}
+void SessionData::touch()
+{
+    m_lastUsedAt = now();
+}
+string SessionData::createdAt() const
+{
+    return std::ctime(&m_createdAt);
+}
+string SessionData::lastUsedAt() const
+{
+    return std::ctime(&m_lastUsedAt);
+}
+bool SessionData::isLoggedInConst() const
+{
+    return m_isLoggedIn;
 }
 } // namespace Http

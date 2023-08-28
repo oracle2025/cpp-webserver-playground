@@ -29,7 +29,8 @@ struct LoginController : public T {
         return parameters.count("username") && parameters.count("password");
     }
 
-    static bool isValidUser(const map<string, string>& parameters, Data::User& user)
+    static bool isValidUser(
+        const map<string, string>& parameters, Data::User& user)
     {
         return user.isValidUser(
             parameters.at("username"), parameters.at("password"), user);
@@ -96,7 +97,13 @@ struct LoginController : public T {
         T::router().get("/sessions", [](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 return content(Html::List(
-                    Session::listAll(), {"id", "user_id", "is_logged_in"})());
+                                   Session::listAll(),
+                                   {"id",
+                                    "user_id",
+                                    "is_logged_in",
+                                    "createdAt",
+                                    "lastUsedAt"})
+                                   .withHeader()());
             } else {
                 return content("Access denied")
                     ->code(Response::UNAUTHORIZED)
@@ -111,8 +118,7 @@ struct LoginController : public T {
                 return forwardToSecretHandler(request);
             } else if (!m_publicHandler) {
             } else if (auto response = m_publicHandler->handle(request)) {
-                return response
-                    ->appendNavBarAction({"🔒 Login", "/", "right"})
+                return response->appendNavBarAction({"🔒 Login", "/", "right"})
                     .shared_from_this();
             }
             return redirect("/")
@@ -127,7 +133,8 @@ struct LoginController : public T {
         using Http::Session;
         return m_secretHandler->handle(request)
             ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
-            .appendNavBarAction({"👤 " + Session(request).userName(), "/password/", "right"})
+            .appendNavBarAction(
+                {"👤 " + Session(request).userName(), "/password/", "right"})
             .appendNavBarAction({"Sessions", "/sessions", "right"})
 #ifdef ENABLE_USER_LIST
             .appendNavBarAction({"Users", "/user/", "right"})

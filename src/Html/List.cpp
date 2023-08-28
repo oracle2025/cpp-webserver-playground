@@ -11,6 +11,13 @@ string List::operator()()
 {
     ostringstream str;
     str << R"(<table>)";
+    if (m_withHeader) {
+        str << R"(<thead><tr>)";
+        for (const auto& column : columns) {
+            str << R"(<th>)" << column << "</th>";
+        }
+        str << "</tr></thead>";
+    }
     int even = 0;
     for (auto record : records) {
         if (even % 2) {
@@ -60,6 +67,11 @@ List::List(vector<shared_ptr<Record>> records, vector<string> columns)
 List& List::prefix(const string& prefix)
 {
     m_prefix = prefix;
+    return *this;
+}
+List& List::withHeader()
+{
+    m_withHeader = true;
     return *this;
 }
 } // namespace Html

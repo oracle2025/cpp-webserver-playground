@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Html/Alert.hpp"
 #include "Data/User.hpp"
+#include "Html/Alert.hpp"
 
 #include <optional>
 
@@ -25,16 +25,25 @@ public:
 
     void logout();
 
-    bool isLoggedIn() const;
+    bool isLoggedIn();
+
+    bool isLoggedInConst() const;
 
     string userId() const;
     string userName() const;
+
+    string createdAt() const;
+    string lastUsedAt() const;
 
 private:
     optional<Alert> m_alert;
     bool m_isLoggedIn = false;
     string m_userId;
     string m_userName;
+    std::time_t m_createdAt = now();
+    std::time_t m_lastUsedAt = now();
+    static std::time_t now();
+    void touch();
 };
 
 } // namespace Http
