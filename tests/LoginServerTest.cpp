@@ -30,7 +30,7 @@ TEST_CASE("Login Server")
     Data::MigrationsLatest m;
     m.perform();
 
-    LoginController<TestServer> w(nullptr, nullptr, nullptr);
+    LoginController<TestServer> w(nullptr, nullptr, nullptr, nullptr);
     Session::clearAll();
     SUBCASE("Login")
     {

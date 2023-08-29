@@ -46,6 +46,7 @@ TEST_CASE("By Owner")
     LoginController<TestServer> w(
         make_shared<CrudController<TestServer, Filter::ByOwner>>("/item"),
         nullptr,
+        nullptr,
         nullptr);
 
     Poco::Data::SQLite::Connector::registerConnector();

@@ -31,6 +31,7 @@ TEST_CASE("Signup")
     {
         LoginController<TestServer> w(
             make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
+            nullptr,
             make_shared<SignupController<SimpleWebServer>>("/signup"),
             std::make_shared<Html::Presentation>());
         CHECK(w.handle({"/secret"})->content() == "Access denied");

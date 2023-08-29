@@ -34,6 +34,7 @@ TEST_CASE("Change Password")
     LoginController<TestServer> w(
         std::make_shared<PasswordChangeController<TestServer>>("/password"),
         nullptr,
+        nullptr,
         nullptr);
     SUBCASE("Change password")
     {
