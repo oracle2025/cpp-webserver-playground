@@ -38,16 +38,18 @@ struct LoginController : public T {
 
     LoginController(
         shared_ptr<RequestHandler> secretHandler,
+        shared_ptr<RequestHandler> adminHandler,
         shared_ptr<RequestHandler> publicHandler,
         shared_ptr<Html::Presentation> presentation)
         : m_secretHandler(secretHandler)
+        , m_adminHandler(adminHandler)
         , m_publicHandler(publicHandler)
         , m_presentation(presentation)
     {
         using Http::Session;
         T::router().get("/", [this](const Request& request) {
             if (Session(request).isLoggedIn() && m_secretHandler) {
-                return forwardToSecretHandler(request);
+                return forwardToSecretHandler(request, m_secretHandler);
             } else {
                 return loginForm();
             }
@@ -95,7 +97,7 @@ struct LoginController : public T {
             }
         });
         T::router().get("/sessions", [](const Request& request) {
-            if (Session(request).isLoggedIn()) {
+            if (Session(request).isAdmin()) {
                 return content(Html::List(
                                    Session::listAll(),
                                    {"id",
@@ -114,8 +116,16 @@ struct LoginController : public T {
             return content(STYLE_SHEET, "text/css");
         });
         T::defaultHandler([this](const Request& request) {
-            if (Session(request).isLoggedIn()) {
-                return forwardToSecretHandler(request);
+            if (m_adminHandler && Session(request).isLoggedIn()
+                && Session(request).isAdmin()) {
+                auto response = m_adminHandler->handle(request);
+                if (response) {
+                    return addLinksToResponse(request, response);
+                } else {
+                    return forwardToSecretHandler(request, m_secretHandler);
+                }
+            } else if (Session(request).isLoggedIn()) {
+                return forwardToSecretHandler(request, m_secretHandler);
             } else if (!m_publicHandler) {
             } else if (auto response = m_publicHandler->handle(request)) {
                 return response->appendNavBarAction({"🔒 Login", "/", "right"})
@@ -128,11 +138,17 @@ struct LoginController : public T {
         T::setPresentation(m_presentation);
         T::finish_init();
     }
-    shared_ptr<Response> forwardToSecretHandler(const Request& request)
+    shared_ptr<Response> forwardToSecretHandler(
+        const Request& request, shared_ptr<RequestHandler> handler)
+    {
+        return addLinksToResponse(request, handler->handle(request));
+        ;
+    }
+    shared_ptr<Response> addLinksToResponse(
+        const Request& request, shared_ptr<Response> response) const
     {
         using Http::Session;
-        return m_secretHandler->handle(request)
-            ->appendNavBarAction({"🚪 Logout", "/logout", "right"})
+        return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction(
                 {"👤 " + Session(request).userName(), "/password/", "right"})
             .appendNavBarAction({"Sessions", "/sessions", "right"})
@@ -140,11 +156,11 @@ struct LoginController : public T {
             .appendNavBarAction({"Users", "/user/", "right"})
 #endif
             .shared_from_this();
-        ;
     }
 
 private:
     shared_ptr<RequestHandler> m_secretHandler;
+    shared_ptr<RequestHandler> m_adminHandler;
     shared_ptr<RequestHandler> m_publicHandler;
     shared_ptr<Html::Presentation> m_presentation;
 

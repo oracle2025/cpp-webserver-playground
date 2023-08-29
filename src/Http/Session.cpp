@@ -136,5 +136,9 @@ string Session::userName() const
     }
     TRACE_THROW("Session::userId() called without session-id cookie");
 }
+bool Session::isAdmin() const
+{
+    return isLoggedIn() && userName() == "admin";
+}
 
 } // namespace Http

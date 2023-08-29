@@ -1,25 +1,26 @@
 #include "LoginServerApplication.hpp"
 
+#include "Filter/ByOwner.hpp"
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "User/PasswordChangeController.hpp"
-#include "Filter/ByOwner.hpp"
 #include "doctest.h"
 
-using std::make_shared;
 using Http::RequestDispatcher;
 using Http::RequestHandlerList;
+using std::make_shared;
 
 int LoginServerApplication::main(const vector<string>& args)
 {
     auto secretHandlers = RequestHandlerList{
         make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
         make_shared<PasswordChangeController<SimpleWebServer>>("/password")};
+    shared_ptr<RequestHandler> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
-    secretHandlers.push_back(
-        make_shared<CrudController<SimpleWebServer, Data::User>>("/user"));
+    adminHandler
+        = make_shared<CrudController<SimpleWebServer, Data::User>>("/user");
 #endif
     shared_ptr<RequestHandler> publicHandler = nullptr;
 #ifdef ENABLE_SIGNUP
@@ -28,6 +29,7 @@ int LoginServerApplication::main(const vector<string>& args)
 #endif
     LoginController<PocoWebServer> server(
         make_shared<RequestDispatcher>(secretHandlers),
+        adminHandler,
         publicHandler,
         std::make_shared<Presentation>());
     server.start();

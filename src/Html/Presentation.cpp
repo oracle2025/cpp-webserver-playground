@@ -1,5 +1,7 @@
 #include "Presentation.hpp"
 
+#include "String/escape.hpp"
+
 namespace Html {
 
 string Presentation::render(const Response& response)
@@ -35,7 +37,7 @@ string Presentation::renderAlert(const Alert& alert)
         alertClass = "alert-info";
         break;
     }
-    return R"(<div class=")" + alertClass + R"(">⚠️ )" + alert.message()
+    return R"(<div class=")" + alertClass + R"(">⚠️ )" + String::escape(alert.message())
         + R"(</div>)";
 }
 string Presentation::renderActions(const vector<ActionLink>& actions)

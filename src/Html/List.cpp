@@ -2,6 +2,8 @@
 
 #include "List.hpp"
 
+#include "String/escape.hpp"
+
 #include <sstream>
 
 namespace Html {
@@ -19,7 +21,7 @@ string List::operator()()
         str << "</tr></thead>";
     }
     int even = 0;
-    for (auto record : records) {
+    for (const auto& record : records) {
         if (even % 2) {
             str << R"(<tr class="uneven">)";
         } else {
@@ -42,7 +44,7 @@ string List::operator()()
                 }
                 break;
             default:
-                str << R"(<td class="max">)" << values[column] << "</td>";
+                str << R"(<td class="max">)" << String::escape(values[column]) << "</td>";
                 break;
             }
         }

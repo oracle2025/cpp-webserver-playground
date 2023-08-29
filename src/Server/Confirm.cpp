@@ -3,6 +3,7 @@
 #include "Http/Response.hpp"
 #include "Input/Form.hpp"
 #include "Input/Submit.hpp"
+#include "String/escape.hpp"
 shared_ptr<Http::Response> Confirm::operator()()
 {
     using Http::content;
@@ -13,7 +14,7 @@ shared_ptr<Http::Response> Confirm::operator()()
                             .name("canceled")
                             .value("yes")
                             .buttonClass("light")(),
-                        Submit("Delete " + description)
+                        Submit("Delete " + String::escape(description))
                             .name("confirmed")
                             .value("yes")
                             .buttonClass("danger")()},

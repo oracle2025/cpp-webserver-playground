@@ -1,6 +1,8 @@
 
 #include "Text.hpp"
 
+#include "String/escape.hpp"
+
 #include <algorithm>
 #include <sstream>
 
@@ -20,7 +22,7 @@ string Text::operator()()
     ostringstream str;
     str << R"(<label for=")" << label << R"(">)" << capitalized
         << R"(</label><br> <input type="text" id=")" << label << R"(" name=")"
-        << label << R"(" value=")" << value << R"(">)";
+        << label << R"(" value=")" << String::escape(value) << R"(">)";
     return str.str();
 }
 Text::Text(string label, string value)

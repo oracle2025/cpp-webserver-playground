@@ -15,6 +15,7 @@ class Session {
 public:
     Session(const Request& request);
     bool isLoggedIn() const;
+    bool isAdmin() const;
     string userId() const;
     string userName() const;
     void clearSession();
