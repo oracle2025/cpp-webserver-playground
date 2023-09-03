@@ -148,13 +148,15 @@ struct LoginController : public T {
         const Request& request, shared_ptr<Response> response) const
     {
         using Http::Session;
+        if (Session(request).isAdmin()) {
+#ifdef ENABLE_USER_LIST
+            response->appendNavBarAction({"Users", "/user/", "right"});
+#endif
+            response->appendNavBarAction({"Sessions", "/sessions", "right"});
+        }
         return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction(
                 {"👤 " + Session(request).userName(), "/password/", "right"})
-            .appendNavBarAction({"Sessions", "/sessions", "right"})
-#ifdef ENABLE_USER_LIST
-            .appendNavBarAction({"Users", "/user/", "right"})
-#endif
             .shared_from_this();
     }
 
