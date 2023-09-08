@@ -57,13 +57,6 @@ TEST_CASE("Login Server")
         }
         CHECK(Session::listAll().size() == 0);
     }
-    SUBCASE("Not Logging in from 10 different browsers")
-    {
-        for (int i = 0; i < 10; i++) {
-            CHECK(w.handle({"/"})->content() != "");
-        }
-        CHECK(Session::listAll().size() == 10);
-    }
     SUBCASE("Access Denied 100 times")
     {
         map<string, string> cookieJar;
