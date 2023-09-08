@@ -35,7 +35,8 @@ struct SignupController : public T {
         });
         T::router().get(prefix + "/submit", [prefix](const Request& request) {
             Data::User user;
-            if (findUser(*g_session, request.parameter("username"), user)) {
+            const auto username = request.parameter("username");
+            if (username == "admin" || findUser(*g_session, username, user)) {
                 return redirect(prefix + "/")
                     ->alert("User already exists", Html::AlertType::INFO)
                     .shared_from_this();
@@ -46,7 +47,7 @@ struct SignupController : public T {
                     ->alert("Passwords do not match", Html::AlertType::WARNING)
                     .shared_from_this();
             }
-            user.username = request.parameter("username");
+            user.username = username;
             user.setPassword(request.parameter("password"));
             user.insert();
 

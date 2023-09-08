@@ -13,14 +13,14 @@ using std::vector;
 
 class List {
 public:
-    explicit List(vector<shared_ptr<Record>> records, vector<string> columns);
+    explicit List(vector<shared_ptr<Record>> records, vector<KeyStringType> columns);
     string operator()();
     List& prefix(const string& prefix);
     List& withHeader();
 
 private:
     vector<std::shared_ptr<Record>> records;
-    vector<string> columns;
+    vector<KeyStringType> columns;
     string m_prefix;
     bool m_withHeader = false;
 };

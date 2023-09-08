@@ -64,10 +64,10 @@ struct TodoDefinition {
     }
     string table_name() const;
     vector<ColumnType> columns() const;
-    void set(const string& key, const string& value);
-    string get(const string& key) const;
+    void set(const KeyStringType& key, const string& value);
+    string get(const KeyStringType& key) const;
     string description() const;
-    static vector<string> presentableFields();
+    static vector<KeyStringType> presentableFields();
     static string presentableName();
 };
 

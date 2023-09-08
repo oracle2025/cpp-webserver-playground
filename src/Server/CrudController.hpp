@@ -11,6 +11,7 @@
 #include "List.hpp"
 #include "Submit.hpp"
 #include "style.hpp"
+#include "Server/WebServer.hpp"
 /*
  * A Simple Todo List:
  * Data Model:
@@ -54,13 +55,15 @@ struct CrudController : public T {
     using Request = Http::Request;
     CrudController(const string& prefix)
     {
+        static_assert(std::is_base_of<Record, F>::value, "F not derived from Record");
+        static_assert(std::is_base_of<WebServer, T>::value, "F not derived from Record");
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
             F todo;
             return content(Form(todo, prefix + "/create", "post")
                                .appendElement(Submit(
                                    "Create " + F::presentableName())())())
-                ->appendNavBarAction({"Start", prefix + "/"})
+                ->appendNavBarAction({"Start", "/"})
                 .title("Create " + F::presentableName())
                 .shared_from_this();
         });
@@ -88,7 +91,7 @@ struct CrudController : public T {
                                    "post")
                                    .appendElement(Submit(
                                        "Update " + F::presentableName())())())
-                    ->appendNavBarAction({"Start", prefix + "/"})
+                    ->appendNavBarAction({"Start", "/"})
                     .title("Edit " + F::presentableName())
                     .shared_from_this();
             } else {
@@ -158,7 +161,7 @@ struct CrudController : public T {
             F todo(request);
             if (todo.pop(request.query())) {
                 return Confirm(prefix, todo, todo.description())()
-                    ->appendNavBarAction({"Start", prefix + "/"})
+                    ->appendNavBarAction({"Start", "/"})
                     .shared_from_this();
             } else {
                 return todoNotFound(prefix);
@@ -175,7 +178,7 @@ struct CrudController : public T {
                                "post")())
                 ->appendAction(
                     {"Create new " + F::presentableName(), prefix + "/new"})
-                .appendNavBarAction({"Start", prefix + "/"})
+                .appendNavBarAction({"Start", "/"})
                 .title(F::presentableName() + " List")
                 .shared_from_this();
         });
@@ -194,7 +197,7 @@ struct CrudController : public T {
     {
         return content(F::presentableName() + " not found")
             ->code(Response::NOT_FOUND)
-            .appendNavBarAction({"Start", prefix + "/"})
+            .appendNavBarAction({"Start", "/"})
             .shared_from_this();
     }
 };

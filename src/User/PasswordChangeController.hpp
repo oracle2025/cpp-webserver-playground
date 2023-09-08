@@ -33,13 +33,13 @@ struct PasswordChangeController : public T {
                                string(prefix + "/update"),
                                "post")
                                .appendElement(Submit("Update Password")())())
-                    ->appendNavBarAction({"Start", prefix + "/"})
+                    ->appendNavBarAction({"Start", "/"})
                     .title("Change Password")
                     .shared_from_this();
             } else {
                 return content("User not found")
                     ->code(Response::NOT_FOUND)
-                    .appendNavBarAction({"Start", prefix + "/"})
+                    .appendNavBarAction({"Start", "/"})
                     .shared_from_this();
                 ;
             }
@@ -51,7 +51,7 @@ struct PasswordChangeController : public T {
                     != request.parameter("confirm_password")) {
                     return content("Passwords do not match")
                         ->code(Response::NOT_FOUND)
-                        .appendNavBarAction({"Start", prefix + "/"})
+                        .appendNavBarAction({"Start", "/"})
                         .shared_from_this();
                 }
                 if (!user.isValidUser(
@@ -60,7 +60,7 @@ struct PasswordChangeController : public T {
                         user)) {
                     return content("Current password is incorrect")
                         ->code(Response::NOT_FOUND)
-                        .appendNavBarAction({"Start", prefix + "/"})
+                        .appendNavBarAction({"Start", "/"})
                         .shared_from_this();
                 }
                 user.setPassword(request.parameter("new_password"));
@@ -69,7 +69,7 @@ struct PasswordChangeController : public T {
             } else {
                 return content("User not found")
                     ->code(Response::NOT_FOUND)
-                    .appendNavBarAction({"Start", prefix + "/"})
+                    .appendNavBarAction({"Start", "/"})
                     .shared_from_this();
                 ;
             }

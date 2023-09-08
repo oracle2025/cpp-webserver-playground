@@ -14,8 +14,10 @@ using std::vector;
 
 extern Poco::Data::Session* g_session;
 
+
+
 struct ColumnType {
-    string name;
+    KeyStringType name;
     string type;
     HtmlInputType inputType;
 };
@@ -229,15 +231,15 @@ struct RecordImpl : public T, public Record {
     {
         return T::id;
     }
-    std::vector<string> fields() const override
+    std::vector<KeyStringType> fields() const override
     {
-        std::vector<string> result;
+        std::vector<KeyStringType> result;
         for (auto& column : T::columns()) {
             result.push_back(column.name);
         }
         return result;
     }
-    HtmlInputType inputType(const string& field) const override
+    HtmlInputType inputType(const KeyStringType& field) const override
     {
         for (auto& column : T::columns()) {
             if (column.name == field) {
@@ -246,9 +248,9 @@ struct RecordImpl : public T, public Record {
         }
         return HtmlInputType::TEXT;
     }
-    std::map<string, string> values() const override
+    std::map<KeyStringType, string> values() const override
     {
-        std::map<string, string> result;
+        std::map<KeyStringType, string> result;
         for (auto& column : T::columns()) {
             result[column.name] = T::get(column.name);
         }

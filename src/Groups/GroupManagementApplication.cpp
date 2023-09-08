@@ -13,7 +13,7 @@ using Http::RequestHandlerList;
 
 int GroupManagementApplication::main(const vector<string>& args)
 {
-    /*auto handlers = RequestHandlerList{
+   /* auto handlers = RequestHandlerList{
         make_shared<TodoController<SimpleWebServer>>("/todo"),
         make_shared<SchluesselmanagementController<SimpleWebServer>>("/schluesselmanagement"),
         make_shared<BenutzerController<SimpleWebServer>>("/benutzer"),
@@ -21,6 +21,7 @@ int GroupManagementApplication::main(const vector<string>& args)
         make_shared<ElternController<SimpleWebServer>>("/eltern"),
         make_shared<KinderController<SimpleWebServer>>("/kinder"),
         make_shared<LieferantenController<SimpleWebServer>>("/lieferanten"),
+        make_shared<WaescheDienstController<SimpleWebServer>>("/waeschedienst"),
         make_shared<GelieheneBuecherController<SimpleWebServer>>("/geliehenebuecher")};
     LoginController<PocoWebServer> server(
         make_shared<RequestDispatcher>(handlers),

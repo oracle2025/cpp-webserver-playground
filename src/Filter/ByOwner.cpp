@@ -15,15 +15,15 @@ string ByOwner::key() const
 {
     return m_todo.key();
 }
-std::vector<string> ByOwner::fields() const
+std::vector<KeyStringType> ByOwner::fields() const
 {
     return m_todo.fields();
 }
-std::map<string, string> ByOwner::values() const
+std::map<KeyStringType, string> ByOwner::values() const
 {
     return m_todo.values();
 }
-HtmlInputType ByOwner::inputType(const string& field) const
+HtmlInputType ByOwner::inputType(const KeyStringType& field) const
 {
     return m_todo.inputType(field);
 }
@@ -31,11 +31,11 @@ string ByOwner::presentableName()
 {
     return Todo::presentableName();
 }
-vector<string> ByOwner::presentableFields()
+vector<KeyStringType> ByOwner::presentableFields()
 {
     return Todo::presentableFields();
 }
-void ByOwner::set(const string& field, const string& value)
+void ByOwner::set(const KeyStringType& field, const string& value)
 {
     m_todo.set(field, value);
 }
@@ -62,7 +62,7 @@ void ByOwner::erase()
 {
     m_todo.erase();
 }
-string ByOwner::get(const string& field) const
+string ByOwner::get(const KeyStringType& field) const
 {
     return m_todo.get(field);
 }

@@ -17,17 +17,17 @@ public:
     ByOwner();
     ByOwner(const string& userId);
     string key() const override;
-    vector<string> fields() const override;
-    map<string, string> values() const override;
-    HtmlInputType inputType(const string& field) const override;
+    vector<KeyStringType> fields() const override;
+    map<KeyStringType, string> values() const override;
+    HtmlInputType inputType(const KeyStringType& field) const override;
     static string presentableName();
-    static vector<string> presentableFields();
-    void set(const string& field, const string& value);
+    static vector<KeyStringType> presentableFields();
+    void set(const KeyStringType& field, const string& value);
     bool pop(const string& query);
     void insert();
     void update();
     void erase();
-    string get(const string& field) const;
+    string get(const KeyStringType& field) const;
     vector<shared_ptr<Record>> listAsPointers();
     string description() const;
 

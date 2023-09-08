@@ -83,11 +83,11 @@ struct SessionDataRecord : public Record {
     {
         return id;
     };
-    std::vector<string> fields() const override
+    std::vector<KeyStringType> fields() const override
     {
         return {"id", "user_id", "is_logged_in", "createdAt", "lastUsedAt"};
     };
-    std::map<string, string> values() const override
+    std::map<KeyStringType, string> values() const override
     {
         return {
             {"id", id},
@@ -97,7 +97,7 @@ struct SessionDataRecord : public Record {
             {"lastUsedAt", data.lastUsedAt()},
         };
     };
-    HtmlInputType inputType(const string& field) const override
+    HtmlInputType inputType(const KeyStringType& field) const override
     {
         if (field == "id") {
             return HtmlInputType::TEXT;

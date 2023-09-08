@@ -59,4 +59,11 @@ TEST_CASE("todo")
         t.pop(id);
         CHECK(t.description() == "Buy Milk");
     }
+    SUBCASE("invalid Key Value")
+    {
+        Todo t;
+        t.pop(id);
+        CHECK_THROWS(t.get("No Symbols? or Äf"));
+        CHECK_THROWS(t.get("<b>no html</b>"));
+    }
 }

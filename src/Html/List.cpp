@@ -61,7 +61,7 @@ string List::operator()()
     str << "</table>\n";
     return str.str();
 }
-List::List(vector<shared_ptr<Record>> records, vector<string> columns)
+List::List(vector<shared_ptr<Record>> records, vector<KeyStringType> columns)
     : records(std::move(records))
     , columns(std::move(columns))
 {

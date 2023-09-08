@@ -28,7 +28,7 @@ vector<ColumnType> UserDefinition::columns() const
         {"salt", "VARCHAR", HtmlInputType::TEXT},
     };
 }
-string UserDefinition::get(const string& key) const
+string UserDefinition::get(const KeyStringType& key) const
 {
     if (key == "username") {
         return username;
@@ -67,7 +67,7 @@ UserDefinition::UserDefinition(const UserDefinition& u)
     , salt(data.get<3>())
 {
 }
-void UserDefinition::set(const string& key, const string& value)
+void UserDefinition::set(const KeyStringType& key, const string& value)
 {
     if (key == "username") {
         username = value;
@@ -81,7 +81,7 @@ string UserDefinition::description() const
 {
     return "User: " + username;
 }
-vector<string> UserDefinition::presentableFields() const
+vector<KeyStringType> UserDefinition::presentableFields() const
 {
     return {"username"};
 }

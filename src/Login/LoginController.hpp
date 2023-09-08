@@ -96,16 +96,20 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/sessions", [](const Request& request) {
+        T::router().get("/sessions", [this](const Request& request) {
             if (Session(request).isAdmin()) {
-                return content(Html::List(
-                                   Session::listAll(),
-                                   {"id",
-                                    "user_id",
-                                    "is_logged_in",
-                                    "createdAt",
-                                    "lastUsedAt"})
-                                   .withHeader()());
+                auto response
+                    = content(Html::List(
+                                  Session::listAll(),
+                                  {"id",
+                                   "user_id",
+                                   "is_logged_in",
+                                   "createdAt",
+                                   "lastUsedAt"})
+                                  .withHeader()())
+                          ->appendNavBarAction({"Start", "/"})
+                          .shared_from_this();
+                return addLinksToResponse(request, response);
             } else {
                 return content("Access denied")
                     ->code(Response::UNAUTHORIZED)

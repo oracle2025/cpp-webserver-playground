@@ -22,7 +22,7 @@ string TodoDefinition::description() const
 {
     return m_description;
 }
-string TodoDefinition::get(const string& key) const
+string TodoDefinition::get(const KeyStringType& key) const
 {
     if (key == "id") {
         return id;
@@ -39,7 +39,7 @@ string TodoDefinition::get(const string& key) const
     }
     return "";
 }
-void TodoDefinition::set(const string& key, const string& value)
+void TodoDefinition::set(const KeyStringType& key, const string& value)
 {
     if (key == "id") {
         id = value;
@@ -58,20 +58,20 @@ void TodoDefinition::set(const string& key, const string& value)
 vector<ColumnType> TodoDefinition::columns() const
 {
     return {
-        {"description", "VARCHAR", HtmlInputType::TEXT},
-        {"created_at", "VARCHAR", HtmlInputType::HIDDEN},
-        {"updated_at", "VARCHAR", HtmlInputType::HIDDEN},
-        {"checked", "INTEGER(3)", HtmlInputType::CHECKBOX},
-        {"user_id", "VARCHAR", HtmlInputType::HIDDEN},
+        ColumnType{"description", "VARCHAR", HtmlInputType::TEXT},
+        ColumnType{"created_at", "VARCHAR", HtmlInputType::HIDDEN},
+        ColumnType{"updated_at", "VARCHAR", HtmlInputType::HIDDEN},
+        ColumnType{"checked", "INTEGER(3)", HtmlInputType::CHECKBOX},
+        ColumnType{"user_id", "VARCHAR", HtmlInputType::HIDDEN},
     };
 }
 string TodoDefinition::table_name() const
 {
     return "Todo";
 }
-vector<string> TodoDefinition::presentableFields()
+vector<KeyStringType> TodoDefinition::presentableFields()
 {
-    return {"checked", "description"};
+    return vector<KeyStringType>{"checked", "description"};
 }
 string TodoDefinition::presentableName()
 {

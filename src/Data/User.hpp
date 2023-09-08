@@ -23,7 +23,7 @@ public:
     //Poco::Data::BLOB password_hash;
     UserDefinition();
     vector<ColumnType> columns() const;
-    string get(const string& key) const;
+    string get(const KeyStringType& key) const;
     void setPassword(const string& password);
     string table_name() const;
     template<class T>
@@ -35,11 +35,11 @@ public:
         }
         return false;
     }
-    void set(const string& key, const string& value);
+    void set(const KeyStringType& key, const string& value);
     string description() const;
     UserDefinition(const RecordType& d);
     UserDefinition(const UserDefinition& u);
-    vector<string> presentableFields() const;
+    vector<KeyStringType> presentableFields() const;
     static string presentableName();
 };
 
