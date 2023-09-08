@@ -107,18 +107,6 @@ void PocoWebServer::finish_init()
                 handler_type handler;
                 shared_ptr<Presentation> m_presentation;
             };
-            struct EmptyHandler : public HTTPRequestHandler {
-                void handleRequest(
-                    HTTPServerRequest& request,
-                    HTTPServerResponse& response) override
-                {
-                    response.setChunkedTransferEncoding(true);
-                    response.setContentType("text/html");
-                    auto& responseStream = response.send();
-                    responseStream << "Not found!";
-                    response.setStatus(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
-                }
-            };
             auto uri = Poco::URI(request.getURI());
             return new PageHandler(
                 router.findHandlerOrReturnDefault(
