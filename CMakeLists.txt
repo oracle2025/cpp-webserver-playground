@@ -152,7 +152,7 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/Data/MigrationsV2.cpp
     src/Data/MigrationsV2.hpp
     src/ImageBrowser/ImageBrowserController.hpp
-    src/ImageBrowser/ImageBrowserApplication.cpp src/Data/PasswordSalting.cpp src/Data/PasswordSalting.hpp src/Data/MigrationsV3.cpp src/Data/MigrationsV3.hpp src/Groups/GroupManagementApplication.cpp src/Groups/GroupManagementApplication.hpp src/String/escape.hpp src/String/escape.cpp)
+    src/ImageBrowser/ImageBrowserApplication.cpp src/Data/PasswordSalting.cpp src/Data/PasswordSalting.hpp src/Data/MigrationsV3.cpp src/Data/MigrationsV3.hpp src/Groups/GroupManagementApplication.cpp src/Groups/GroupManagementApplication.hpp src/String/escape.hpp src/String/escape.cpp src/Impl/PocoPageHandler.cpp src/Impl/PocoPageHandler.hpp)
   target_compile_definitions(
           webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
   add_backward(webservers)
