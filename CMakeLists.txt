@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-fsanitize=address,undefined)
 add_link_options(-fsanitize=address,undefined)
 
-
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 
 include(GNUInstallDirs)
@@ -29,6 +28,8 @@ if(ENABLE_USER_LIST)
   add_definitions(-DENABLE_USER_LIST)
 endif()
 
+option(ENABLE_BACKWARD "Enable backward stack tracing library" ON)
+
 find_package(Threads)
 if(APPLE)
   find_package(Poco COMPONENTS Net Util Data DataSQLite)
@@ -40,12 +41,14 @@ find_package(spdlog)
 
 include(FetchContent)
 
-# Also requires one of: libbfd (gnu binutils), libdwarf, libdw (elfutils)
-FetchContent_Declare(
-  backward
-  GIT_REPOSITORY https://github.com/bombela/backward-cpp
-  GIT_TAG v1.6)
-FetchContent_MakeAvailable(backward)
+if(ENABLE_BACKWARD)
+  # Also requires one of: libbfd (gnu binutils), libdwarf, libdw (elfutils)
+  FetchContent_Declare(
+    backward
+    GIT_REPOSITORY https://github.com/bombela/backward-cpp
+    GIT_TAG v1.6)
+  FetchContent_MakeAvailable(backward)
+endif()
 
 include_directories(${PROJECT_BINARY_DIR}/include)
 link_directories(${PROJECT_BINARY_DIR}/lib)
@@ -54,10 +57,10 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
 
   add_library(
     webservers OBJECT
-          src/stb/stb_image.h
-          src/stb/stb_image_resize.h
-          src/stb/stb_image_write.h
-          src/stb/stb_implementation.cpp
+    src/stb/stb_image.h
+    src/stb/stb_image_resize.h
+    src/stb/stb_image_write.h
+    src/stb/stb_implementation.cpp
     src/Data/Todo.cpp
     src/Data/Todo.hpp
     src/Html/Table.cpp
@@ -152,10 +155,19 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/Data/MigrationsV2.cpp
     src/Data/MigrationsV2.hpp
     src/ImageBrowser/ImageBrowserController.hpp
-    src/ImageBrowser/ImageBrowserApplication.cpp src/Data/PasswordSalting.cpp src/Data/PasswordSalting.hpp src/Data/MigrationsV3.cpp src/Data/MigrationsV3.hpp src/Groups/GroupManagementApplication.cpp src/Groups/GroupManagementApplication.hpp src/String/escape.hpp src/String/escape.cpp src/Impl/PocoPageHandler.cpp src/Impl/PocoPageHandler.hpp)
+    src/ImageBrowser/ImageBrowserApplication.cpp
+    src/Data/PasswordSalting.cpp
+    src/Data/PasswordSalting.hpp
+    src/Data/MigrationsV3.cpp
+    src/Data/MigrationsV3.hpp
+    src/Groups/GroupManagementApplication.cpp
+    src/Groups/GroupManagementApplication.hpp
+    src/String/escape.hpp
+    src/String/escape.cpp
+    src/Impl/PocoPageHandler.cpp
+    src/Impl/PocoPageHandler.hpp)
   target_compile_definitions(
-          webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-  add_backward(webservers)
+    webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   target_link_libraries(
     webservers
@@ -194,13 +206,11 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     tests/ImageBrowserTest.cpp)
   target_link_libraries(tests webservers)
   target_include_directories(tests PRIVATE tests)
-  add_backward(tests)
 
   add_executable(test-migration src/Data/Migration.cpp tests/doctest.cpp
                                 src/Data/SessionImpl.cpp)
   target_link_libraries(test-migration Poco::DataSQLite)
   target_include_directories(test-migration PRIVATE tests)
-  add_backward(test-migration)
 
   enable_testing()
   add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
@@ -209,18 +219,24 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
   add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp
                              src/User/PasswordChangeController.hpp)
   target_link_libraries(crud-server webservers)
-  add_backward(crud-server)
 
   add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
   target_link_libraries(login-server webservers)
-  add_backward(login-server)
 
   add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
                                       tests/doctest_impl.cpp)
   target_link_libraries(image-browser-server webservers)
-  add_backward(image-browser-server)
 
   install(TARGETS login-server DESTINATION bin)
+
+  if(ENABLE_BACKWARD)
+    add_backward(webservers)
+    add_backward(tests)
+    add_backward(test-migration)
+    add_backward(crud-server)
+    add_backward(login-server)
+    add_backward(image-browser-server)
+  endif()
 endif()
 
 include(ExternalProject)
