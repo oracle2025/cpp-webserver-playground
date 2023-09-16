@@ -12,7 +12,7 @@ void loginLogout(LoginController<TestServer>& w, map<string, string>& cookieJar)
     map<string, string> params;
     params["username"] = "admin";
     params["password"] = "Adm1n!";
-    auto response = w.handle({"/login", cookieJar, params});
+    auto response = w.handle({"/login", cookieJar, params, "", Http::Method::POST});
     cookieJar = response->cookies();
     response = w.handle({"/secret", cookieJar});
     CHECK(response->content() == "Success");
@@ -38,7 +38,7 @@ TEST_CASE("Login Server")
         map<string, string> params;
         params["username"] = "admin";
         params["password"] = "Adm1n!";
-        auto response = w.handle({"/login", {}, params});
+        auto response = w.handle({"/login", {}, params, "", Http::Method::POST});
         CHECK(
             w.handle({"/secret", response->cookies()})->content() == "Success");
     }

@@ -18,7 +18,7 @@ void loginAs(
     map<string, string> params;
     params["username"] = username;
     params["password"] = "Adm1n!";
-    auto r = w.handle({"/login", cookieJar, params});
+    auto r = w.handle({"/login", cookieJar, params, "", Http::Method::POST});
     cookieJar = r->cookies();
     // CHECK(r->content() == "Success");
 }

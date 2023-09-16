@@ -45,7 +45,7 @@ struct RouteId {
 class Router : public map<RouteId, handler_type> {
 public:
     handler_type& findHandlerOrReturnDefault(
-        const string& path, handler_type& defaultHandler);
+        const RouteId& path, handler_type& defaultHandler);
 
     shared_ptr<Response> handle(const Request& request);
 

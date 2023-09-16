@@ -1,7 +1,14 @@
 #include "PocoPageHandler.hpp"
 #include "doctest.h"
-
+struct FakeHTTPServerParams : public Poco::Net::HTTPServerParams {
+    ~FakeHTTPServerParams() override = default;
+};
 struct FakeHTTPServerRequest : public PocoPageHandler::HTTPServerRequest {
+
+    FakeHTTPServerRequest(Poco::Net::HTTPServerResponse& response)
+        : m_response(response)
+    {
+    }
     std::istream& stream() override
     {
         return m_stream;
@@ -19,10 +26,12 @@ struct FakeHTTPServerRequest : public PocoPageHandler::HTTPServerRequest {
 
     const Poco::Net::HTTPServerParams& serverParams() const override
     {
+        return m_params;
     }
 
     Poco::Net::HTTPServerResponse& response() const override
     {
+        return m_response;
     }
 
     bool secure() const override
@@ -34,6 +43,8 @@ private:
     std::stringstream m_stream;
     Poco::Net::SocketAddress m_clientAddress;
     Poco::Net::SocketAddress m_serverAddress;
+    Poco::Net::HTTPServerResponse& m_response;
+    FakeHTTPServerParams m_params;
 };
 
 struct FakeHTTPServerResponse : public PocoPageHandler::HTTPServerResponse {
@@ -66,8 +77,8 @@ private:
 };
 TEST_CASE("PocoPageHandler Test")
 {
-    FakeHTTPServerRequest request;
     FakeHTTPServerResponse response;
+    FakeHTTPServerRequest request(response);
     PocoPageHandler handler(
         [](const Request& request) { return Http::content("Hello World"); },
         nullptr);

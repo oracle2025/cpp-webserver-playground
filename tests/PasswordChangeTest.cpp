@@ -11,7 +11,7 @@ bool loginSuccess(const string& user, const string& password, RequestHandler& w)
     map<string, string> params;
     params["username"] = user;
     params["password"] = password;
-    auto response = w.handle({"/login", {}, params});
+    auto response = w.handle({"/login", {}, params, "", Http::Method::POST});
     auto cookieJar = response->cookies();
     while (response->status() == 302) {
         response = w.handle({response->location(), cookieJar});
@@ -43,7 +43,7 @@ TEST_CASE("Change Password")
         map<string, string> params;
         params["username"] = "admin";
         params["password"] = "Adm1n!";
-        auto response = w.handle({"/login", {}, params});
+        auto response = w.handle({"/login", {}, params, "", Http::Method::POST});
         auto cookieJar = response->cookies();
         auto actual = w.handle({"/password/", cookieJar, {}})->content();
         CHECK(actual.find("current_password") != string::npos);

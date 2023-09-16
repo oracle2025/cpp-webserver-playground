@@ -6,7 +6,7 @@
 namespace Http {
 
 handler_type& Router::findHandlerOrReturnDefault(
-    const std::string& path, handler_type& defaultHandler)
+    const RouteId& path, handler_type& defaultHandler)
 {
     auto it = this->find(path);
     if (it == this->end()) {
@@ -21,7 +21,7 @@ Router& Router::get(const std::string& path, handler_type handler)
 }
 shared_ptr<Response> Router::handle(const Request& request)
 {
-    return findHandlerOrReturnDefault(request.path(), NotFoundHandler)(request);
+    return findHandlerOrReturnDefault({request.method(), request.path()}, NotFoundHandler)(request);
 }
 Router& Router::post(const string& path, handler_type handler)
 {

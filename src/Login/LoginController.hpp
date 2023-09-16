@@ -54,9 +54,9 @@ struct LoginController : public T {
                 return loginForm();
             }
         });
-        T::router().post(
-            "/login", [](const Request& request) { return content(""); });
-        T::router().get("/login", [](const Request& request) {
+        //T::router().post(
+        //    "/login", [](const Request& request) { return content(""); });
+        T::router().post("/login", [](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
