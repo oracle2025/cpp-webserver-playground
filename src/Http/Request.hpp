@@ -6,12 +6,14 @@ using std::map;
 using std::string;
 namespace Http {
 
+enum class Method { GET, POST };
+
 struct Request {
     Request(
         string path,
         map<string, string> cookies = {},
         map<string, string> parameters = {},
-        string query = "");
+        string query = "", Method method = Method::GET);
 
     Request() = default;
 
@@ -29,10 +31,13 @@ struct Request {
 
     string path() const;
 
+    Method method() const;
+
 private:
     map<string, string> m_cookies;
     map<string, string> m_parameters;
     string m_query;
     string m_path;
+    Method m_method = Method::GET;
 };
 } // namespace Http

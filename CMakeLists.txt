@@ -203,7 +203,8 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     tests/PasswordChangeTest.cpp
     tests/SignupTest.cpp
     tests/ByOwnerTest.cpp
-    tests/ImageBrowserTest.cpp)
+    tests/ImageBrowserTest.cpp
+    tests/PocoPageHandlerTest.cpp)
   target_link_libraries(tests webservers)
   target_include_directories(tests PRIVATE tests)
 

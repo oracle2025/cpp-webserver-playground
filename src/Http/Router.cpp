@@ -23,4 +23,9 @@ shared_ptr<Response> Router::handle(const Request& request)
 {
     return findHandlerOrReturnDefault(request.path(), NotFoundHandler)(request);
 }
+Router& Router::post(const string& path, handler_type handler)
+{
+    (*this)[{Http::Method::POST, path}] = handler;
+    return *this;
+}
 } // namespace Http

@@ -54,6 +54,8 @@ struct LoginController : public T {
                 return loginForm();
             }
         });
+        T::router().post(
+            "/login", [](const Request& request) { return content(""); });
         T::router().get("/login", [](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
@@ -98,17 +100,16 @@ struct LoginController : public T {
         });
         T::router().get("/sessions", [this](const Request& request) {
             if (Session(request).isAdmin()) {
-                auto response
-                    = content(Html::List(
-                                  Session::listAll(),
-                                  {"id",
-                                   "user_id",
-                                   "is_logged_in",
-                                   "createdAt",
-                                   "lastUsedAt"})
-                                  .withHeader()())
-                          ->appendNavBarAction({"Start", "/"})
-                          .shared_from_this();
+                auto response = content(Html::List(
+                                            Session::listAll(),
+                                            {"id",
+                                             "user_id",
+                                             "is_logged_in",
+                                             "createdAt",
+                                             "lastUsedAt"})
+                                            .withHeader()())
+                                    ->appendNavBarAction({"Start", "/"})
+                                    .shared_from_this();
                 return addLinksToResponse(request, response);
             } else {
                 return content("Access denied")

@@ -5,11 +5,13 @@ Request::Request(
     string path,
     map<string, string> cookies,
     map<string, string> parameters,
-    string query)
+    string query,
+    Method method)
     : m_cookies(move(cookies))
     , m_parameters(move(parameters))
     , m_query(move(query))
     , m_path(move(path))
+    , m_method(method)
 {
 }
 bool Request::hasCookie(const string& name) const
@@ -39,5 +41,9 @@ string Request::query() const
 string Request::path() const
 {
     return m_path;
+}
+Method Request::method() const
+{
+    return m_method;
 }
 } // namespace Http
