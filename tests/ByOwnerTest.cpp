@@ -29,7 +29,7 @@ void addItem(
 {
     map<string, string> params;
     params["description"] = description;
-    auto r = w.handle({"/item/create", cookieJar, params});
+    auto r = w.handle({"/item/create", cookieJar, params, "", Http::Method::POST});
     //    CHECK(r->content() == "Success");
 }
 string extractUUID(const string& content)
@@ -141,7 +141,7 @@ TEST_CASE("By Owner")
         CHECK_EQ(response->status(), 200);
 
         response = w.handle(
-            {"/item/delete", cookieJar, {{"confirmed", "true"}}, uuid});
+            {"/item/delete", cookieJar, {{"confirmed", "true"}}, uuid, Http::Method::POST});
         CHECK_EQ(response->status(), 302);
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
         CHECK_EQ(response->status(), 404);
@@ -161,12 +161,12 @@ TEST_CASE("By Owner")
         loginAs(w, "bob", cookieJar);
 
         response = w.handle(
-            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
+            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid, Http::Method::POST});
         CHECK_EQ(response->status(), 404);
 
         loginAs(w, "alice", cookieJar);
         response = w.handle(
-            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid});
+            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid, Http::Method::POST});
         CHECK_EQ(response->status(), 302);
 
         response = w.handle({"/item/", cookieJar});
@@ -191,7 +191,7 @@ TEST_CASE("By Owner")
                 R"(input type="checkbox" name=")" + uuid + R"(" value="yes")")
             == string::npos);
 
-        response = w.handle({"/item/mark", cookieJar, {{uuid, "yes"}}});
+        response = w.handle({"/item/mark", cookieJar, {{uuid, "yes"}}, "", Http::Method::POST});
         CHECK_EQ(response->status(), 302);
 
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
