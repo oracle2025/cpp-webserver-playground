@@ -1,6 +1,7 @@
 
 
 #include "Submit.hpp"
+#include "doctest.h"
 
 #include <sstream>
 
@@ -53,3 +54,7 @@ Submit& Submit::buttonClass(const string& value)
     return *this;
 }
 } // namespace Input
+
+TEST_CASE("Submit Button Test") {
+    //CHECK(Submit("Login")() == "")
+}

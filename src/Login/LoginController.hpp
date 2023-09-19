@@ -51,18 +51,20 @@ struct LoginController : public T {
             if (Session(request).isLoggedIn() && m_secretHandler) {
                 return forwardToSecretHandler(request, m_secretHandler);
             } else {
-                return loginForm();
+                return redirect("/login");
             }
         });
-        //T::router().post(
-        //    "/login", [](const Request& request) { return content(""); });
-        T::router().post("/login", [](const Request& request) {
+        T::router().get(
+            "/login", [this](const Request& request) {
+                return loginForm();
+            });
+        T::router().post("/login", [this](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
             Data::User user;
             if (!isValidUser(request.allParameters(), user)) {
-                return redirect("/")
+                return loginForm()
                     ->alert("Invalid Login", Html::AlertType::DANGER)
                     .shared_from_this();
             }

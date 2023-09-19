@@ -1,9 +1,9 @@
 #include "PocoWebServer.hpp"
 
 #include "Http/Session.hpp"
+#include "PocoPageHandler.hpp"
 #include "Trace/trace.hpp"
 #include "spdlog/spdlog.h"
-#include "PocoPageHandler.hpp"
 
 #include <iostream>
 
@@ -38,10 +38,22 @@ void PocoWebServer::finish_init()
             const HTTPServerRequest& request)
         {
             auto uri = Poco::URI(request.getURI());
+            auto method = convertPocoHttpMethod(request.getMethod());
             return new PocoPageHandler(
                 router.findHandlerOrReturnDefault(
-                    uri.getPath(), m_defaultHandler),
+                    {method, uri.getPath()}, m_defaultHandler),
                 m_presentation);
+        }
+
+        Http::Method convertPocoHttpMethod(const string& method)
+        {
+            const map<string, Http::Method> methods
+                = {{Poco::Net::HTTPRequest::HTTP_GET, Http::Method::GET},
+                   {Poco::Net::HTTPRequest::HTTP_POST, Http::Method::POST}};
+            if (methods.find(method) == methods.end()) {
+                throw std::runtime_error("Unknown HTTP method");
+            }
+            return methods.at(method);
         }
 
     private:
