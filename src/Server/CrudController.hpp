@@ -6,12 +6,12 @@
 #include "Http/NotFoundHandler.hpp"
 #include "Http/NullHandler.hpp"
 #include "Http/Request.hpp"
-#include "Http/Session.hpp"
 #include "Http/Response.hpp"
+#include "Http/Session.hpp"
 #include "List.hpp"
+#include "Server/WebServer.hpp"
 #include "Submit.hpp"
 #include "style.hpp"
-#include "Server/WebServer.hpp"
 /*
  * A Simple Todo List:
  * Data Model:
@@ -55,8 +55,10 @@ struct CrudController : public T {
     using Request = Http::Request;
     CrudController(const string& prefix)
     {
-        static_assert(std::is_base_of<Record, F>::value, "F not derived from Record");
-        static_assert(std::is_base_of<WebServer, T>::value, "F not derived from Record");
+        static_assert(
+            std::is_base_of<Record, F>::value, "F not derived from Record");
+        static_assert(
+            std::is_base_of<WebServer, T>::value, "F not derived from Record");
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
             F todo;
@@ -67,7 +69,7 @@ struct CrudController : public T {
                 .title("Create " + F::presentableName())
                 .shared_from_this();
         });
-        T::router().get(prefix + "/create", [prefix](const Request& request) {
+        T::router().post(prefix + "/create", [prefix](const Request& request) {
             using Http::Session;
             F todo(request);
             for (auto i : todo.fields()) {
@@ -98,7 +100,7 @@ struct CrudController : public T {
                 return todoNotFound(prefix);
             }
         });
-        T::router().get(prefix + "/update", [prefix](const Request& request) {
+        T::router().post(prefix + "/update", [prefix](const Request& request) {
             F todo(request);
             if (todo.pop(request.query())) {
                 for (auto i : todo.fields()) {
@@ -116,7 +118,7 @@ struct CrudController : public T {
                 return todoNotFound(prefix);
             }
         });
-        T::router().get(prefix + "/mark", [prefix](const Request& request) {
+        T::router().post(prefix + "/mark", [prefix](const Request& request) {
             F todo(request);
             std::ostringstream str;
             for (const auto& [key, value] : request.allParameters()) {
@@ -133,7 +135,7 @@ struct CrudController : public T {
                 ->alert("Todo " + str.str(), Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
-        T::router().get(prefix + "/delete", [prefix](const Request& request) {
+        T::router().post(prefix + "/delete", [prefix](const Request& request) {
             F todo(request);
             if (todo.pop(request.query())) {
                 if (request.hasParameter("confirmed")) {
@@ -152,6 +154,19 @@ struct CrudController : public T {
                             Html::AlertType::WARNING)
                         .shared_from_this();
                 }
+            } else {
+                return todoNotFound(prefix);
+            }
+        });
+        T::router().get(prefix + "/delete", [prefix](const Request& request) {
+            F todo(request);
+            if (todo.pop(request.query())) {
+                return redirect(prefix + "/confirm?" + todo.key())
+                    ->alert(
+                        "Are you sure you want to delete this "
+                        "todo?",
+                        Html::AlertType::WARNING)
+                    .shared_from_this();
             } else {
                 return todoNotFound(prefix);
             }
