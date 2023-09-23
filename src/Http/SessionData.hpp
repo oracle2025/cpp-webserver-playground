@@ -13,6 +13,9 @@ class SessionData {
 public:
     using Alert = Html::Alert;
 
+    SessionData(const string path, const string& userAgent);
+    SessionData() = default;
+
     void alert(const Alert& alert);
 
     void clearAlert();
@@ -35,6 +38,9 @@ public:
     string createdAt() const;
     string lastUsedAt() const;
 
+    string path() const;
+    string userAgent() const;
+
 private:
     optional<Alert> m_alert;
     bool m_isLoggedIn = false;
@@ -44,6 +50,8 @@ private:
     std::time_t m_lastUsedAt = now();
     static std::time_t now();
     void touch();
+    string m_path;
+    string m_userAgent;
 };
 
 } // namespace Http

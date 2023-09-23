@@ -108,7 +108,8 @@ struct LoginController : public T {
                                              "user_id",
                                              "is_logged_in",
                                              "createdAt",
-                                             "lastUsedAt"})
+                                             "lastUsedAt",
+                                            "path","userAgent"})
                                             .withHeader()())
                                     ->appendNavBarAction({"Start", "/"})
                                     .shared_from_this();

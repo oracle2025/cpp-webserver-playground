@@ -13,7 +13,9 @@ struct Request {
         string path,
         map<string, string> cookies = {},
         map<string, string> parameters = {},
-        string query = "", Method method = Method::GET);
+        string query = "",
+        Method method = Method::GET,
+        string userAgent = "");
 
     Request() = default;
 
@@ -31,6 +33,8 @@ struct Request {
 
     string path() const;
 
+    string userAgent() const;
+
     Method method() const;
 
 private:
@@ -39,5 +43,6 @@ private:
     string m_query;
     string m_path;
     Method m_method = Method::GET;
+    string m_userAgent;
 };
 } // namespace Http

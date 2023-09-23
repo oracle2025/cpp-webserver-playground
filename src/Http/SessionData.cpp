@@ -63,4 +63,16 @@ bool SessionData::isLoggedInConst() const
 {
     return m_isLoggedIn;
 }
+SessionData::SessionData(const string path, const string& userAgent)
+    :
+    m_path(path),
+    m_userAgent(userAgent) {}
+string SessionData::path() const
+{
+    return m_path;
+}
+string SessionData::userAgent() const
+{
+    return m_userAgent;
+}
 } // namespace Http

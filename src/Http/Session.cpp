@@ -39,7 +39,7 @@ void Session::clearSession()
 SessionData& Session::createSession(Response& response)
 {
     auto sessionId = generateRandomSessionId();
-    m_sessions[sessionId] = {};
+    m_sessions[sessionId] = {request.path(), request.userAgent()};
     response.cookie("session-id", sessionId);
     return m_sessions[sessionId];
 }
@@ -85,7 +85,7 @@ struct SessionDataRecord : public Record {
     };
     std::vector<KeyStringType> fields() const override
     {
-        return {"id", "user_id", "is_logged_in", "createdAt", "lastUsedAt"};
+        return {"id", "user_id", "is_logged_in", "createdAt", "lastUsedAt", "path", "userAgent"};
     };
     std::map<KeyStringType, string> values() const override
     {
@@ -95,6 +95,8 @@ struct SessionDataRecord : public Record {
             {"is_logged_in", data.isLoggedInConst() ? "true" : "false"},
             {"createdAt", data.createdAt()},
             {"lastUsedAt", data.lastUsedAt()},
+            {"path", data.path()},
+            {"userAgent", data.userAgent()},
         };
     };
     HtmlInputType inputType(const KeyStringType& field) const override

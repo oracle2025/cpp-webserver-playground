@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "Http/SessionData.hpp"
@@ -25,6 +26,7 @@ public:
 
     static vector<shared_ptr<Record>> listAll();
     static void clearAll();
+
 private:
     const Request& request;
     static map<SessionId, SessionData> m_sessions;

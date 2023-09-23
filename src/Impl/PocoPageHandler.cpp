@@ -34,8 +34,12 @@ void PocoPageHandler::handleRequest(
         return;
     }
     const Http::Method method = methods.at(request.getMethod());
+    string userAgent{""};
+    if (request.has("User-Agent")) {
+        userAgent = request.get("User-Agent");
+    }
     const Request req(
-        uri.getPath(), cookiesMap, parameters, uri.getQuery(), method);
+        uri.getPath(), cookiesMap, parameters, uri.getQuery(), method, userAgent);
     shared_ptr<Response> result;
     try {
         result = handler(req);
