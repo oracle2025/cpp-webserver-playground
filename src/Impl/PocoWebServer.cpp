@@ -1,11 +1,8 @@
 #include "PocoWebServer.hpp"
 
-#include "Http/Session.hpp"
 #include "PocoPageHandler.hpp"
-#include "Trace/trace.hpp"
 #include "spdlog/spdlog.h"
 
-#include <iostream>
 
 using std::make_shared;
 

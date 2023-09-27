@@ -56,6 +56,8 @@ struct SimpleSessionServer {
     shared_ptr<Http::Response> handle(const Http::Request& request)
     {
         auto response = m_router.handle(request);
+        Session session(request);
+        session.current(*response);
         Session::addAlertToSession(request, *response);
         return response;
     }

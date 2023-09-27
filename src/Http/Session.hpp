@@ -22,6 +22,7 @@ public:
     void clearSession();
     SessionData& createSession(Response& response);
     SessionData& current(Response& response);
+    bool hasSession(Response& response) const;
     static void addAlertToSession(const Request& request, Response& response);
 
     static vector<shared_ptr<Record>> listAll();

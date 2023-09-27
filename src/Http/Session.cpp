@@ -45,8 +45,9 @@ SessionData& Session::createSession(Response& response)
 }
 SessionData& Session::current(Response& response)
 {
-    if (response.cookies().count("session-id")
-        && m_sessions.count(SessionId{response.cookies().at("session-id")})) {
+    const bool hasExistingSession = response.cookies().count("session-id")
+        && m_sessions.count(SessionId{response.cookies().at("session-id")});
+    if (hasExistingSession) {
         return m_sessions[SessionId{response.cookies().at("session-id")}];
     }
     if (!request.hasCookie("session-id")) {
@@ -58,11 +59,39 @@ SessionData& Session::current(Response& response)
     }
     return session->second;
 }
+bool Session::hasSession(Response& response) const
+{
+    if (response.cookies().count("session-id")
+        && m_sessions.count(SessionId{response.cookies().at("session-id")})) {
+        return true;
+    }
+    if (request.hasCookie("session-id")
+        && m_sessions.count(SessionId{request.cookie("session-id")})) {
+        return true;
+    }
+    return false;
+}
 void Session::addAlertToSession(const Request& request, Response& response)
 {
     Session session(request);
+    // In the next line a session is always created, even if there is no need.
+    // When is no need? When the response has an alert that will be rendered in
+    // the current request.
+    /*
+     * Cases:
+     * 1) Session exists:
+     *  Request has a session_id and this session_id exists
+     *  Response has a session_id and this session  exists
+     *
+     *  if the above is not true: return
+     *
+     */
+    if (!session.hasSession(response)) {
+        return;
+    }
     auto& sessionData = session.current(response);
     if (sessionData.hasAlert()) {
+        // if Session has Alert then move it to the response data for rendering
         response.alert(
             sessionData.getAlert().message(),
             sessionData.getAlert().alertType());
@@ -70,6 +99,8 @@ void Session::addAlertToSession(const Request& request, Response& response)
             sessionData.clearAlert();
         }
     } else if (!response.alert().message().empty()) {
+        // if the response data has an alert, it is moved to the session
+        // most likely the response is a redirect
         sessionData.alert(response.alert());
     }
 }
@@ -85,7 +116,14 @@ struct SessionDataRecord : public Record {
     };
     std::vector<KeyStringType> fields() const override
     {
-        return {"id", "user_id", "is_logged_in", "createdAt", "lastUsedAt", "path", "userAgent"};
+        return {
+            "id",
+            "user_id",
+            "is_logged_in",
+            "createdAt",
+            "lastUsedAt",
+            "path",
+            "userAgent"};
     };
     std::map<KeyStringType, string> values() const override
     {

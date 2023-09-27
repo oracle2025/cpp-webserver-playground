@@ -86,9 +86,9 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/logout", [](const Request& request) {
+        T::router().get("/logout", [this](const Request& request) {
             if (Session(request).isLoggedIn()) {
-                auto response = redirect("/")
+                auto response = loginForm()
                                     ->alert("Logged out", Html::AlertType::INFO)
                                     .shared_from_this();
                 Session(request).current(*response).logout();
