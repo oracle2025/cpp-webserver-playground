@@ -38,7 +38,7 @@ string Submit::operator()()
 
     return str.str();
 }
-Submit& Submit::value(const string& value)
+Submit& Submit::valueP(const string& value)
 {
     m_value = value;
     return *this;
@@ -52,6 +52,18 @@ Submit& Submit::buttonClass(const string& value)
 {
     m_class = value;
     return *this;
+}
+string Submit::name() const
+{
+    return m_label;
+}
+string Submit::value() const
+{
+    return m_value;
+}
+void Submit::value(const string& content)
+{
+    m_value = content;
 }
 } // namespace Input
 

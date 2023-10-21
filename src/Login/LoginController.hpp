@@ -16,6 +16,7 @@
 #include "doctest.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 using std::map;
@@ -49,15 +50,13 @@ struct LoginController : public T {
         using Http::Session;
         T::router().get("/", [this](const Request& request) {
             if (Session(request).isLoggedIn() && m_secretHandler) {
-                return forwardToSecretHandler(request, m_secretHandler);
+                return forwardToSecretHandler(request);
             } else {
                 return redirect("/login");
             }
         });
         T::router().get(
-            "/login", [this](const Request& request) {
-                return loginForm();
-            });
+            "/login", [this](const Request& request) { return loginForm(); });
         T::router().post("/login", [this](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
@@ -109,7 +108,8 @@ struct LoginController : public T {
                                              "is_logged_in",
                                              "createdAt",
                                              "lastUsedAt",
-                                            "path","userAgent"})
+                                             "path",
+                                             "userAgent"})
                                             .withHeader()())
                                     ->appendNavBarAction({"Start", "/"})
                                     .shared_from_this();
@@ -130,10 +130,10 @@ struct LoginController : public T {
                 if (response) {
                     return addLinksToResponse(request, response);
                 } else {
-                    return forwardToSecretHandler(request, m_secretHandler);
+                    return forwardToSecretHandler(request);
                 }
             } else if (Session(request).isLoggedIn()) {
-                return forwardToSecretHandler(request, m_secretHandler);
+                return forwardToSecretHandler(request);
             } else if (!m_publicHandler) {
             } else if (auto response = m_publicHandler->handle(request)) {
                 return response->appendNavBarAction({"🔒 Login", "/", "right"})
@@ -146,10 +146,9 @@ struct LoginController : public T {
         T::setPresentation(m_presentation);
         T::finish_init();
     }
-    shared_ptr<Response> forwardToSecretHandler(
-        const Request& request, shared_ptr<RequestHandler> handler)
+    shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {
-        return addLinksToResponse(request, handler->handle(request));
+        return addLinksToResponse(request, m_secretHandler->handle(request));
         ;
     }
     shared_ptr<Response> addLinksToResponse(
@@ -177,12 +176,23 @@ private:
     shared_ptr<Response> loginForm()
     {
         using namespace Input;
-        auto text = Form(
-            {Text("username")(), Password("password")(), Submit("Login")()},
+        /*
+         * 1) Pass ElementPtr instead of string to constructor
+         * 2) Retrieve From from response during unit test:
+         * auto form = handle("/get_form").form();
+         * form.input("field", "value")
+         * handle(form.submit())
+         */
+        auto text = std::make_shared<Form>(
+            vector<ElementPtr>{
+                make_shared<Text>("username"),
+                make_shared<Password>("password"),
+                make_shared<Submit>("Login")},
             "/login",
-            "post")();
-        return content(text)
-            ->title("Login")
+            "post");
+        return content((*text)())
+            ->form(text)
+            .title("Login")
 #ifdef ENABLE_SIGNUP
             .appendNavBarAction({"Signup", "/signup/", "right"})
 #endif

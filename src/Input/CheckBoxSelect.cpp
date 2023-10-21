@@ -35,4 +35,16 @@ string CheckBoxSelect::operator()()
     str << R"(</select>)";
     return str.str();
 }
+string CheckBoxSelect::name() const
+{
+    return m_label;
+}
+string CheckBoxSelect::value() const
+{
+    return m_value;
+}
+void CheckBoxSelect::value(const string& content)
+{
+    m_value = content;
+}
 } // namespace Input

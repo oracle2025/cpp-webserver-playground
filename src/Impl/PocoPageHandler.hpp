@@ -20,8 +20,10 @@ public:
 
     void handleRequest(
         HTTPServerRequest& request, HTTPServerResponse& response) override;
+    Input::FormPtr form() const;
 
 private:
     handler_type handler;
     shared_ptr<Presentation> m_presentation;
+    Input::FormPtr m_form;
 };

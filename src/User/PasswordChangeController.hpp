@@ -32,7 +32,7 @@ struct PasswordChangeController : public T {
                                 Password("confirm_password")()},
                                string(prefix + "/update"),
                                "post")
-                               .appendElement(Submit("Update Password")())())
+                               .appendElement(make_shared<Submit>("Update Password"))())
                     ->appendNavBarAction({"Start", "/"})
                     .title("Change Password")
                     .shared_from_this();

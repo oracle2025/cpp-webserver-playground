@@ -1,6 +1,7 @@
 #pragma once
 #include "ActionLink.hpp"
 #include "Alert.hpp"
+#include "Form.hpp"
 
 #include <map>
 #include <memory>
@@ -42,6 +43,10 @@ struct Response : public enable_shared_from_this<Response> {
     Response& alert(
         const string& alert, Html::AlertType type = Html::AlertType::DANGER);
 
+    Response& form(Input::FormPtr form);
+
+    Input::FormPtr form() const;
+
     string content() const;
 
     string location() const;
@@ -80,6 +85,7 @@ private:
     Html::Alert m_alert;
     bool m_sendFile = false;
     string m_filename;
+    Input::FormPtr m_form;
 };
 
 shared_ptr<Response> content(

@@ -30,5 +30,17 @@ Password::Password(string label)
     : m_label(move(label))
 {
 }
+string Password::name() const
+{
+    return m_label;
+}
+string Password::value() const
+{
+    return m_value;
+}
+void Password::value(const string& content)
+{
+    m_value = content;
+}
 
 } // namespace Input

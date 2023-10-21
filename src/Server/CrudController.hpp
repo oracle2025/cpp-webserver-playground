@@ -63,8 +63,8 @@ struct CrudController : public T {
             using namespace Input;
             F todo;
             return content(Form(todo, prefix + "/create", "post")
-                               .appendElement(Submit(
-                                   "Create " + F::presentableName())())())
+                               .appendElement(make_shared<Submit>(
+                                   "Create " + F::presentableName()))())
                 ->appendNavBarAction({"Start", "/"})
                 .title("Create " + F::presentableName())
                 .shared_from_this();
@@ -91,8 +91,8 @@ struct CrudController : public T {
                                    todo,
                                    string(prefix + "/update?") + todo.key(),
                                    "post")
-                                   .appendElement(Submit(
-                                       "Update " + F::presentableName())())())
+                                   .appendElement(make_shared<Submit>(
+                                       "Update " + F::presentableName()))())
                     ->appendNavBarAction({"Start", "/"})
                     .title("Edit " + F::presentableName())
                     .shared_from_this();

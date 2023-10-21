@@ -4,7 +4,6 @@
 #include "CheckBoxSelect.hpp"
 #include "Data/Record.hpp"
 #include "Hidden.hpp"
-#include "Submit.hpp"
 #include "Text.hpp"
 
 #include <sstream>
@@ -13,37 +12,47 @@ using std::ostringstream;
 namespace Input {
 
 Form::Form(vector<string> elements, string action, string method)
-    : m_elements(move(elements))
-    , m_action(move(action))
-    , m_method(move(method))
+    : m_elements(std::move(elements))
+    , m_action(std::move(action))
+    , m_method(std::move(method))
 {
 }
 Form::Form(const Record& record, string action, string method)
-    : m_action(move(action))
-    , m_method(move(method))
+    : m_action(std::move(action))
+    , m_method(std::move(method))
 {
-    m_elements.push_back(Hidden("id", record.key())());
+    using std::make_shared;
+    m_pureElements.push_back(make_shared<Hidden>("id", record.key()));
     for (const auto& [key, value] : record.values()) {
 
         switch (record.inputType(key)) {
         case HtmlInputType::HIDDEN:
-            m_elements.push_back(Hidden(key, value)());
+            m_pureElements.push_back(make_shared<Hidden>(key, value));
             break;
         case HtmlInputType::CHECKBOX:
-            m_elements.push_back(CheckBoxSelect(key, value)());
+            m_pureElements.push_back(make_shared<CheckBoxSelect>(key, value));
             break;
         default:
-            m_elements.push_back(Text(key, value)());
+            m_pureElements.push_back(make_shared<Text>(key, value));
         }
     }
+}
+Form::Form(vector<ElementPtr> elements, string action, string method)
+    : m_pureElements(std::move(elements))
+    , m_action(std::move(action))
+    , m_method(std::move(method))
+{
 }
 string Form::operator()()
 {
     ostringstream str;
     str << R"(<form action=")" << m_action << R"(" method=")" << m_method
         << R"(">)";
-    for (auto element : m_elements) {
+    for (const auto& element : m_elements) {
         str << element << "<br>\n";
+    }
+    for (const auto& element : m_pureElements) {
+        str << (*element)() << "<br>\n";
     }
     str << "</form>";
     return str.str();
@@ -53,4 +62,43 @@ Form& Form::appendElement(string element)
     m_elements.push_back(std::move(element));
     return *this;
 }
+Form& Form::appendElement(ElementPtr element)
+{
+    m_pureElements.push_back(std::move(element));
+    return *this;
+}
+string Form::name() const
+{
+    return "";
+}
+string Form::value() const
+{
+    return "";
+}
+string Form::action() const
+{
+    return m_action;
+}
+string Form::data() const
+{
+    ostringstream str;
+    for (auto &element : m_pureElements) {
+        str << element->name() << "=" << element->value() << "&";
+    }
+    return str.str();
+}
+void Form::set(const string& key, const string& value)
+{
+    for (auto &element : m_pureElements) {
+        if (element->name() == key) {
+            element->value(value);
+            return;
+        }
+    }
+}
+void Form::value(const string& content)
+{
+}
+
+
 } // namespace Input

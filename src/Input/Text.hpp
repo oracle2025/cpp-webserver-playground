@@ -7,11 +7,13 @@ namespace Input {
 struct Text : public Element {
     explicit Text(string label, string value = "");
 
-    string operator()();
-
+    string operator()() override;
+    string name() const override;
+    string value() const override;
+    void value(const string& content) override;
 private:
-    string label;
-    string value;
+    string m_label;
+    string m_value;
 };
 
 } // namespace Input

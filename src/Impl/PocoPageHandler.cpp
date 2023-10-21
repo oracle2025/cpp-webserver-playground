@@ -52,6 +52,7 @@ void PocoPageHandler::handleRequest(
         response.send() << "Internal Server Error\n";
         return;
     }
+    m_form = result->form();
     Http::Session::addAlertToSession(req, *result);
     for (auto& [key, value] : result->cookies()) {
         HTTPCookie cookie(key, value);
@@ -66,11 +67,16 @@ void PocoPageHandler::handleRequest(
     if (result->status() == Response::HTTP_FOUND
         && (!result->location().empty())) {
         response.redirect(result->location());
+        return;
     }
     if (result->sendFile()) {
         response.sendFile(result->filename(), result->mimetype());
     } else {
         auto& responseStream = response.send();
-        responseStream << m_presentation->render(*result);
+        responseStream << Html::Presentation::render(*result);
     }
+}
+Input::FormPtr PocoPageHandler::form() const
+{
+    return m_form;
 }

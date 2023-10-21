@@ -12,11 +12,11 @@ shared_ptr<Http::Response> Confirm::operator()()
     return content(Form(
                        {Submit("Cancel")
                             .name("canceled")
-                            .value("yes")
+                            .valueP("yes")
                             .buttonClass("light")(),
                         Submit("Delete " + String::escape(description))
                             .name("confirmed")
-                            .value("yes")
+                            .valueP("yes")
                             .buttonClass("danger")()},
                        prefix + "/delete?" + todo.key(),
                        "post")())

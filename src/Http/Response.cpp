@@ -1,5 +1,7 @@
 
 #include "Response.hpp"
+
+#include <utility>
 namespace Http {
 
 using std::make_shared;
@@ -103,6 +105,16 @@ Response& Response::mimetype(const string& mimetype)
     m_mimetype = mimetype;
     return *this;
 }
+Response& Response::form(Input::FormPtr form)
+{
+    m_form = std::move(form);
+    return *this;
+}
+Input::FormPtr Response::form() const
+{
+    return m_form;
+}
+
 shared_ptr<Response> content(const string& content, const string& mimetype)
 {
     return Response::create()->content(content, mimetype).shared_from_this();

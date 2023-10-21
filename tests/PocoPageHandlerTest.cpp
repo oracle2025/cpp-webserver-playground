@@ -74,6 +74,8 @@ struct FakeHTTPServerResponse : public PocoPageHandler::HTTPServerResponse {
     }
     void redirect(const std::string& uri, HTTPStatus status = HTTP_FOUND)
     {
+        setStatus(status);
+        set("Location", uri);
     }
     void requireAuthentication(const std::string& realm)
     {
@@ -86,10 +88,31 @@ struct FakeHTTPServerResponse : public PocoPageHandler::HTTPServerResponse {
     {
         return m_stream.str();
     }
+    void reset()
+    {
+        setStatus(HTTP_OK);
+        clear();
+        m_stream.str("");
+    }
 
 private:
-    std::stringstream m_stream;
+    std::ostringstream m_stream;
 };
+class HelloHandler : public RequestHandler {
+public:
+    explicit HelloHandler(string message)
+        : m_message(std::move(message))
+    {
+    }
+    shared_ptr<Response> handle(const Request& request) override
+    {
+        return Http::content(m_message);
+    }
+
+private:
+    string m_message;
+};
+
 TEST_CASE("PocoPageHandler Test")
 {
     FakeHTTPServerResponse response;
@@ -122,20 +145,6 @@ TEST_CASE("Login Logout Cookies Test")
      * 5 Logout -> delete cookie
      */
     using std::make_shared;
-    class HelloHandler : public RequestHandler {
-    public:
-        explicit HelloHandler(string message)
-            : m_message(std::move(message))
-        {
-        }
-        shared_ptr<Response> handle(const Request& request) override
-        {
-            return Http::content(m_message);
-        }
-
-    private:
-        string m_message;
-    };
     auto handler = make_shared<LoginController<SimpleWebServer>>(
         make_shared<HelloHandler>("Secret"),
         make_shared<HelloHandler>("Admin"),
@@ -150,7 +159,6 @@ TEST_CASE("Login Logout Cookies Test")
 
     request.setURI("http://localhost:8080/login");
     request.setMethod(Poco::Net::HTTPRequest::HTTP_POST);
-    using std::istringstream;
     request.setStreamValue("username=admin&password=Adm1n!");
 
     pageHandler.handleRequest(request, response);
@@ -158,5 +166,126 @@ TEST_CASE("Login Logout Cookies Test")
     std::vector<Poco::Net::HTTPCookie> cookies;
     response.getCookies(cookies);
     CHECK(cookies.size() == 1);
-    //CHECK(response.result() == "");
+    // CHECK(response.result() == "");
+}
+struct Form {
+    map<string, string>& fields();
+};
+struct FakeBrowser {
+    FakeBrowser(PocoPageHandler& handler)
+        : m_handler(handler)
+    {
+    }
+    void location(
+        const string& l,
+        const string& method = Poco::Net::HTTPRequest::HTTP_GET,
+        const string& streamValue = "")
+    {
+        FakeHTTPServerResponse response;
+        FakeHTTPServerRequest request(response);
+        request.setURI(l);
+        request.setMethod(method);
+        request.setCookies(m_cookieJar);
+        Poco::URI uri(l);
+        m_scheme = uri.getScheme();
+        m_host = uri.getHost();
+        request.setStreamValue(streamValue);
+        m_handler.handleRequest(request, response);
+        std::vector<Poco::Net::HTTPCookie> cookies;
+        response.getCookies(cookies);
+        for (auto& cookie : cookies) {
+            m_cookieJar.set(cookie.getName(), cookie.getValue());
+        }
+        while (response.getStatus()
+               == Poco::Net::HTTPResponse::HTTPStatus::HTTP_FOUND) {
+            auto location = uri.getScheme() + "://" + uri.getHost()
+                + response["Location"];
+            response.reset();
+            request.setURI(location);
+            request.setCookies(m_cookieJar);
+            // look at response headers
+            request.setMethod(Poco::Net::HTTPRequest::HTTP_GET);
+            request.setStreamValue("");
+            m_handler.handleRequest(request, response);
+        }
+        m_form = m_handler.form();
+        m_pageContents = response.result();
+    }
+    string location() const
+    {
+    }
+    Input::FormPtr form()
+    {
+        return m_form;
+    }
+    string pageContents()
+    {
+        return m_pageContents;
+    }
+    void submit()
+    {
+        auto l = m_scheme + "://" + m_host + form()->action();
+        location(l, Poco::Net::HTTPRequest::HTTP_POST, form()->data());
+    }
+
+private:
+    PocoPageHandler& m_handler;
+    Poco::Net::NameValueCollection m_cookieJar;
+    string m_pageContents;
+    Input::FormPtr m_form;
+    string m_scheme;
+    string m_host;
+};
+TEST_CASE("Render Alert after Redirect")
+{
+    Poco::Data::SQLite::Connector::registerConnector();
+    Poco::Data::Session session("SQLite", ":memory:");
+    g_session = &session;
+    Data::MigrationsLatest m;
+    m.perform();
+    using std::make_shared;
+    class AlertAndRedirectHandler : public RequestHandler {
+    public:
+        explicit AlertAndRedirectHandler()
+        {
+        }
+        shared_ptr<Response> handle(const Request& request) override
+        {
+            if (request.path() == "/alert") {
+                return Http::redirect("/")
+                    ->alert("Hello from Alert", Html::AlertType::INFO)
+                    .shared_from_this();
+            }
+            return Http::content("");
+        }
+
+    private:
+    };
+    auto handler = make_shared<LoginController<SimpleWebServer>>(
+        make_shared<AlertAndRedirectHandler>(),
+        nullptr,
+        make_shared<HelloHandler>("Public"),
+        nullptr);
+
+    PocoPageHandler pageHandler(
+        [handler](const Request& request) { return handler->handle(request); },
+        nullptr);
+
+    FakeBrowser browser(pageHandler);
+    browser.location("http://localhost:8080/login");
+
+    CHECK(browser.form().get() != nullptr);
+
+    browser.form()->set("username", "admin");
+    browser.form()->set("password", "Adm1n!");
+
+    browser.submit();
+
+    CHECK(
+        browser.pageContents().find("Logged in successfully") != string::npos);
+
+    browser.location("http://localhost:8080/alert");
+
+    CHECK(browser.pageContents().find("Hello from Alert") != string::npos);
+
 }
