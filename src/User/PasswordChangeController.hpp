@@ -27,9 +27,9 @@ struct PasswordChangeController : public T {
             if (user.pop(Session(request).userId())) { // current session user
                 return content(
                            Form(
-                               {Password("current_password")(),
-                                Password("new_password")(),
-                                Password("confirm_password")()},
+                               {make_shared<Password>("current_password"),
+                                make_shared<Password>("new_password"),
+                                make_shared<Password>("confirm_password")},
                                string(prefix + "/update"),
                                "post")
                                .appendElement(make_shared<Submit>("Update Password"))())

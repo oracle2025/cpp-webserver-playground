@@ -11,12 +11,6 @@
 using std::ostringstream;
 namespace Input {
 
-Form::Form(vector<string> elements, string action, string method)
-    : m_elements(std::move(elements))
-    , m_action(std::move(action))
-    , m_method(std::move(method))
-{
-}
 Form::Form(const Record& record, string action, string method)
     : m_action(std::move(action))
     , m_method(std::move(method))
@@ -42,6 +36,12 @@ Form::Form(vector<ElementPtr> elements, string action, string method)
     , m_action(std::move(action))
     , m_method(std::move(method))
 {
+}
+Form::Form(const string& element, string action, string method)
+    : m_action(std::move(action))
+    , m_method(std::move(method))
+{
+    m_elements.push_back(element);
 }
 string Form::operator()()
 {
@@ -82,14 +82,14 @@ string Form::action() const
 string Form::data() const
 {
     ostringstream str;
-    for (auto &element : m_pureElements) {
+    for (auto& element : m_pureElements) {
         str << element->name() << "=" << element->value() << "&";
     }
     return str.str();
 }
 void Form::set(const string& key, const string& value)
 {
-    for (auto &element : m_pureElements) {
+    for (auto& element : m_pureElements) {
         if (element->name() == key) {
             element->value(value);
             return;
@@ -99,6 +99,5 @@ void Form::set(const string& key, const string& value)
 void Form::value(const string& content)
 {
 }
-
 
 } // namespace Input

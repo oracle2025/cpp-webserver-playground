@@ -24,10 +24,10 @@ struct SignupController : public T {
         using namespace Input;
         T::router().get(prefix + "/", [prefix](const Request& request) {
             return content(Form(
-                               {Text("username")(),
-                                Password("password")(),
-                                Password("confirm_password")(),
-                                Submit("Signup")()},
+                               {make_shared<Text>("username"),
+                                make_shared<Password>("password"),
+                                make_shared<Password>("confirm_password"),
+                                make_shared<Submit>("Signup")},
                                prefix + "/submit",
                                "post")())
                 ->title("Signup")

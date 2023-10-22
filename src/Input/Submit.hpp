@@ -4,7 +4,9 @@
 
 namespace Input {
 
-struct Submit : public Element {
+using std::enable_shared_from_this;
+
+struct Submit : public Element, enable_shared_from_this<Submit> {
     explicit Submit(string label);
 
     string operator()() override;

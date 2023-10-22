@@ -148,8 +148,9 @@ struct LoginController : public T {
     }
     shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {
-        return addLinksToResponse(request, m_secretHandler->handle(request));
-        ;
+        auto result
+            = addLinksToResponse(request, m_secretHandler->handle(request));
+        return result;
     }
     shared_ptr<Response> addLinksToResponse(
         const Request& request, shared_ptr<Response> response) const

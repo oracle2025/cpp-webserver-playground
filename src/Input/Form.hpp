@@ -8,7 +8,8 @@ using std::vector;
 class Record;
 namespace Input {
 struct Form : public Element {
-    Form(vector<string> elements, string action, string method);
+    Form(const string& element, string action, string method);
+
     Form(vector<ElementPtr> elements, string action, string method);
 
     Form(const Record& record, string action, string method);

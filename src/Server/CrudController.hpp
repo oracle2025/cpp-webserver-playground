@@ -187,8 +187,8 @@ struct CrudController : public T {
             using namespace Input;
             auto columns = todo.presentableFields();
             return content(Form(
-                               {Html::List(todo.listAsPointers(), columns)
-                                    .prefix(prefix)()},
+                               Html::List(todo.listAsPointers(), columns)
+                                    .prefix(prefix)(),
                                prefix + "/mark",
                                "post")())
                 ->appendAction(

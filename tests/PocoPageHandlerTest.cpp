@@ -189,6 +189,7 @@ struct FakeBrowser {
         Poco::URI uri(l);
         m_scheme = uri.getScheme();
         m_host = uri.getHost();
+        m_location = l;
         request.setStreamValue(streamValue);
         m_handler.handleRequest(request, response);
         std::vector<Poco::Net::HTTPCookie> cookies;
@@ -198,10 +199,10 @@ struct FakeBrowser {
         }
         while (response.getStatus()
                == Poco::Net::HTTPResponse::HTTPStatus::HTTP_FOUND) {
-            auto location = uri.getScheme() + "://" + uri.getHost()
+            m_location = uri.getScheme() + "://" + uri.getHost()
                 + response["Location"];
             response.reset();
-            request.setURI(location);
+            request.setURI(m_location);
             request.setCookies(m_cookieJar);
             // look at response headers
             request.setMethod(Poco::Net::HTTPRequest::HTTP_GET);
@@ -213,6 +214,7 @@ struct FakeBrowser {
     }
     string location() const
     {
+        return m_location;
     }
     Input::FormPtr form()
     {
@@ -235,6 +237,7 @@ private:
     Input::FormPtr m_form;
     string m_scheme;
     string m_host;
+    string m_location;
 };
 TEST_CASE("Render Alert after Redirect")
 {

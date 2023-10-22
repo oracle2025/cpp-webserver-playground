@@ -4,20 +4,23 @@
 #include "Input/Form.hpp"
 #include "Input/Submit.hpp"
 #include "String/escape.hpp"
+
+using std::make_shared;
+
 shared_ptr<Http::Response> Confirm::operator()()
 {
     using Http::content;
     using Input::Form;
     using Input::Submit;
     return content(Form(
-                       {Submit("Cancel")
-                            .name("canceled")
+                       {make_shared<Submit>("Cancel")
+                            ->name("canceled")
                             .valueP("yes")
-                            .buttonClass("light")(),
-                        Submit("Delete " + String::escape(description))
-                            .name("confirmed")
+                            .buttonClass("light").shared_from_this(),
+                        make_shared<Submit>("Delete " + String::escape(description))
+                            ->name("confirmed")
                             .valueP("yes")
-                            .buttonClass("danger")()},
+                            .buttonClass("danger").shared_from_this()},
                        prefix + "/delete?" + todo.key(),
                        "post")())
         ->title("Confirm Delete")
