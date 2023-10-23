@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Http/Session.hpp"
 #include "PocoWebServer.hpp"
 #include "Trace/trace.hpp"
 #include "spdlog/spdlog.h"

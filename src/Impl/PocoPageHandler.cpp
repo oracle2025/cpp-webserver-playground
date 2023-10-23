@@ -53,7 +53,6 @@ void PocoPageHandler::handleRequest(
         return;
     }
     m_form = result->form();
-    Http::Session::addAlertToSession(req, *result);
     for (auto& [key, value] : result->cookies()) {
         HTTPCookie cookie(key, value);
         cookie.setSameSite(HTTPCookie::SAME_SITE_STRICT);

@@ -74,6 +74,7 @@ struct LoginController : public T {
                       .shared_from_this();
             Session(request).clearSession();
             Session(request).current(*response).login(user);
+            Http::Session::addAlertToSession(request, *response);
             return response;
         });
         T::router().get("/secret", [](const Request& request) {
@@ -148,9 +149,10 @@ struct LoginController : public T {
     }
     shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {
-        auto result
+        auto response
             = addLinksToResponse(request, m_secretHandler->handle(request));
-        return result;
+        Http::Session::addAlertToSession(request, *response);
+        return response;
     }
     shared_ptr<Response> addLinksToResponse(
         const Request& request, shared_ptr<Response> response) const
