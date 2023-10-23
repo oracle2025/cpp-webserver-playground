@@ -58,7 +58,7 @@ struct CrudController : public T {
         static_assert(
             std::is_base_of<Record, F>::value, "F not derived from Record");
         static_assert(
-            std::is_base_of<WebServer, T>::value, "F not derived from Record");
+            std::is_base_of<WebServer, T>::value, "T not derived from WebServer");
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
             F todo;
