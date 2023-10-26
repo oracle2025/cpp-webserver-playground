@@ -61,8 +61,8 @@ struct CrudController : public T {
             std::is_base_of<WebServer, T>::value, "T not derived from WebServer");
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
-            F todo;
-            return content(Form(todo, prefix + "/create", "post")
+            F record;
+            return content(Form(record, prefix + "/create", "post")
                                .appendElement(make_shared<Submit>(
                                    "Create " + F::presentableName()))())
                 ->appendNavBarAction({"Start", "/"})
@@ -71,25 +71,25 @@ struct CrudController : public T {
         });
         T::router().post(prefix + "/create", [prefix](const Request& request) {
             using Http::Session;
-            F todo(request);
-            for (auto i : todo.fields()) {
-                if (request.hasParameter(i)) {
-                    todo.set(i, request.parameter(i));
+            F record(request);
+            for (auto field : record.fields()) {
+                if (request.hasParameter(field)) {
+                    record.set(field, request.parameter(field));
                 }
-                todo.set("user_id", Session(request).userId());
+                record.set("user_id", Session(request).userId());
             }
-            todo.insert();
-            return redirect(prefix + "/edit?" + todo.key())
+            record.insert();
+            return redirect(prefix + "/edit?" + record.key())
                 ->alert("Todo created", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
         T::router().get(prefix + "/edit", [prefix](const Request& request) {
             using namespace Input;
-            F todo(request);
-            if (todo.pop(request.query())) {
+            F record(request);
+            if (record.pop(request.query())) {
                 return content(Form(
-                                   todo,
-                                   string(prefix + "/update?") + todo.key(),
+                                   record,
+                                   string(prefix + "/update?") + record.key(),
                                    "post")
                                    .appendElement(make_shared<Submit>(
                                        "Update " + F::presentableName()))())
@@ -97,49 +97,49 @@ struct CrudController : public T {
                     .title("Edit " + F::presentableName())
                     .shared_from_this();
             } else {
-                return todoNotFound(prefix);
+                return recordNotFound(prefix);
             }
         });
         T::router().post(prefix + "/update", [prefix](const Request& request) {
-            F todo(request);
-            if (todo.pop(request.query())) {
-                for (auto i : todo.fields()) {
+            F record(request);
+            if (record.pop(request.query())) {
+                for (auto i : record.fields()) {
                     if (request.hasParameter(i)) {
-                        todo.set(i, request.parameter(i));
+                        record.set(i, request.parameter(i));
                     }
                 }
-                todo.update();
-                return redirect(prefix + "/edit?" + todo.key())
+                record.update();
+                return redirect(prefix + "/edit?" + record.key())
                     ->alert(
                         F::presentableName() + " updated",
                         Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
-                return todoNotFound(prefix);
+                return recordNotFound(prefix);
             }
         });
         T::router().post(prefix + "/mark", [prefix](const Request& request) {
-            F todo(request);
+            F record(request);
             std::ostringstream str;
             for (const auto& [key, value] : request.allParameters()) {
-                todo.pop(key);
-                if (todo.get("checked") != value) {
-                    str << todo.get("description") << " is now "
+                record.pop(key);
+                if (record.get("checked") != value) {
+                    str << record.get("description") << " is now "
                         << (value == "yes" ? "checked" : "unchecked")
                         << std::endl;
                 }
-                todo.set("checked", value);
-                todo.update();
+                record.set("checked", value);
+                record.update();
             }
             return redirect(prefix + "/")
                 ->alert("Todo " + str.str(), Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
         T::router().post(prefix + "/delete", [prefix](const Request& request) {
-            F todo(request);
-            if (todo.pop(request.query())) {
+            F record(request);
+            if (record.pop(request.query())) {
                 if (request.hasParameter("confirmed")) {
-                    todo.erase();
+                    record.erase();
                     return redirect(prefix + "/")
                         ->alert("Todo deleted", Html::AlertType::WARNING)
                         .shared_from_this();
@@ -148,46 +148,46 @@ struct CrudController : public T {
                         ->alert("Delete canceled", Html::AlertType::INFO)
                         .shared_from_this();
                 } else {
-                    return redirect(prefix + "/confirm?" + todo.key())
+                    return redirect(prefix + "/confirm?" + record.key())
                         ->alert(
                             "Are you sure you want to delete this todo?",
                             Html::AlertType::WARNING)
                         .shared_from_this();
                 }
             } else {
-                return todoNotFound(prefix);
+                return recordNotFound(prefix);
             }
         });
         T::router().get(prefix + "/delete", [prefix](const Request& request) {
-            F todo(request);
-            if (todo.pop(request.query())) {
-                return redirect(prefix + "/confirm?" + todo.key())
+            F record(request);
+            if (record.pop(request.query())) {
+                return redirect(prefix + "/confirm?" + record.key())
                     ->alert(
                         "Are you sure you want to delete this "
                         "todo?",
                         Html::AlertType::WARNING)
                     .shared_from_this();
             } else {
-                return todoNotFound(prefix);
+                return recordNotFound(prefix);
             }
         });
         T::router().get(prefix + "/confirm", [prefix](const Request& request) {
             using namespace Input;
-            F todo(request);
-            if (todo.pop(request.query())) {
-                return Confirm(prefix, todo, todo.description())()
+            F record(request);
+            if (record.pop(request.query())) {
+                return Confirm(prefix, record, record.description())()
                     ->appendNavBarAction({"Start", "/"})
                     .shared_from_this();
             } else {
-                return todoNotFound(prefix);
+                return recordNotFound(prefix);
             }
         });
         T::router().get(prefix + "/", [prefix](const Request& request) {
-            F todo(request);
+            F record(request);
             using namespace Input;
-            auto columns = todo.presentableFields();
+            auto columns = record.presentableFields();
             return content(Form(
-                               Html::List(todo.listAsPointers(), columns)
+                               Html::List(record.listAsPointers(), columns)
                                     .prefix(prefix)(),
                                prefix + "/mark",
                                "post")())
@@ -208,7 +208,7 @@ struct CrudController : public T {
         T::defaultHandler(Http::NullHandler);
         T::finish_init();
     }
-    static shared_ptr<Response> todoNotFound(const string& prefix)
+    static shared_ptr<Response> recordNotFound(const string& prefix)
     {
         return content(F::presentableName() + " not found")
             ->code(Response::NOT_FOUND)

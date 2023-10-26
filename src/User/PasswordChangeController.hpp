@@ -25,15 +25,19 @@ struct PasswordChangeController : public T {
             using namespace Input;
             Data::User user;
             if (user.pop(Session(request).userId())) { // current session user
-                return content(
-                           Form(
-                               {make_shared<Password>("current_password"),
-                                make_shared<Password>("new_password"),
-                                make_shared<Password>("confirm_password")},
-                               string(prefix + "/update"),
-                               "post")
-                               .appendElement(make_shared<Submit>("Update Password"))())
-                    ->appendNavBarAction({"Start", "/"})
+                auto form = std::make_shared<Form>(
+                                vector<ElementPtr>{
+                                    make_shared<Password>("current_password"),
+                                    make_shared<Password>("new_password"),
+                                    make_shared<Password>("confirm_password")},
+                                string(prefix + "/update"),
+                                "post")
+                                ->appendElement(
+                                    make_shared<Submit>("Update Password"))
+                                .shared_from_this();
+                return content((*form)())
+                    ->form(form)
+                    .appendNavBarAction({"Start", "/"})
                     .title("Change Password")
                     .shared_from_this();
             } else {
@@ -44,7 +48,7 @@ struct PasswordChangeController : public T {
                 ;
             }
         });
-        T::router().get(prefix + "/update", [prefix](const Request& request) {
+        T::router().post(prefix + "/update", [prefix](const Request& request) {
             Data::User user;
             if (user.pop(Session(request).userId())) {
                 if (request.parameter("new_password")

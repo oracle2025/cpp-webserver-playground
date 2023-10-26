@@ -1,4 +1,5 @@
 #include "Data/MigrationsV3.hpp"
+#include "FakeBrowser.hpp"
 #include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
 #include "User/PasswordChangeController.hpp"
@@ -43,7 +44,8 @@ TEST_CASE("Change Password")
         map<string, string> params;
         params["username"] = "admin";
         params["password"] = "Adm1n!";
-        auto response = w.handle({"/login", {}, params, "", Http::Method::POST});
+        auto response
+            = w.handle({"/login", {}, params, "", Http::Method::POST});
         auto cookieJar = response->cookies();
         auto actual = w.handle({"/password/", cookieJar, {}})->content();
         CHECK(actual.find("current_password") != string::npos);
@@ -54,7 +56,7 @@ TEST_CASE("Change Password")
         params["new_password"] = "S3cr3t&";
         params["confirm_password"] = "S3cr3t&";
 
-        response = w.handle({"/password/update", cookieJar, params});
+        response = w.handle({"/password/update", cookieJar, params, "", Http::Method::POST});
         CHECK(response->content() == "Password updated successfully");
         CHECK(loginSuccess("admin", "S3cr3t&", w));
     }
@@ -77,4 +79,45 @@ TEST_CASE("Change Password")
     // Given: a logged in user
     // When: the user changes the password
     // Then: the user can log in with the new password
+}
+
+TEST_CASE("Change Password with Fake Browser")
+{
+    Poco::Data::SQLite::Connector::registerConnector();
+    Poco::Data::Session session("SQLite", ":memory:");
+    g_session = &session;
+    Data::MigrationsLatest m;
+    m.perform();
+    LoginController<TestServer> handler(
+        std::make_shared<PasswordChangeController<TestServer>>("/password"),
+        nullptr,
+        nullptr,
+        nullptr);
+    PocoPageHandler pageHandler(
+        [&handler](const Request& request) { return handler.handle(request); },
+        nullptr);
+    FakeBrowser browser(pageHandler);
+    browser.location("http://localhost:8080/login");
+    CHECK(browser.form().get() != nullptr);
+    browser.form()->set("username", "admin");
+    browser.form()->set("password", "Adm1n!");
+    browser.submit();
+    CHECK(
+        browser.pageContents().find("Logged in successfully") != string::npos);
+    browser.location("http://localhost:8080/password/");
+    browser.form()->set("current_password", "Adm1n!");
+    browser.form()->set("new_password", "S3cr3t&");
+    browser.form()->set("confirm_password", "S3cr3t&");
+    browser.submit();
+    CHECK(
+        browser.pageContents().find("Password updated successfully")
+        != string::npos);
+    browser.location("http://localhost:8080/logout");
+    browser.location("http://localhost:8080/login");
+    CHECK(browser.form().get() != nullptr);
+    browser.form()->set("username", "admin");
+    browser.form()->set("password", "S3cr3t&");
+    browser.submit();
+    CHECK(
+        browser.pageContents().find("Logged in successfully") != string::npos);
 }

@@ -115,7 +115,6 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/Http/Router.hpp
     src/Http/NotFoundHandler.hpp
     src/Http/NotFoundHandler.cpp
-    src/Data/RecordFactory.hpp
     src/Data/Person.cpp
     src/Data/Person.hpp
     src/String/join.cpp
@@ -204,7 +203,7 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     tests/SignupTest.cpp
     tests/ByOwnerTest.cpp
     tests/ImageBrowserTest.cpp
-    tests/PocoPageHandlerTest.cpp)
+    tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp)
   target_link_libraries(tests webservers)
   target_include_directories(tests PRIVATE tests)
 

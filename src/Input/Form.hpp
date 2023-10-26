@@ -3,11 +3,12 @@
 #include "Element.hpp"
 
 #include <vector>
+#include <memory>
 
 using std::vector;
 class Record;
 namespace Input {
-struct Form : public Element {
+struct Form : public Element, std::enable_shared_from_this<Form> {
     Form(const string& element, string action, string method);
 
     Form(vector<ElementPtr> elements, string action, string method);
