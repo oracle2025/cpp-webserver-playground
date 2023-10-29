@@ -19,18 +19,20 @@ struct SignupController : public T {
     using Request = Http::Request;
     using Session = Http::Session;
     using Response = Http::Response;
-    SignupController(const string& prefix)
+    explicit SignupController(const string& prefix)
     {
         using namespace Input;
         T::router().get(prefix + "/", [prefix](const Request& request) {
-            return content(Form(
-                               {make_shared<Text>("username"),
-                                make_shared<Password>("password"),
-                                make_shared<Password>("confirm_password"),
-                                make_shared<Submit>("Signup")},
-                               prefix + "/submit",
-                               "post")())
+            auto form = make_shared<Form>(
+                vector<ElementPtr>{make_shared<Text>("username"),
+                 make_shared<Password>("password"),
+                 make_shared<Password>("confirm_password"),
+                 make_shared<Submit>("Signup")},
+                prefix + "/submit",
+                "post");
+            return content((*form)())
                 ->title("Signup")
+                .form(form)
                 .shared_from_this();
         });
         T::router().get(prefix + "/submit", [prefix](const Request& request) {

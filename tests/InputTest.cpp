@@ -25,7 +25,8 @@ TEST_CASE("Form Data")
     using Input::Form;
     using Input::Password;
     using Input::Text;
-    auto form = Input::Form(
+    using Input::Form;
+    auto form = Form(
         {std::make_shared<Text>("user"), std::make_shared<Password>("pass")},
         "/login",
         "POST");
