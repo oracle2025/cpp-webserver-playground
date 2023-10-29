@@ -26,8 +26,8 @@ string Text::operator()()
     return str.str();
 }
 Text::Text(string label, string value)
-    : m_label(move(label))
-    , m_value(move(value))
+    : m_label(std::move(label))
+    , m_value(std::move(value))
 {
 }
 string Text::name() const

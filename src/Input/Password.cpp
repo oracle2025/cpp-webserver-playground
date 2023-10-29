@@ -27,7 +27,7 @@ string Password::operator()()
     return str.str();
 }
 Password::Password(string label)
-    : m_label(move(label))
+    : m_label(std::move(label))
 {
 }
 string Password::name() const

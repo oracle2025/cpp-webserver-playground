@@ -8,7 +8,7 @@
 using std::ostringstream;
 namespace Input {
 Submit::Submit(string label)
-    : m_label(move(label))
+    : m_label(std::move(label))
 {
 }
 string Submit::operator()()

@@ -5,7 +5,7 @@
 namespace Http {
 
 RequestDispatcher::RequestDispatcher(RequestHandlerList handlers)
-    : m_handlers(move(handlers))
+    : m_handlers(std::move(handlers))
 {
 }
 shared_ptr<Response> RequestDispatcher::handle(const Request& request)

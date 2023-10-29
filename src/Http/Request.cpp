@@ -8,12 +8,12 @@ Request::Request(
     string query,
     Method method,
     string userAgent)
-    : m_cookies(move(cookies))
-    , m_parameters(move(parameters))
-    , m_query(move(query))
-    , m_path(move(path))
+    : m_cookies(std::move(cookies))
+    , m_parameters(std::move(parameters))
+    , m_query(std::move(query))
+    , m_path(std::move(path))
     , m_method(method)
-    , m_userAgent(move(userAgent))
+    , m_userAgent(std::move(userAgent))
 {
 }
 bool Request::hasCookie(const string& name) const

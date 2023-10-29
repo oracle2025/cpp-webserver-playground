@@ -8,8 +8,8 @@ using std::transform;
 
 namespace Input {
 CheckBoxSelect::CheckBoxSelect(string label, string value)
-    : m_label(move(label))
-    , m_value(move(value))
+    : m_label(std::move(label))
+    , m_value(std::move(value))
 {
 }
 string CheckBoxSelect::operator()()

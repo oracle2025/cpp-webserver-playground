@@ -12,8 +12,8 @@ string Hidden::operator()()
     return str.str();
 }
 Hidden::Hidden(string label, string value)
-    : m_label(move(label))
-    , m_value(move(value))
+    : m_label(std::move(label))
+    , m_value(std::move(value))
 {
 }
 string Hidden::value() const
