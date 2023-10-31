@@ -80,7 +80,7 @@ struct CrudController : public T {
             }
             record.insert();
             return redirect(prefix + "/edit?" + record.key())
-                ->alert("Todo created", Html::AlertType::SUCCESS)
+                ->alert(F::presentableName() + " created", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
         T::router().get(prefix + "/edit", [prefix](const Request& request) {
@@ -194,6 +194,7 @@ struct CrudController : public T {
                 ->appendAction(
                     {"Create new " + F::presentableName(), prefix + "/new"})
                 .appendNavBarAction({"Start", "/"})
+                .appendNavBarAction({"Create Event", "/event/new"})
                 .title(F::presentableName() + " List")
                 .shared_from_this();
         });

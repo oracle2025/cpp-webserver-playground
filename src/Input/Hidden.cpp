@@ -1,14 +1,18 @@
 #include "Hidden.hpp"
 
+#include "String/escape.hpp"
+
 #include <sstream>
 
-using std::ostringstream;
 namespace Input {
+
+using std::ostringstream;
+
 string Hidden::operator()()
 {
     ostringstream str;
     str << R"(<input type="hidden" id=")" << m_label << R"(" name=")" << m_label
-        << R"(" value=")" << m_value << R"(">)";
+        << R"(" value=")" << String::escape(m_value) << R"(">)";
     return str.str();
 }
 Hidden::Hidden(string label, string value)

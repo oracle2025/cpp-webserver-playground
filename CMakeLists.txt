@@ -164,7 +164,12 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/String/escape.hpp
     src/String/escape.cpp
     src/Impl/PocoPageHandler.cpp
-    src/Impl/PocoPageHandler.hpp)
+    src/Impl/PocoPageHandler.hpp
+          src/Data/Event.cpp
+          src/Data/Event.h
+          src/Input/Date.cpp
+          src/Input/Date.h
+          src/Input/TimeElement.cpp)
   target_compile_definitions(
     webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 

@@ -1,6 +1,7 @@
 #include "LoginServerApplication.hpp"
 
 #include "Filter/ByOwner.hpp"
+#include "Data/Event.h"
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "LoginController.hpp"
@@ -16,6 +17,7 @@ int LoginServerApplication::main(const vector<string>& args)
 {
     auto secretHandlers = RequestHandlerList{
         make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
+        make_shared<CrudController<SimpleWebServer, Data::Event>>("/event"),
         make_shared<PasswordChangeController<SimpleWebServer>>("/password")};
     shared_ptr<RequestHandler> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST

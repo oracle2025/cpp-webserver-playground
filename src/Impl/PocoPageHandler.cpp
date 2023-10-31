@@ -34,12 +34,17 @@ void PocoPageHandler::handleRequest(
         return;
     }
     const Http::Method method = methods.at(request.getMethod());
-    string userAgent{""};
+    string userAgent;
     if (request.has("User-Agent")) {
         userAgent = request.get("User-Agent");
     }
     const Request req(
-        uri.getPath(), cookiesMap, parameters, uri.getQuery(), method, userAgent);
+        uri.getPath(),
+        cookiesMap,
+        parameters,
+        uri.getQuery(),
+        method,
+        userAgent);
     shared_ptr<Response> result;
     try {
         result = handler(req);
@@ -78,4 +83,40 @@ void PocoPageHandler::handleRequest(
 Input::FormPtr PocoPageHandler::form() const
 {
     return m_form;
+}
+Request PocoPageHandler::convertPocoRequest(
+    PocoPageHandler::HTTPServerRequest& request)
+{
+    using HTTPCookie = Poco::Net::HTTPCookie;
+    NameValueCollection cookies;
+    request.getCookies(cookies);
+    Poco::URI uri(request.getURI());
+    spdlog::info("Request: {}", uri.toString());
+    HTMLForm form(request, request.stream());
+    map<string, string> parameters;
+    map<string, string> cookiesMap;
+    for (auto& [key, value] : cookies) {
+        cookiesMap[key] = value;
+    }
+    for (auto& [key, value] : form) {
+        parameters[key] = value;
+    }
+    map<string, Http::Method> methods
+        = {{Poco::Net::HTTPRequest::HTTP_GET, Http::Method::GET},
+           {Poco::Net::HTTPRequest::HTTP_POST, Http::Method::POST}};
+    if (methods.find(request.getMethod()) == methods.end()) {
+        methods[request.getMethod()] = Http::Method::GET;
+    }
+    const Http::Method method = methods.at(request.getMethod());
+    string userAgent;
+    if (request.has("User-Agent")) {
+        userAgent = request.get("User-Agent");
+    }
+    return {
+        uri.getPath(),
+        cookiesMap,
+        parameters,
+        uri.getQuery(),
+        method,
+        userAgent};
 }

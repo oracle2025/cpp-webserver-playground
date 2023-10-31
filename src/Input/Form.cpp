@@ -3,6 +3,8 @@
 
 #include "CheckBoxSelect.hpp"
 #include "Data/Record.hpp"
+#include "Date.h"
+#include "TimeElement.h"
 #include "Hidden.hpp"
 #include "Text.hpp"
 
@@ -25,6 +27,12 @@ Form::Form(const Record& record, string action, string method)
             break;
         case HtmlInputType::CHECKBOX:
             m_pureElements.push_back(make_shared<CheckBoxSelect>(key, value));
+            break;
+        case HtmlInputType::DATE:
+            m_pureElements.push_back(make_shared<Date>(key, value));
+            break;
+        case HtmlInputType::TIME:
+            m_pureElements.push_back(make_shared<TimeElement>(key, value));
             break;
         default:
             m_pureElements.push_back(make_shared<Text>(key, value));

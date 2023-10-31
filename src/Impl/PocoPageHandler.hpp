@@ -22,6 +22,7 @@ public:
     Input::FormPtr form() const;
 
 private:
+    static Request convertPocoRequest(HTTPServerRequest& request);
     handler_type handler;
     shared_ptr<Presentation> m_presentation;
     Input::FormPtr m_form;

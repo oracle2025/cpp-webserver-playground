@@ -27,7 +27,7 @@ struct TodoDefinition {
     string& updated_at;
     bool& checked;
     string& user_id;
-    TodoDefinition(const RecordType& d)
+    explicit TodoDefinition(const RecordType& d)
         : data{d}
         , id(data.get<0>())
         , m_description(data.get<1>())
