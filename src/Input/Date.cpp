@@ -3,6 +3,7 @@
 #include "String/escape.hpp"
 
 #include <sstream>
+#include <algorithm>
 
 namespace Input {
 
