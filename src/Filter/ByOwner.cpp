@@ -5,12 +5,6 @@
 #include <algorithm>
 
 namespace Filter {
-ByOwner::ByOwner()
-{
-}
-ByOwner::ByOwner(const string& userId)
-{
-}
 string ByOwner::key() const
 {
     return m_todo.key();
@@ -84,6 +78,7 @@ string ByOwner::description() const
     return m_todo.description();
 }
 ByOwner::ByOwner(const Http::Request& request)
+        : m_todo(request)
 {
     using Http::Session;
 

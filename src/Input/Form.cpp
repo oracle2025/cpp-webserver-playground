@@ -34,6 +34,12 @@ Form::Form(const Record& record, string action, string method)
         case HtmlInputType::TIME:
             m_pureElements.push_back(make_shared<TimeElement>(key, value));
             break;
+        case HtmlInputType::TEXT:
+        case HtmlInputType::NUMBER:
+        case HtmlInputType::DATETIME:
+        case HtmlInputType::RADIO:
+        case HtmlInputType::TEXTAREA:
+        case HtmlInputType::SELECT:
         default:
             m_pureElements.push_back(make_shared<Text>(key, value));
         }

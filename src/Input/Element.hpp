@@ -8,6 +8,7 @@ using std::string;
 namespace Input {
 
 struct Element {
+    virtual ~Element() = default;
     virtual string operator()() = 0;
 
     virtual string name() const = 0;

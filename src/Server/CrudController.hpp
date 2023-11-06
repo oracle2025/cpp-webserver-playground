@@ -61,12 +61,12 @@ struct CrudController : public T {
             std::is_base_of<WebServer, T>::value, "T not derived from WebServer");
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
-            F record;
+            F record(request);
             return content(Form(record, prefix + "/create", "post")
                                .appendElement(make_shared<Submit>(
-                                   "Create " + F::presentableName()))())
+                                   "Create " + record.presentableName()))())
                 ->appendNavBarAction({"Start", "/"})
-                .title("Create " + F::presentableName())
+                .title("Create " + record.presentableName())
                 .shared_from_this();
         });
         T::router().post(prefix + "/create", [prefix](const Request& request) {
@@ -80,7 +80,7 @@ struct CrudController : public T {
             }
             record.insert();
             return redirect(prefix + "/edit?" + record.key())
-                ->alert(F::presentableName() + " created", Html::AlertType::SUCCESS)
+                ->alert(record.presentableName() + " created", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
         T::router().get(prefix + "/edit", [prefix](const Request& request) {
@@ -92,12 +92,12 @@ struct CrudController : public T {
                                    string(prefix + "/update?") + record.key(),
                                    "post")
                                    .appendElement(make_shared<Submit>(
-                                       "Update " + F::presentableName()))())
+                                       "Update " + record.presentableName()))())
                     ->appendNavBarAction({"Start", "/"})
-                    .title("Edit " + F::presentableName())
+                    .title("Edit " + record.presentableName())
                     .shared_from_this();
             } else {
-                return recordNotFound(prefix);
+                return recordNotFound(prefix, record.presentableName());
             }
         });
         T::router().post(prefix + "/update", [prefix](const Request& request) {
@@ -111,11 +111,11 @@ struct CrudController : public T {
                 record.update();
                 return redirect(prefix + "/edit?" + record.key())
                     ->alert(
-                        F::presentableName() + " updated",
+                        record.presentableName() + " updated",
                         Html::AlertType::SUCCESS)
                     .shared_from_this();
             } else {
-                return recordNotFound(prefix);
+                return recordNotFound(prefix, record.presentableName());
             }
         });
         T::router().post(prefix + "/mark", [prefix](const Request& request) {
@@ -155,7 +155,7 @@ struct CrudController : public T {
                         .shared_from_this();
                 }
             } else {
-                return recordNotFound(prefix);
+                return recordNotFound(prefix, record.presentableName());
             }
         });
         T::router().get(prefix + "/delete", [prefix](const Request& request) {
@@ -168,7 +168,7 @@ struct CrudController : public T {
                         Html::AlertType::WARNING)
                     .shared_from_this();
             } else {
-                return recordNotFound(prefix);
+                return recordNotFound(prefix, record.presentableName());
             }
         });
         T::router().get(prefix + "/confirm", [prefix](const Request& request) {
@@ -179,7 +179,7 @@ struct CrudController : public T {
                     ->appendNavBarAction({"Start", "/"})
                     .shared_from_this();
             } else {
-                return recordNotFound(prefix);
+                return recordNotFound(prefix, record.presentableName());
             }
         });
         T::router().get(prefix + "/", [prefix](const Request& request) {
@@ -192,10 +192,10 @@ struct CrudController : public T {
                                prefix + "/mark",
                                "post")())
                 ->appendAction(
-                    {"Create new " + F::presentableName(), prefix + "/new"})
+                    {"Create new " + record.presentableName(), prefix + "/new"})
                 .appendNavBarAction({"Start", "/"})
                 .appendNavBarAction({"Create Event", "/event/new"})
-                .title(F::presentableName() + " List")
+                .title(record.presentableName() + " List")
                 .shared_from_this();
         });
         if (!prefix.empty()) {
@@ -209,9 +209,9 @@ struct CrudController : public T {
         T::defaultHandler(Http::NullHandler);
         T::finish_init();
     }
-    static shared_ptr<Response> recordNotFound(const string& prefix)
+    static shared_ptr<Response> recordNotFound(const string& prefix, const string& presentableName)
     {
-        return content(F::presentableName() + " not found")
+        return content(presentableName + " not found")
             ->code(Response::NOT_FOUND)
             .appendNavBarAction({"Start", "/"})
             .shared_from_this();

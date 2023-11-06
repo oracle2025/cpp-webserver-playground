@@ -16,8 +16,8 @@ using std::shared_ptr;
 using std::string;
 using std::vector;
 
-struct Response : public enable_shared_from_this<Response> {
-
+class Response : public enable_shared_from_this<Response> {
+public:
     static const int NOT_FOUND = 404;
     static const int UNAUTHORIZED = 401;
     static const int HTTP_FOUND = 302;

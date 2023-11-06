@@ -9,7 +9,6 @@ Exception::Exception(
     const std::string& message, const char* filename, unsigned int line)
     : std::runtime_error(message)
     , filename(filename)
-    , line(line)
 {
     using path = std::filesystem::path;
     stacktrace.load_here(32);

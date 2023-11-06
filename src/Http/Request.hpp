@@ -8,7 +8,8 @@ namespace Http {
 
 enum class Method { GET, POST };
 
-struct Request {
+class Request {
+public:
     Request(
         string path,
         map<string, string> cookies = {},

@@ -33,7 +33,7 @@ shared_ptr<Http::Response> Confirm::operator()()
 }
 Confirm::Confirm(const string& prefix, const Record& todo, const string& description)
     : prefix(prefix)
-    , todo(todo)
     , description(description)
+    , todo(todo)
 {
 }

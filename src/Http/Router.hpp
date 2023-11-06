@@ -15,8 +15,8 @@ using std::map;
 using std::shared_ptr;
 using std::string;
 
-struct Request;
-struct Response;
+class Request;
+class Response;
 
 using handler_type = function<shared_ptr<Response>(const Request& request)>;
 

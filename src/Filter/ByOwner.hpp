@@ -14,8 +14,6 @@ using std::vector;
 class ByOwner : public Record {
 public:
     ByOwner(const Http::Request& request);
-    ByOwner();
-    ByOwner(const string& userId);
     string key() const override;
     vector<KeyStringType> fields() const override;
     map<KeyStringType, string> values() const override;

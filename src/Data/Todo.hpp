@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace Poco::Data {
@@ -27,8 +28,8 @@ struct TodoDefinition {
     string& updated_at;
     bool& checked;
     string& user_id;
-    explicit TodoDefinition(const RecordType& d)
-        : data{d}
+    explicit TodoDefinition(RecordType  d)
+        : data{std::move(d)}
         , id(data.get<0>())
         , m_description(data.get<1>())
         , created_at(data.get<2>())

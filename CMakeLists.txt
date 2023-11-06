@@ -3,7 +3,36 @@ project(cpp_webserver_kata)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_compile_options(-fsanitize=address,undefined)
+add_compile_options(-fsanitize=address,undefined
+        -Wall -Wextra -Werror -Wpedantic
+        -Wno-unused-parameter -Wno-unused-variable
+        -Wno-unused-but-set-variable -Wno-unused-function
+        -Wno-unused-lambda-capture -Wno-unused-local-typedef
+        -Wno-unused-value -Wno-unused-const-variable
+        -Wfloat-equal
+        -Wconversion
+        # -Wundef
+        -Wredundant-decls
+        -Wshadow
+        -Wstrict-overflow=2
+        -Wwrite-strings
+        -Wpointer-arith
+        -Wcast-qual
+        -Wformat=2
+        -Wmissing-include-dirs
+        -Wcast-align
+        -Wswitch-enum
+        -Wsign-conversion
+        -Wdisabled-optimization
+
+        -Winvalid-pch
+        -Wmissing-declarations
+        -Wdouble-promotion
+        -Wshadow
+        -Wshift-overflow
+        -Wnull-dereference
+        -Wcast-align
+     )
 add_link_options(-fsanitize=address,undefined)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
@@ -50,17 +79,17 @@ if(ENABLE_BACKWARD)
   FetchContent_MakeAvailable(backward)
 endif()
 
-include_directories(${PROJECT_BINARY_DIR}/include)
+include_directories(SYSTEM ${PROJECT_BINARY_DIR}/include )
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
 if(${Poco_FOUND} AND ${spdlog_FOUND})
 
   add_library(
     webservers OBJECT
-    src/stb/stb_image.h
-    src/stb/stb_image_resize.h
-    src/stb/stb_image_write.h
-    src/stb/stb_implementation.cpp
+    # src/stb/stb_image.h
+    # src/stb/stb_image_resize.h
+    # src/stb/stb_image_write.h
+    # src/stb/stb_implementation.cpp
     src/Data/Todo.cpp
     src/Data/Todo.hpp
     src/Html/Table.cpp
@@ -153,8 +182,8 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     src/Filter/ByOwner.hpp
     src/Data/MigrationsV2.cpp
     src/Data/MigrationsV2.hpp
-    src/ImageBrowser/ImageBrowserController.hpp
-    src/ImageBrowser/ImageBrowserApplication.cpp
+    # src/ImageBrowser/ImageBrowserController.hpp
+    # src/ImageBrowser/ImageBrowserApplication.cpp
     src/Data/PasswordSalting.cpp
     src/Data/PasswordSalting.hpp
     src/Data/MigrationsV3.cpp
@@ -169,7 +198,9 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
           src/Data/Event.h
           src/Input/Date.cpp
           src/Input/Date.h
-          src/Input/TimeElement.cpp)
+          src/Input/TimeElement.cpp
+          src/Events/CalendarController.cpp
+          src/Events/CalendarController.hpp)
   target_compile_definitions(
     webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -207,7 +238,7 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     tests/PasswordChangeTest.cpp
     tests/SignupTest.cpp
     tests/ByOwnerTest.cpp
-    tests/ImageBrowserTest.cpp
+    # tests/ImageBrowserTest.cpp
     tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp)
   target_link_libraries(tests webservers)
   target_include_directories(tests PRIVATE tests)
@@ -228,9 +259,9 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
   add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
   target_link_libraries(login-server webservers)
 
-  add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
-                                      tests/doctest_impl.cpp)
-  target_link_libraries(image-browser-server webservers)
+  # add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
+  #                                     tests/doctest_impl.cpp)
+  # target_link_libraries(image-browser-server webservers)
 
   install(TARGETS login-server DESTINATION bin)
 
@@ -240,7 +271,7 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
     add_backward(test-migration)
     add_backward(crud-server)
     add_backward(login-server)
-    add_backward(image-browser-server)
+    # add_backward(image-browser-server)
   endif()
 endif()
 

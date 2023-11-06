@@ -9,15 +9,14 @@ namespace Trace {
 class Exception : public std::runtime_error {
     std::string _message;
     std::string filename;
-    unsigned int line;
     backward::StackTrace stacktrace;
 public:
     Exception(
         const std::string& message, const char* filename, unsigned int line);
 
-    ~Exception() throw() = default;
+    ~Exception() noexcept override = default;
 
-    const char * what() const throw()
+    const char * what() const throw() override
     {
         return _message.c_str();
     }

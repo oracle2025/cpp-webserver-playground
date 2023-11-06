@@ -7,10 +7,12 @@
 #include "LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "User/PasswordChangeController.hpp"
+#include "Events/CalendarController.hpp"
 #include "doctest.h"
 
 using Http::RequestDispatcher;
 using Http::RequestHandlerList;
+using Events::CalendarController;
 using std::make_shared;
 
 int LoginServerApplication::main(const vector<string>& args)
@@ -18,7 +20,8 @@ int LoginServerApplication::main(const vector<string>& args)
     auto secretHandlers = RequestHandlerList{
         make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
         make_shared<CrudController<SimpleWebServer, Data::Event>>("/event"),
-        make_shared<PasswordChangeController<SimpleWebServer>>("/password")};
+        make_shared<PasswordChangeController<SimpleWebServer>>("/password"),
+        make_shared<CalendarController<SimpleWebServer>>("/calendar")};
     shared_ptr<RequestHandler> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
     adminHandler

@@ -3,8 +3,8 @@
 
 namespace Http {
 using std::shared_ptr;
-struct Response;
-struct Request;
+class Response;
+class Request;
 
 class RequestHandler {
 public:

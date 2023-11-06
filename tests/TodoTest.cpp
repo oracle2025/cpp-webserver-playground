@@ -18,8 +18,8 @@ TEST_CASE("todo")
     Data::MigrationsV2 m;
     m.perform();
 
-    Todo todo = Todo::RecordType{
-        "0123", "Buy Milk", time_string(), time_string(), 0};
+    Todo todo{Todo::RecordType{
+        "0123", "Buy Milk", time_string(), time_string(), 0}};
     todo.insert();
     auto id = todo.key();
     SUBCASE("list")
@@ -41,9 +41,9 @@ TEST_CASE("todo")
         t.set("description", "Buy Milk and Eggs");
         t.update();
         {
-            Todo t;
-            t.pop(id);
-            CHECK(t.description() == "Buy Milk and Eggs");
+            Todo t2;
+            t2.pop(id);
+            CHECK(t2.description() == "Buy Milk and Eggs");
         }
     }
     SUBCASE("erase")

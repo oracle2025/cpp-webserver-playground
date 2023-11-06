@@ -43,8 +43,18 @@ string List::operator()()
                         << R"(" value="yes" onchange="submitForm(this);"></td>)";
                 }
                 break;
+            case HtmlInputType::TEXT:
+            case HtmlInputType::NUMBER:
+            case HtmlInputType::DATE:
+            case HtmlInputType::DATETIME:
+            case HtmlInputType::TIME:
+            case HtmlInputType::RADIO:
+            case HtmlInputType::TEXTAREA:
+            case HtmlInputType::SELECT:
+            case HtmlInputType::HIDDEN:
             default:
-                str << R"(<td class="max">)" << String::escape(values[column]) << "</td>";
+                str << R"(<td class="max">)" << String::escape(values[column])
+                    << "</td>";
                 break;
             }
         }

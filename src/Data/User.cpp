@@ -41,10 +41,10 @@ string UserDefinition::get(const KeyStringType& key) const
 }
 
 
-void UserDefinition::setPassword(const string& password)
+void UserDefinition::setPassword(const string& _password)
 {
     salt = String::createRandomUUID();
-    this->password = PasswordSalting(password, salt).hash();
+    password = PasswordSalting(_password, salt).hash();
 }
 string UserDefinition::table_name() const
 {
