@@ -78,9 +78,7 @@ TEST_CASE("Login Logout Cookies Test")
     CHECK(cookies.size() == 1);
     // CHECK(response.result() == "");
 }
-struct Form {
-    map<string, string>& fields();
-};
+
 TEST_CASE("Render Alert after Redirect")
 {
     Poco::Data::SQLite::Connector::registerConnector();

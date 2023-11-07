@@ -35,6 +35,11 @@ add_compile_options(-fsanitize=address,undefined
      )
 add_link_options(-fsanitize=address,undefined)
 
+#run clang-tidy only on linux
+if(UNIX AND NOT APPLE)
+  set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=*")
+endif()
+
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 
 include(GNUInstallDirs)
@@ -200,7 +205,9 @@ if(${Poco_FOUND} AND ${spdlog_FOUND})
           src/Input/Date.h
           src/Input/TimeElement.cpp
           src/Events/CalendarController.cpp
-          src/Events/CalendarController.hpp)
+          src/Events/CalendarController.hpp
+          src/Data/ScaffoldRecord.cpp
+          src/Data/ScaffoldRecord.hpp)
   target_compile_definitions(
     webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 

@@ -10,8 +10,8 @@ class Alert {
 public:
     explicit Alert(const string& alert, AlertType type = AlertType::DANGER);
     Alert() = default;
-    string message() const;
-    AlertType alertType() const;
+    [[nodiscard]] string message() const;
+    [[nodiscard]] AlertType alertType() const;
     string typeAsString() const;
     static AlertType fromString(const string& alertStr);
 
