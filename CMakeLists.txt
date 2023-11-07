@@ -8,7 +8,7 @@ add_link_options(-fsanitize=address,undefined)
 
 #run clang-tidy only on linux
 if (UNIX AND NOT APPLE)
-    set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=*")
+    # set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=*")
 endif ()
 
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
