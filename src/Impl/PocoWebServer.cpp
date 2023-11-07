@@ -14,9 +14,6 @@ void PocoWebServer::finish_init()
     using HTTPRequestHandlerFactory = Poco::Net::HTTPRequestHandlerFactory;
     using HTTPRequestHandler = Poco::Net::HTTPRequestHandler;
     using HTTPServerRequest = Poco::Net::HTTPServerRequest;
-    using HTTPServerResponse = Poco::Net::HTTPServerResponse;
-    using HTMLForm = Poco::Net::HTMLForm;
-    using NameValueCollection = Poco::Net::NameValueCollection;
     ServerSocket socket(SocketAddress("localhost", SERVER_PORT));
     auto pParams = new HTTPServerParams();
     class HandlerFactory : public HTTPRequestHandlerFactory {
