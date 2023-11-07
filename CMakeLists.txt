@@ -199,7 +199,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             # -Wmissing-include-dirs
             -Wcast-align
             -Wswitch-enum
-            -Wsign-conversion
+            #-Wsign-conversion
             -Wdisabled-optimization
 
             -Winvalid-pch
