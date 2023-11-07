@@ -187,16 +187,16 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             -Wno-unused-lambda-capture -Wno-unused-local-typedef
             -Wno-unused-value -Wno-unused-const-variable
             -Wfloat-equal
-            -Wconversion
+            # -Wconversion
             # -Wundef
             -Wredundant-decls
-            -Wshadow
+            # -Wshadow
             -Wstrict-overflow=2
             -Wwrite-strings
             -Wpointer-arith
             -Wcast-qual
             -Wformat=2
-            -Wmissing-include-dirs
+            # -Wmissing-include-dirs
             -Wcast-align
             -Wswitch-enum
             -Wsign-conversion
