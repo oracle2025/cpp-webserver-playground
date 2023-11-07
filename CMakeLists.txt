@@ -184,7 +184,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     target_compile_options(webservers PUBLIC         -Wall -Wextra -Werror -Wpedantic
             -Wno-unused-parameter -Wno-unused-variable
             -Wno-unused-but-set-variable -Wno-unused-function
-            -Wno-unused-lambda-capture -Wno-unused-local-typedef
+            -Wno-unused-lambda-capture
+            # -Wno-unused-local-typedef
             -Wno-unused-value -Wno-unused-const-variable
             -Wfloat-equal
             # -Wconversion
