@@ -87,7 +87,6 @@ Input::FormPtr PocoPageHandler::form() const
 Request PocoPageHandler::convertPocoRequest(
     PocoPageHandler::HTTPServerRequest& request)
 {
-    using HTTPCookie = Poco::Net::HTTPCookie;
     NameValueCollection cookies;
     request.getCookies(cookies);
     Poco::URI uri(request.getURI());
