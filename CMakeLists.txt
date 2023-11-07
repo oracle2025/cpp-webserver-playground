@@ -205,7 +205,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             -Winvalid-pch
             -Wmissing-declarations
             -Wdouble-promotion
-            -Wshadow
             -Wshift-overflow
             -Wnull-dereference
             -Wcast-align)
