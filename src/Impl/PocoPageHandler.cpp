@@ -1,8 +1,10 @@
 #include "PocoPageHandler.hpp"
+
+#include <utility>
 PocoPageHandler::PocoPageHandler(
     handler_type handler, shared_ptr<Presentation> presentation)
-    : handler(handler)
-    , m_presentation(presentation)
+    : handler(std::move(handler))
+    , m_presentation(std::move(presentation))
 {
 }
 void PocoPageHandler::handleRequest(
