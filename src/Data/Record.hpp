@@ -33,8 +33,8 @@ struct KeyStringType : public string {
 class Record {
 public:
     virtual ~Record() = default;
-    virtual string key() const = 0;
-    virtual std::vector<KeyStringType> fields() const = 0;
-    virtual std::map<KeyStringType, string> values() const = 0;
-    virtual HtmlInputType inputType(const KeyStringType& field) const = 0;
+    [[nodiscard]] virtual string key() const = 0;
+    [[nodiscard]] virtual std::vector<KeyStringType> fields() const = 0;
+    [[nodiscard]] virtual std::map<KeyStringType, string> values() const = 0;
+    [[nodiscard]] virtual HtmlInputType inputType(const KeyStringType& field) const = 0;
 };

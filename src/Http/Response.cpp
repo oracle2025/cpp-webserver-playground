@@ -105,6 +105,15 @@ Response& Response::mimetype(const string& mimetype)
     m_mimetype = mimetype;
     return *this;
 }
+bool Response::noPresentation() const
+{
+    return m_noPresentation;
+}
+Response& Response::noPresentation(bool noPresentation)
+{
+    m_noPresentation = noPresentation;
+    return *this;
+}
 Response& Response::form(Input::FormPtr form)
 {
     m_form = std::move(form);

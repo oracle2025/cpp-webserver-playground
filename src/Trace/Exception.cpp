@@ -1,5 +1,6 @@
 
 #include "Exception.hpp"
+#include "trace.hpp"
 
 #include <Poco/Exception.h>
 #include <filesystem>
@@ -17,8 +18,7 @@ Exception::Exception(
         = path(filename).filename().string() + ":" + std::to_string(line) + " : " + message;
 }
 
-void backtrace(std::exception_ptr ex, std::ostream& out, int level);
-void backtrace(std::exception_ptr ex, std::ostream& out, int level)
+void backtrace(const std::exception_ptr& ex, std::ostream& out, int level)
 {
     try {
         try {

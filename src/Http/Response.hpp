@@ -73,6 +73,10 @@ public:
 
     Response& mimetype(const string& mimetype);
 
+    bool noPresentation() const;
+
+    Response& noPresentation(bool noPresentation);
+
 private:
     string m_content;
     map<string, string> m_cookies;
@@ -84,6 +88,7 @@ private:
     string m_title;
     Html::Alert m_alert;
     bool m_sendFile = false;
+    bool m_noPresentation = false;
     string m_filename;
     Input::FormPtr m_form;
 };

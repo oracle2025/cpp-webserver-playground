@@ -19,7 +19,7 @@ TEST_CASE("todo")
     m.perform();
 
     Todo todo{Todo::RecordType{
-        "0123", "Buy Milk", time_string(), time_string(), 0}};
+        "0123", "Buy Milk", time_string(), time_string(), false}};
     todo.insert();
     auto id = todo.key();
     SUBCASE("list")

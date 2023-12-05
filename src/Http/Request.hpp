@@ -6,7 +6,7 @@ using std::map;
 using std::string;
 namespace Http {
 
-enum class Method { GET, POST };
+enum class Method { GET, POST, METHOD_NOT_ALLOWED };
 
 class Request {
 public:

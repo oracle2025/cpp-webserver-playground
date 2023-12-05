@@ -50,7 +50,7 @@ void TodoDefinition::set(const KeyStringType& key, const string& value)
     } else if (key == "updated_at") {
         updated_at = value;
     } else if (key == "checked") {
-        value == "yes" ? checked = 1 : checked = 0;
+        value == "yes" ? checked = true : checked = false;
     } else if (key == "user_id") {
         user_id = value;
     }

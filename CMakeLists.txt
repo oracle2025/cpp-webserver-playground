@@ -16,6 +16,14 @@ set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 include(GNUInstallDirs)
 set(TODO_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo)
 add_definitions(-DTODO_DATABASE_DIR="${TODO_DATABASE_DIR}")
+# Provide define with CMAKE config dir
+# if build mode is debug, set config dir to the users home folder
+if (CMAKE_BUILD_TYPE STREQUAL "Debug-Coverage")
+    add_definitions(-DCONFIG_DIR="${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo")
+else()
+    add_definitions(-DCONFIG_DIR="$ENV{HOME}/.todo")
+endif()
+
 
 install(DIRECTORY DESTINATION ${TODO_DATABASE_DIR})
 
@@ -37,9 +45,9 @@ option(ENABLE_BACKWARD "Enable backward stack tracing library" ON)
 
 find_package(Threads)
 if (APPLE)
-    find_package(Poco COMPONENTS Net Util Data DataSQLite)
+    find_package(Poco COMPONENTS Net Util Data DataSQLite NetSSL)
 else ()
-    find_package(Poco COMPONENTS Net Util Data DataSQLite Crypto)
+    find_package(Poco COMPONENTS Net Util Data DataSQLite Crypto NetSSL)
     add_definitions(-DUSE_POCO_CRYPTO)
 endif ()
 find_package(spdlog)
@@ -171,17 +179,28 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Impl/PocoPageHandler.cpp
             src/Impl/PocoPageHandler.hpp
             src/Data/Event.cpp
-            src/Data/Event.h
+            src/Data/Event.hpp
             src/Input/Date.cpp
             src/Input/Date.h
             src/Input/TimeElement.cpp
             src/Events/CalendarController.cpp
             src/Events/CalendarController.hpp
             src/Data/ScaffoldRecord.cpp
-            src/Data/ScaffoldRecord.hpp)
+            src/Data/ScaffoldRecord.hpp
+            src/Invoices/InvoicesApplication.cpp
+            src/Invoices/InvoicesApplication.hpp
+            src/Email/SendEmail.cpp
+            src/Email/SendEmail.hpp
+            src/Events/WeeklyAgenda.cpp
+            src/Events/WeeklyAgenda.hpp
+            src/Events/EventList.cpp
+            src/Events/EventList.hpp
+            src/Data/Date.cpp
+            src/Data/Date.hpp
+            src/Server/bunfet-example.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-    target_compile_options(webservers PUBLIC         -Wall -Wextra -Werror -Wpedantic
+    target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
             -Wno-unused-parameter -Wno-unused-variable
             -Wno-unused-but-set-variable -Wno-unused-function
             -Wno-unused-lambda-capture
@@ -214,6 +233,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             Poco::Net
             Poco::Util
             Poco::Data
+            Poco::NetSSL
             Threads::Threads
             Poco::DataSQLite
             spdlog::spdlog)
@@ -264,6 +284,17 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
 
+    add_executable(invoices-server src/Invoices/InvoicesMain.cpp tests/doctest_impl.cpp)
+    target_link_libraries(invoices-server webservers)
+
+    add_executable(send-email src/Email/SendEmailMain.cpp)
+    target_link_libraries(send-email PRIVATE
+            Poco::Net
+            Poco::Util
+            Poco::Data
+            Poco::NetSSL
+    )
+
     # add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
     #                                     tests/doctest_impl.cpp)
     # target_link_libraries(image-browser-server webservers)
@@ -276,6 +307,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(test-migration)
         add_backward(crud-server)
         add_backward(login-server)
+        add_backward(invoices-server)
         # add_backward(image-browser-server)
     endif ()
 endif ()

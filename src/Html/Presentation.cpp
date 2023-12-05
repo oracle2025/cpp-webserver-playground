@@ -6,6 +6,9 @@ namespace Html {
 
 string Presentation::render(const Response& response)
 {
+    if (response.noPresentation()) {
+        return response.content();
+    }
     if (response.mimetype() == "text/html") {
         return renderHtml(response);
     }

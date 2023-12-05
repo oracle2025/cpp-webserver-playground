@@ -1,4 +1,8 @@
 #pragma once
+#include "Data/Event.hpp"
+#include "Email/SendEmail.hpp"
+#include "Events/EventList.hpp"
+#include "Events/WeeklyAgenda.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "NullHandler.hpp"
@@ -39,6 +43,26 @@ public:
             str << "</tr>";
             str << "</table>";
             return content(str.str())
+                ->appendNavBarAction({"Start", "/"})
+                .title("Calendar")
+                .shared_from_this();
+        });
+        T::router().get(
+            prefix + "/send_weekly_agenda", [](const Request& request) {
+                EventList events{Data::Event(request).listAsPointers()};
+                const auto agenda = Events::WeeklyAgenda(events);
+                const auto rendered = agenda.render();
+                Email::SendEmail("", "", "").sendHTML("", "", "", rendered);
+                return content("send_weekly_agenda")
+                    ->appendNavBarAction({"Start", "/"})
+                    .title("Calendar")
+                    .shared_from_this();
+            });
+        T::router().get(prefix+"/weekly_agenda", [](const Request& request) {
+            EventList events{Data::Event(request).listAsPointers()};
+            const auto agenda = Events::WeeklyAgenda(events);
+            const auto rendered = agenda.render();
+            return content(rendered)
                 ->appendNavBarAction({"Start", "/"})
                 .title("Calendar")
                 .shared_from_this();

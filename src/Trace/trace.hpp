@@ -3,7 +3,7 @@
 #include "Exception.hpp"
 namespace Trace {
 
-void backtrace(std::exception_ptr ex, std::ostream& out = std::cerr, int level = 0);
+void backtrace(const std::exception_ptr& ex, std::ostream& out = std::cerr, int level = 0);
 } // namespace Trace
 
 #define TRACE_THROW(message)                                                   \

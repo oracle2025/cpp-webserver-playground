@@ -1,13 +1,13 @@
 #include "LoginServerApplication.hpp"
 
+#include "Data/Event.hpp"
+#include "Events/CalendarController.hpp"
 #include "Filter/ByOwner.hpp"
-#include "Data/Event.h"
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "User/PasswordChangeController.hpp"
-#include "Events/CalendarController.hpp"
 #include "doctest.h"
 
 using Http::RequestDispatcher;
@@ -37,6 +37,9 @@ int LoginServerApplication::main(const vector<string>& args)
         adminHandler,
         publicHandler,
         std::make_shared<Presentation>());
+
+    //server.addButtonBar({"Calendar", "Events", "Todo", "Users", "Tickets"});
+
     server.start();
     waitForTerminationRequest();
     server.stop();

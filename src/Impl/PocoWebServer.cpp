@@ -1,5 +1,7 @@
 #include "PocoWebServer.hpp"
 
+#include <utility>
+
 #include "PocoPageHandler.hpp"
 #include "spdlog/spdlog.h"
 
@@ -24,12 +26,12 @@ void PocoWebServer::finish_init()
             shared_ptr<Presentation> presentation)
             : router(router)
             , m_defaultHandler(defaultHandler)
-            , m_presentation(presentation)
+            , m_presentation(std::move(presentation))
         {
         }
 
         HTTPRequestHandler* createRequestHandler(
-            const HTTPServerRequest& request)
+            const HTTPServerRequest& request) override
         {
             auto uri = Poco::URI(request.getURI());
             auto method = convertPocoHttpMethod(request.getMethod());
@@ -39,7 +41,7 @@ void PocoWebServer::finish_init()
                 m_presentation);
         }
 
-        Http::Method convertPocoHttpMethod(const string& method)
+        static Http::Method convertPocoHttpMethod(const string& method)
         {
             const map<string, Http::Method> methods
                 = {{Poco::Net::HTTPRequest::HTTP_GET, Http::Method::GET},

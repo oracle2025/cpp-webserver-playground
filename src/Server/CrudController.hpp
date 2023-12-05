@@ -11,6 +11,7 @@
 #include "List.hpp"
 #include "Server/WebServer.hpp"
 #include "Submit.hpp"
+#include "bunfet-example.hpp"
 #include "style.hpp"
 /*
  * A Simple Todo List:
@@ -58,7 +59,8 @@ struct CrudController : public T {
         static_assert(
             std::is_base_of<Record, F>::value, "F not derived from Record");
         static_assert(
-            std::is_base_of<WebServer, T>::value, "T not derived from WebServer");
+            std::is_base_of<WebServer, T>::value,
+            "T not derived from WebServer");
         T::router().get(prefix + "/new", [prefix](const Request& request) {
             using namespace Input;
             F record(request);
@@ -76,11 +78,15 @@ struct CrudController : public T {
                 if (request.hasParameter(field)) {
                     record.set(field, request.parameter(field));
                 }
-                record.set("user_id", Session(request).userId());
+                if (field == "user_id") {
+                    record.set("user_id", Session(request).userId());
+                }
             }
             record.insert();
             return redirect(prefix + "/edit?" + record.key())
-                ->alert(record.presentableName() + " created", Html::AlertType::SUCCESS)
+                ->alert(
+                    record.presentableName() + " created",
+                    Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
         T::router().get(prefix + "/edit", [prefix](const Request& request) {
@@ -188,7 +194,7 @@ struct CrudController : public T {
             auto columns = record.presentableFields();
             return content(Form(
                                Html::List(record.listAsPointers(), columns)
-                                    .prefix(prefix)(),
+                                   .prefix(prefix)(),
                                prefix + "/mark",
                                "post")())
                 ->appendAction(
@@ -206,10 +212,17 @@ struct CrudController : public T {
         T::router().get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
         });
+        // Return bootstrap3 sample for testing in HaikuOS
+        T::router().get("/bunfet-example/", [](const Request& request) {
+            return content(BUNFET_EXAMPLE)
+                ->noPresentation(true)
+                .shared_from_this();
+        });
         T::defaultHandler(Http::NullHandler);
         T::finish_init();
     }
-    static shared_ptr<Response> recordNotFound(const string& prefix, const string& presentableName)
+    static shared_ptr<Response> recordNotFound(
+        const string& prefix, const string& presentableName)
     {
         return content(presentableName + " not found")
             ->code(Response::NOT_FOUND)
