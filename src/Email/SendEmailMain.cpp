@@ -16,6 +16,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 std::string read_string_from_file(const std::string& filename)
 {
