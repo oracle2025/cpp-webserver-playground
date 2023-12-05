@@ -13,6 +13,7 @@
 #include <Poco/Net/SecureStreamSocket.h>
 #include <Poco/Net/StringPartSource.h>
 #include <Poco/UUIDGenerator.h>
+#include <iostream>
 
 namespace Email {
 SendEmail::SendEmail(string server, string user, string password)
