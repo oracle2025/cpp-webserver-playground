@@ -1,4 +1,5 @@
 #include "InvoicesApplication.hpp"
+#include <iostream>
 using std::cerr;
 using std::endl;
 int main(const int argc, const char** argv)
