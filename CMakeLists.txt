@@ -18,7 +18,7 @@ set(TODO_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo)
 add_definitions(-DTODO_DATABASE_DIR="${TODO_DATABASE_DIR}")
 # Provide define with CMAKE config dir
 # if build mode is debug, set config dir to the users home folder
-if (CMAKE_BUILD_TYPE STREQUAL "Debug-Coverage")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DCONFIG_DIR="$ENV{HOME}/.todo")
 else()
     add_definitions(-DCONFIG_DIR="${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo")
