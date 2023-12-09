@@ -197,7 +197,10 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Events/EventList.hpp
             src/Data/Date.cpp
             src/Data/Date.hpp
-            src/Server/bunfet-example.hpp)
+            src/Server/bunfet-example.hpp
+            src/Email/SendEmailController.hpp
+            src/FileSystem/ReadFromFile.cpp
+            src/FileSystem/ReadFromFile.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
@@ -287,7 +290,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_executable(invoices-server src/Invoices/InvoicesMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(invoices-server webservers)
 
-    add_executable(send-email src/Email/SendEmailMain.cpp)
+    add_executable(send-email src/Email/SendEmailMain.cpp
+    src/Email/SendEmail.cpp)
     target_link_libraries(send-email PRIVATE
             Poco::Net
             Poco::Util

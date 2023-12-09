@@ -8,12 +8,14 @@
 #include "LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "User/PasswordChangeController.hpp"
+#include "Email/SendEmailController.hpp"
 #include "doctest.h"
 
 using Http::RequestDispatcher;
 using Http::RequestHandlerList;
 using Events::CalendarController;
 using std::make_shared;
+using Email::SendEmailController;
 
 int LoginServerApplication::main(const vector<string>& args)
 {
@@ -21,7 +23,9 @@ int LoginServerApplication::main(const vector<string>& args)
         make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
         make_shared<CrudController<SimpleWebServer, Data::Event>>("/event"),
         make_shared<PasswordChangeController<SimpleWebServer>>("/password"),
-        make_shared<CalendarController<SimpleWebServer>>("/calendar")};
+        make_shared<CalendarController<SimpleWebServer>>("/calendar"),
+        make_shared<SendEmailController<SimpleWebServer>>("/email"),
+    };
     shared_ptr<RequestHandler> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
     adminHandler

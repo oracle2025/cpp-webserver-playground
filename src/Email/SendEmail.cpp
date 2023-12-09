@@ -452,7 +452,7 @@ void SendEmail::sendHTML(
 )";
         message.addPart(
             "",
-            new Poco::Net::StringPartSource(htmlInline, "text/html"),
+            new Poco::Net::StringPartSource(body, "text/html"),
             MailMessage::CONTENT_INLINE,
             MailMessage::ENCODING_QUOTED_PRINTABLE);
         message.set(
