@@ -1,5 +1,7 @@
 #include "ReadFromFile.hpp"
 
+#include "Trace/trace.hpp"
+
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -7,6 +9,8 @@ namespace FileSystem {
 
 std::string ReadFromFile::read_string_from_file(const std::string& filename)
 {
+    try {
+
     const std::ifstream input_stream(filename, std::ios_base::binary);
 
     if (input_stream.fail()) {
@@ -20,6 +24,9 @@ std::string ReadFromFile::read_string_from_file(const std::string& filename)
     result.erase(
         std::remove_if(result.begin(), result.end(), isspace), result.end());
     return result;
+    } catch (const std::exception& e) {
+        TRACE_RETHROW("Error reading file: " + filename);
+    }
 }
 
 } // namespace FileSystem
