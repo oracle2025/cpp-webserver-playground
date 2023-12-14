@@ -27,9 +27,9 @@ string Submit::operator()()
     }
 
     if (m_class.empty()) {
-        buttonClass = "btn btn-success";
+        buttonClass = "btn btn-block btn-lg btn-success";
     } else {
-        buttonClass = "btn btn-" + m_class;
+        buttonClass = "btn btn-block btn-lg btn-" + m_class;
     }
 
     str << R"(<button class=")" << buttonClass << R"(" type="submit" )" << value

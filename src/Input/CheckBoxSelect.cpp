@@ -25,7 +25,7 @@ string CheckBoxSelect::operator()()
     str << R"(<label for=")" << m_label << R"(">)" << capitalized
         << R"(</label><br>)";
 
-    str << R"(<select name=")" << m_label << R"(" id=")" << m_label << R"(">)";
+    str << R"(<select class="form-control" name=")" << m_label << R"(" id=")" << m_label << R"(">)";
     if (m_value == "yes") {
         str << R"(<option value="yes" selected>Yes</option><option value="no">No</option>)";
 

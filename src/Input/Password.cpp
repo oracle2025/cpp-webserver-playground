@@ -20,7 +20,7 @@ string Password::operator()()
 
     ostringstream str;
     str << R"(<label for=")" << m_label << R"(">)" << capitalized
-        << R"(</label><br> <input type="password" id=")" << m_label
+        << R"(</label><br> <input class="form-control" type="password" id=")" << m_label
         << R"(" name=")" << m_label << R"(" value=")"
         << ""
         << R"(">)";

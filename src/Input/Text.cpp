@@ -21,7 +21,7 @@ string Text::operator()()
 
     ostringstream str;
     str << R"(<label for=")" << m_label << R"(">)" << capitalized
-        << R"(</label><br> <input type="text" id=")" << m_label << R"(" name=")"
+        << R"(</label><br> <input class="form-control" type="text" id=")" << m_label << R"(" name=")"
         << m_label << R"(" value=")" << String::escape(m_value) << R"(">)";
     return str.str();
 }

@@ -12,13 +12,13 @@ using std::ostringstream;
 string List::operator()()
 {
     ostringstream str;
-    str << R"(<table>)";
+    str << R"(<table class="table">)";
     if (m_withHeader) {
         str << R"(<thead><tr>)";
         for (const auto& column : columns) {
             str << R"(<th>)" << column << "</th>";
         }
-        str << "</tr></thead>";
+        str << "</tr></thead>\n";
     }
     int even = 0;
     for (const auto& record : records) {
@@ -54,18 +54,18 @@ string List::operator()()
             case HtmlInputType::HIDDEN:
             default:
                 str << R"(<td class="max">)" << String::escape(values[column])
-                    << "</td>";
+                    << "</td>\n";
                 break;
             }
         }
         str << R"(<td><a href=")" << m_prefix << R"(/edit?)" << record->key()
-            << R"(" class="edit button">)"
-            << R"(✏️ <span class="label">Edit</span></a>)"
-               "</td>";
+            << R"(" class="edit button btn btn-success">)"
+            << R"(✏️ Edit</a>)"
+               "</td>\n";
         str << R"(<td><a href=")" << m_prefix << R"(/delete?)" << record->key()
-            << R"(" class="remove button">)"
-            << R"(♻️ <span class="label">Delete</span></a>)"
-               "</td>";
+            << R"(" class="remove button btn btn-danger">)"
+            << R"(♻️ Delete</a>)"
+               "</td>\n";
         str << "</tr>\n";
     }
     str << "</table>\n";

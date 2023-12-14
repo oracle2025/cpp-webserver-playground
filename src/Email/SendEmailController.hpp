@@ -27,7 +27,6 @@ public:
                     CONFIG_DIR "/smtp/password");
 
             Email::SendEmail sendEmail(SMTP_SERVER, SMTP_USER, SMTP_PASSWORD);
-            std::cout << "Sending: " << list() << std::endl;
             sendEmail.sendHTML(
                 SMTP_USER, "richard.spindler@gmail.com", "Test", list());
             return content("send_email")
