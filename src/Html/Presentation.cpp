@@ -40,8 +40,8 @@ string Presentation::renderAlert(const Alert& alert)
         alertClass = "alert-info";
         break;
     }
-    return R"(<div class="alert )" + alertClass + R"(">⚠️ )" + String::escape(alert.message())
-        + R"(</div>)";
+    return R"(<div class="alert )" + alertClass + R"(">⚠️ )"
+        + String::escape(alert.message()) + R"(</div>)";
 }
 string Presentation::renderActions(const vector<ActionLink>& actions)
 {
@@ -50,8 +50,9 @@ string Presentation::renderActions(const vector<ActionLink>& actions)
     }
     ostringstream result;
     for (const auto& action : actions) {
-        result << R"(<a href=")" << action.url << R"(" class="create button btn btn-primary">)"
-               << action.title << R"(</a><br>)";
+        result << R"(<a href=")" << action.url
+               << R"(" class="create button btn btn-primary">)" << action.title
+               << R"(</a><br>)";
     }
     result << R"(<br>)";
     return result.str();
@@ -62,10 +63,26 @@ string Presentation::renderNavBarActions(const vector<ActionLink>& actions)
         return "";
     }
     ostringstream result;
+    result << R"(<ul class="nav navbar-nav">)"
+           << "\n";
     for (const auto& action : actions) {
-        result << R"(<li class=")" << action.liClass << R"("><a href=")"
-               << action.url << R"(">)" << action.title << R"(</a></li>)";
+        if (action.liClass != "right") {
+            result << R"(<li class=")" << action.liClass << R"("><a href=")"
+                   << action.url << R"(">)" << action.title << R"(</a></li>)";
+        }
     }
+    result << R"(</ul>)"
+           << "\n";
+    result << R"(<ul class="nav navbar-nav navbar-right">)"
+           << "\n";
+    for (const auto& action : actions) {
+        if (action.liClass == "right") {
+            result << R"(<li class=")" << action.liClass << R"("><a href=")"
+                   << action.url << R"(">)" << action.title << R"(</a></li>)";
+        }
+    }
+    result << R"(</ul>)"
+           << "\n";
     return result.str();
 }
 string Presentation::renderHtml(const Response& response)
@@ -108,10 +125,9 @@ function submitForm(elem) {
           <a class="navbar-brand" href="/">Todo List</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">)";
+          )";
     result << renderNavBarActions(response.navBarActions());
     result << R"(
-          </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
