@@ -59,11 +59,11 @@ string List::operator()()
             }
         }
         str << R"(<td><a href=")" << m_prefix << R"(/edit?)" << record->key()
-            << R"(" class="edit button btn btn-success">)"
+            << R"(" class="edit button btn btn-success btn-sm">)"
             << R"(✏️ Edit</a>)"
                "</td>\n";
         str << R"(<td><a href=")" << m_prefix << R"(/delete?)" << record->key()
-            << R"(" class="remove button btn btn-danger">)"
+            << R"(" class="remove button btn btn-danger btn-sm">)"
             << R"(♻️ Delete</a>)"
                "</td>\n";
         str << "</tr>\n";
