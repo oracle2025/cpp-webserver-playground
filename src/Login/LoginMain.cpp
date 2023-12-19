@@ -1,11 +1,10 @@
 #include "Data/MigrationsV3.hpp"
 #include "LoginServerApplication.hpp"
-#include "spdlog/spdlog.h"
 #include "Trace/trace.hpp"
+#include "spdlog/spdlog.h"
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
-
 
 extern Poco::Data::Session* g_session;
 
@@ -16,10 +15,11 @@ int main(int argc, char** argv)
         Poco::Data::SQLite::Connector::registerConnector();
         Session session("SQLite", "todo.sqlite");
         const auto connectionString = TODO_DATABASE_DIR "/todo.sqlite";
-        //Session session("SQLite", connectionString);
+        // Session session("SQLite", connectionString);
         g_session = &session;
         Data::MigrationsLatest migration;
         migration.perform();
+        spdlog::info("Config Directory: {}", CONFIG_DIR);
         LoginServerApplication app;
         return app.run(argc, argv);
 

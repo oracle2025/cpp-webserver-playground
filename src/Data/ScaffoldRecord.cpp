@@ -1,5 +1,10 @@
 #include "ScaffoldRecord.hpp"
+
 #include "String/createRandomUUID.hpp"
+#include "String/split.hpp"
+#include "doctest.h"
+
+#include <sstream>
 
 namespace Data {
 ScaffoldRecord::ScaffoldRecord(
@@ -108,4 +113,62 @@ string ScaffoldRecord::description() const
 {
     return m_values.at(0);
 }
+void ScaffoldRecord::initFromCsv(std::istream& iss)
+{
+    // first line is the header
+
+    string header;
+        std::getline(iss, header);
+    auto fields = String::split(header, ",");
+
+    for (std::string line; std::getline(iss, line); )
+    {
+        auto values_as_strings = String::split(line, ",");
+        for (size_t i = 0; i < fields.size(); ++i) {
+            set(fields[i], values_as_strings[i] );
+        }
+        insert();
+    }
+}
+bool ScaffoldRecord::find_and_pop(
+    const KeyStringType& field, const string& value)
+{
+    for (auto& [_, record] : m_cache) {
+        if (record->get(field) == value) {
+            m_values = record->m_values;
+            return true;
+        }
+    }
+    return false;
+}
+
+TEST_CASE("Init Scaffold Record with CSV")
+{
+    struct ShoppingItem : public ScaffoldRecord {
+        ShoppingItem()
+            : ScaffoldRecord(
+                  "shopping_item",
+                  {{"description", HtmlInputType::TEXT},
+                   {"price", HtmlInputType::TEXT}})
+        {
+        }
+    };
+    ShoppingItem item;
+    auto csv = std::istringstream{R"(description,price
+salad,1.99
+eggs,2.99
+peppers,3.99
+)"};
+    item.initFromCsv(csv);
+    CHECK(item.find_and_pop("description", "salad"));
+    CHECK(item.get("description") == "salad");
+    CHECK(item.get("price") == "1.99");
+    CHECK(item.find_and_pop("description", "eggs"));
+    CHECK(item.get("description") == "eggs");
+    CHECK(item.get("price") == "2.99");
+    CHECK(item.find_and_pop("description", "peppers"));
+    CHECK(item.get("description") == "peppers");
+    CHECK(item.get("price") == "3.99");
+}
+
 } // namespace Data

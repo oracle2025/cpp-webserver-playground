@@ -1,6 +1,7 @@
 #include "LoginServerApplication.hpp"
 
 #include "Data/Event.hpp"
+#include "Email/SendEmailController.hpp"
 #include "Events/CalendarController.hpp"
 #include "Filter/ByOwner.hpp"
 #include "Http/RequestDispatcher.hpp"
@@ -8,17 +9,32 @@
 #include "LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "User/PasswordChangeController.hpp"
-#include "Email/SendEmailController.hpp"
 #include "doctest.h"
 
+using Email::SendEmailController;
+using Events::CalendarController;
 using Http::RequestDispatcher;
 using Http::RequestHandlerList;
-using Events::CalendarController;
 using std::make_shared;
-using Email::SendEmailController;
 
 int LoginServerApplication::main(const vector<string>& args)
 {
+    Data::Event event_items{Http::Request{}};
+    std::ifstream input_stream(CONFIG_DIR "/events.csv");
+
+    // check stream status
+    if (input_stream) {
+        event_items.initFromCsv(input_stream);
+    } else {
+        std::istringstream csv(R"(subject,startDate,endDate,startTime,endTime
+First of January,2021-01-01,2021-01-01,00:00,23:59
+First of February,2021-02-01,2021-02-01,00:00,23:59
+First of March,2021-03-01,2021-03-01,00:00,23:59
+First of April,2021-04-01,2021-04-01,00:00,23:59
+)");
+        event_items.initFromCsv(csv);
+    }
+
     auto secretHandlers = RequestHandlerList{
         make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
         make_shared<CrudController<SimpleWebServer, Data::Event>>("/event"),
@@ -42,7 +58,7 @@ int LoginServerApplication::main(const vector<string>& args)
         publicHandler,
         std::make_shared<Presentation>());
 
-    //server.addButtonBar({"Calendar", "Events", "Todo", "Users", "Tickets"});
+    // server.addButtonBar({"Calendar", "Events", "Todo", "Users", "Tickets"});
 
     server.start();
     waitForTerminationRequest();

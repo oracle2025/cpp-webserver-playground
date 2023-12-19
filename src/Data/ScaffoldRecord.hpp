@@ -29,6 +29,9 @@ public:
         const KeyStringType& field) const override;
     [[nodiscard]] string description() const;
 
+    void initFromCsv(std::istream& iss);
+    bool find_and_pop(const KeyStringType& field, const string& value);
+
 private:
     string id;
     string m_name;

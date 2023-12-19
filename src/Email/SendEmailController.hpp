@@ -1,6 +1,12 @@
 #pragma once
 
+#include "Email/SendEmail.hpp"
 #include "FileSystem/ReadFromFile.hpp"
+#include "Filter/ByOwner.hpp"
+#include "Html/List.hpp"
+#include "Http/Request.hpp"
+#include "Http/Response.hpp"
+#include "WebServer.hpp"
 
 namespace Email {
 template<typename T>
@@ -8,6 +14,7 @@ class SendEmailController : public T {
 public:
     SendEmailController(const string& prefix)
     {
+        using Http::Request;
         static_assert(
             std::is_base_of<WebServer, T>::value,
             "T not derived from WebServer");
@@ -29,11 +36,11 @@ public:
             Email::SendEmail sendEmail(SMTP_SERVER, SMTP_USER, SMTP_PASSWORD);
             sendEmail.sendHTML(
                 SMTP_USER, "richard.spindler@gmail.com", "Test", list());
-            return content("send_email")
+            return Http::content("send_email")
                 ->appendNavBarAction({"Start", "/"})
                 .title("Send Email")
                 .shared_from_this();
         });
     }
 };
-}// namespace Email
+} // namespace Email
