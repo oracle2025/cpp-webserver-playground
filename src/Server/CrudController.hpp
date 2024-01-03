@@ -61,9 +61,9 @@ struct CrudController : public T {
         static_assert(
             std::is_base_of<WebServer, T>::value,
             "T not derived from WebServer");
-        T::router().get(prefix + "/new", [prefix](const Request& request) {
+        T::router().get(prefix + "/new", [this, prefix](const Request& request) {
             using namespace Input;
-            F record(request);
+            F record = makeRecord(request);
             return content(Form(record, prefix + "/create", "post")
                                .appendElement(make_shared<Submit>(
                                    "Create " + record.presentableName()))())
@@ -71,9 +71,9 @@ struct CrudController : public T {
                 .title("Create " + record.presentableName())
                 .shared_from_this();
         });
-        T::router().post(prefix + "/create", [prefix](const Request& request) {
+        T::router().post(prefix + "/create", [this, prefix](const Request& request) {
             using Http::Session;
-            F record(request);
+            F record = makeRecord(request);
             for (auto field : record.fields()) {
                 if (request.hasParameter(field)) {
                     record.set(field, request.parameter(field));
@@ -89,9 +89,9 @@ struct CrudController : public T {
                     Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
-        T::router().get(prefix + "/edit", [prefix](const Request& request) {
+        T::router().get(prefix + "/edit", [this, prefix](const Request& request) {
             using namespace Input;
-            F record(request);
+            F record = makeRecord(request);
             if (record.pop(request.query())) {
                 return content(Form(
                                    record,
@@ -106,8 +106,8 @@ struct CrudController : public T {
                 return recordNotFound(prefix, record.presentableName());
             }
         });
-        T::router().post(prefix + "/update", [prefix](const Request& request) {
-            F record(request);
+        T::router().post(prefix + "/update", [this, prefix](const Request& request) {
+            F record = makeRecord(request);
             if (record.pop(request.query())) {
                 for (auto i : record.fields()) {
                     if (request.hasParameter(i)) {
@@ -124,8 +124,8 @@ struct CrudController : public T {
                 return recordNotFound(prefix, record.presentableName());
             }
         });
-        T::router().post(prefix + "/mark", [prefix](const Request& request) {
-            F record(request);
+        T::router().post(prefix + "/mark", [this, prefix](const Request& request) {
+            F record = makeRecord(request);
             std::ostringstream str;
             for (const auto& [key, value] : request.allParameters()) {
                 record.pop(key);
@@ -141,8 +141,8 @@ struct CrudController : public T {
                 ->alert("Todo " + str.str(), Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
-        T::router().post(prefix + "/delete", [prefix](const Request& request) {
-            F record(request);
+        T::router().post(prefix + "/delete", [this, prefix](const Request& request) {
+            F record = makeRecord(request);
             if (record.pop(request.query())) {
                 if (request.hasParameter("confirmed")) {
                     record.erase();
@@ -164,8 +164,8 @@ struct CrudController : public T {
                 return recordNotFound(prefix, record.presentableName());
             }
         });
-        T::router().get(prefix + "/delete", [prefix](const Request& request) {
-            F record(request);
+        T::router().get(prefix + "/delete", [this, prefix](const Request& request) {
+            F record = makeRecord(request);
             if (record.pop(request.query())) {
                 return redirect(prefix + "/confirm?" + record.key())
                     ->alert(
@@ -177,9 +177,9 @@ struct CrudController : public T {
                 return recordNotFound(prefix, record.presentableName());
             }
         });
-        T::router().get(prefix + "/confirm", [prefix](const Request& request) {
+        T::router().get(prefix + "/confirm", [this, prefix](const Request& request) {
             using namespace Input;
-            F record(request);
+            F record = makeRecord(request);
             if (record.pop(request.query())) {
                 return Confirm(prefix, record, record.description())()
                     ->appendNavBarAction({"Start", "/"})
@@ -188,8 +188,8 @@ struct CrudController : public T {
                 return recordNotFound(prefix, record.presentableName());
             }
         });
-        T::router().get(prefix + "/", [prefix](const Request& request) {
-            F record(request);
+        T::router().get(prefix + "/", [this, prefix](const Request& request) {
+            F record = makeRecord(request);
             using namespace Input;
             auto columns = record.presentableFields();
             return content(Form(
@@ -200,7 +200,6 @@ struct CrudController : public T {
                 ->appendAction(
                     {"Create new " + record.presentableName(), prefix + "/new"})
                 .appendNavBarAction({"Start", "/"})
-                .appendNavBarAction({"Create Event", "/event/new"})
                 .title(record.presentableName() + " List")
                 .shared_from_this();
         });
@@ -228,5 +227,10 @@ struct CrudController : public T {
             ->code(Response::NOT_FOUND)
             .appendNavBarAction({"Start", "/"})
             .shared_from_this();
+    }
+    virtual F makeRecord(const Request& request)
+    {
+        F record(request);
+        return record;
     }
 };

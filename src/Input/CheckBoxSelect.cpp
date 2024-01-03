@@ -1,5 +1,6 @@
 #include "CheckBoxSelect.hpp"
 
+#include "String/capitalize.hpp"
 #include <algorithm>
 #include <sstream>
 
@@ -14,15 +15,8 @@ CheckBoxSelect::CheckBoxSelect(string label, string value)
 }
 string CheckBoxSelect::operator()()
 {
-    string capitalized = m_label;
-    transform(
-        capitalized.begin(),
-        capitalized.begin() + 1,
-        capitalized.begin(),
-        ::toupper);
-
     ostringstream str;
-    str << R"(<label for=")" << m_label << R"(">)" << capitalized
+    str << R"(<label for=")" << m_label << R"(">)" << String::capitalize(m_label)
         << R"(</label><br>)";
 
     str << R"(<select class="form-control" name=")" << m_label << R"(" id=")" << m_label << R"(">)";

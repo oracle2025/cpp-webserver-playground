@@ -64,6 +64,7 @@ if (ENABLE_BACKWARD)
 endif ()
 
 include_directories(SYSTEM ${PROJECT_BINARY_DIR}/include)
+include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/lib/ginger)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
 if (${Poco_FOUND} AND ${spdlog_FOUND})
@@ -202,7 +203,13 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/FileSystem/ReadFromFile.cpp
             src/FileSystem/ReadFromFile.hpp
             src/String/split.hpp
-            src/String/split.cpp)
+            src/String/split.cpp
+            src/ProtoServer/ProtoServerApplication.cpp
+            src/ProtoServer/ProtoServerApplication.hpp
+            src/Server/SimpleController.cpp
+            src/Server/SimpleController.hpp
+            src/String/capitalize.hpp
+            src/String/capitalize.cpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
@@ -289,6 +296,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
 
+    add_executable(proto-server src/ProtoServer/ProtoServerMain.cpp tests/doctest_impl.cpp)
+    target_link_libraries(proto-server webservers)
+
     add_executable(invoices-server src/Invoices/InvoicesMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(invoices-server webservers)
 
@@ -313,6 +323,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(test-migration)
         add_backward(crud-server)
         add_backward(login-server)
+        add_backward(proto-server)
         add_backward(invoices-server)
         # add_backward(image-browser-server)
     endif ()

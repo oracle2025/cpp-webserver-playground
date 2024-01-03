@@ -2,6 +2,10 @@
 
 #include "Record.hpp"
 
+namespace Http {
+class Request;
+}
+
 namespace Data {
 using std::map;
 using std::shared_ptr;
@@ -10,9 +14,10 @@ using std::vector;
 
 class ScaffoldRecord : public Record {
 public:
+    using FieldsType = vector<tuple<KeyStringType, HtmlInputType>>;
     ScaffoldRecord() = delete;
-    ScaffoldRecord(
-        string name, vector<tuple<KeyStringType, HtmlInputType>> fields);
+    ScaffoldRecord(const Http::Request&);
+    ScaffoldRecord(string name, FieldsType fields);
     [[nodiscard]] string key() const override;
     [[nodiscard]] std::vector<KeyStringType> fields() const override;
     string presentableName();
@@ -36,7 +41,7 @@ private:
     string id;
     string m_name;
     map<KeyStringType, string> m_values;
-    vector<tuple<KeyStringType, HtmlInputType>> m_fields;
+    FieldsType m_fields;
     static map<string, shared_ptr<ScaffoldRecord>> m_cache;
 };
-}  // namespace Data
+} // namespace Data

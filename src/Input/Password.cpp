@@ -1,5 +1,6 @@
 
 #include "Password.hpp"
+#include "String/capitalize.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -11,15 +12,8 @@ namespace Input {
 
 string Password::operator()()
 {
-    string capitalized = m_label;
-    transform(
-        capitalized.begin(),
-        capitalized.begin() + 1,
-        capitalized.begin(),
-        ::toupper);
-
     ostringstream str;
-    str << R"(<label for=")" << m_label << R"(">)" << capitalized
+    str << R"(<label for=")" << m_label << R"(">)" << String::capitalize(m_label)
         << R"(</label><br> <input class="form-control" type="password" id=")" << m_label
         << R"(" name=")" << m_label << R"(" value=")"
         << ""

@@ -1,5 +1,6 @@
 #include "ScaffoldRecord.hpp"
 
+#include "String/capitalize.hpp"
 #include "String/createRandomUUID.hpp"
 #include "String/split.hpp"
 #include "doctest.h"
@@ -7,8 +8,12 @@
 #include <sstream>
 
 namespace Data {
+ScaffoldRecord::ScaffoldRecord(const Http::Request&)
+{
+    throw std::runtime_error("Not implemented");
+}
 ScaffoldRecord::ScaffoldRecord(
-    string name, vector<tuple<KeyStringType, HtmlInputType>> fields)
+    string name, FieldsType fields)
     : m_name(std::move(name))
     , m_fields(std::move(fields))
 {
@@ -46,7 +51,7 @@ HtmlInputType ScaffoldRecord::inputType(const KeyStringType& field) const
 
 string ScaffoldRecord::presentableName()
 {
-    return m_name;
+    return String::capitalize(m_name);
 }
 vector<KeyStringType> ScaffoldRecord::presentableFields()
 {

@@ -1,8 +1,10 @@
 #include "TimeElement.h"
+
+#include "String/capitalize.hpp"
 #include "String/escape.hpp"
 
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
 namespace Input {
 
@@ -16,15 +18,8 @@ TimeElement::TimeElement(string label, string value)
 }
 string TimeElement::operator()()
 {
-    string capitalized = m_label;
-    transform(
-        capitalized.begin(),
-        capitalized.begin() + 1,
-        capitalized.begin(),
-        ::toupper);
-
     ostringstream str;
-    str << R"(<label for=")" << m_label << R"(">)" << capitalized
+    str << R"(<label for=")" << m_label << R"(">)" << String::capitalize(m_label)
         << R"(</label><br> <input type="time" step="3600" id=")" << m_label << R"(" name=")"
         << m_label << R"(" value=")" << String::escape(m_value) << R"(">)";
 

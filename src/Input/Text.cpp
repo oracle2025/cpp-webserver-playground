@@ -1,6 +1,7 @@
 
 #include "Text.hpp"
 
+#include "String/capitalize.hpp"
 #include "String/escape.hpp"
 
 #include <algorithm>
@@ -12,15 +13,8 @@ using std::transform;
 namespace Input {
 string Text::operator()()
 {
-    string capitalized = m_label;
-    transform(
-        capitalized.begin(),
-        capitalized.begin() + 1,
-        capitalized.begin(),
-        ::toupper);
-
     ostringstream str;
-    str << R"(<label for=")" << m_label << R"(">)" << capitalized
+    str << R"(<label for=")" << m_label << R"(">)" << String::capitalize(m_label)
         << R"(</label><br> <input class="form-control" type="text" id=")" << m_label << R"(" name=")"
         << m_label << R"(" value=")" << String::escape(m_value) << R"(">)";
     return str.str();

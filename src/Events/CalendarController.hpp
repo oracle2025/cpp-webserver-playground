@@ -7,6 +7,8 @@
 #include "Http/Response.hpp"
 #include "NullHandler.hpp"
 #include "Server/WebServer.hpp"
+
+#include <ginger.h>
 namespace Events {
 
 using Http::content;
@@ -42,6 +44,12 @@ public:
             }
             str << "</tr>";
             str << "</table>";
+            const string html_template = R"(<h1>${title}</h1>)";
+            std::map<std::string, ginger::object> template_values
+                = {{"title", "Hello Template"}};
+            ginger::parse(
+                html_template, template_values, ginger::from_ios(str));
+
             return content(str.str())
                 ->appendNavBarAction({"Start", "/"})
                 .title("Calendar")
@@ -58,7 +66,7 @@ public:
                     .title("Calendar")
                     .shared_from_this();
             });
-        T::router().get(prefix+"/weekly_agenda", [](const Request& request) {
+        T::router().get(prefix + "/weekly_agenda", [](const Request& request) {
             EventList events{Data::Event(request).listAsPointers()};
             const auto agenda = Events::WeeklyAgenda(events);
             const auto rendered = agenda.render();
