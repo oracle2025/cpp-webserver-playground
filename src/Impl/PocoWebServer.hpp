@@ -38,7 +38,7 @@ public:
 
     void stop();
     void defaultHandler(handler_type handler) override;
-    void setPresentation(shared_ptr<Presentation> presentation);
+    void setPresentation(shared_ptr<Presentation> presentation) override;
     Router& router() override;
 
 private:

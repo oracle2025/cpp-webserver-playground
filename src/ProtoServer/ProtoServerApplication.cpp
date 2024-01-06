@@ -7,6 +7,7 @@
 #include "PocoWebServer.hpp"
 #include "RequestDispatcher.hpp"
 #include "SimpleController.hpp"
+#include "SimpleController2.hpp"
 #include "SimpleWebServer.hpp"
 #include "String/capitalize.hpp"
 
@@ -102,6 +103,11 @@ int ProtoServerApplication::main(const vector<string>& args)
              "/" + extractNameFromPath(entry.path()) + "/"});
     }
 
+    PocoWebServer server2;
+    SimpleController2 server2Controller(
+        server2,
+        make_shared<RequestDispatcher>(handlers),
+        std::make_shared<Presentation>());
     SimpleController<PocoWebServer> server(
         make_shared<RequestDispatcher>(handlers),
         std::make_shared<Presentation>());

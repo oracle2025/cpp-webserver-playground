@@ -24,4 +24,7 @@ public:
     virtual Http::Router& router() = 0;
     virtual void defaultHandler(Http::handler_type handler) = 0;
     virtual void finish_init() = 0;
+    virtual void setPresentation(
+        std::shared_ptr<Html::Presentation> presentation)
+        = 0;
 };

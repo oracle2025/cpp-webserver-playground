@@ -28,7 +28,7 @@ public:
     void finish_init() override;
     shared_ptr<Response> handle(const Request& request) override;
     void defaultHandler(handler_type handler) override;
-    void setPresentation(shared_ptr<Html::Presentation> presentation);
+    void setPresentation(shared_ptr<Html::Presentation> presentation) override;
     Router& router() override;
 
 private:

@@ -2,12 +2,34 @@
 
 #include "List.hpp"
 
+#include "Data/ScaffoldRecord.hpp"
 #include "String/escape.hpp"
+
+#include <doctest.h>
 
 #include <sstream>
 
 namespace Html {
 using std::ostringstream;
+
+TEST_CASE("Html::List")
+{
+    SUBCASE("empty")
+    {
+        List list({}, {});
+        CHECK(list() == R"(<table class="table"></table>)");
+    }
+    SUBCASE("one record")
+    {
+        List list(
+            {std::make_shared<Data::ScaffoldRecord>(
+                 "1", Data::ScaffoldRecord::FieldsType{{"name", HtmlInputType::TEXT}})},
+            {"name"});
+        CHECK(list() == R"(<table class="table"><tr><td class="max">John</td>=)"
+                         R"(<td><a href="/edit?1" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>=)"
+                         R"(<td><a href="/delete?1" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a></td></tr></table>)");
+    }
+}
 
 string List::operator()()
 {
@@ -60,11 +82,11 @@ string List::operator()()
         }
         str << R"(<td><a href=")" << m_prefix << R"(/edit?)" << record->key()
             << R"(" class="edit button btn btn-success btn-sm">)"
-            << R"(✏️ Edit</a>)"
+            << R"(✏️ <span class="hidden-xs">Edit</span></a>)"
                "</td>\n";
         str << R"(<td><a href=")" << m_prefix << R"(/delete?)" << record->key()
             << R"(" class="remove button btn btn-danger btn-sm">)"
-            << R"(♻️ Delete</a>)"
+            << R"(♻️ <span class="hidden-xs">Delete</span></a>)"
                "</td>\n";
         str << "</tr>\n";
     }
