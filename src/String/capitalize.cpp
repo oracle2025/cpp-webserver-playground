@@ -1,4 +1,5 @@
 #include "capitalize.hpp"
+#include <algorithm>
 
 namespace String {
 
