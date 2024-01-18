@@ -31,7 +31,7 @@ public:
     void setPresentation(shared_ptr<Html::Presentation> presentation) override;
     Router& router() override;
 
-private:
+protected:
     Router m_router;
     handler_type m_defaultHandler;
 };

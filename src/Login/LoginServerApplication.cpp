@@ -35,17 +35,31 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
         event_items.initFromCsv(csv);
     }
 
+    // Router router;
+    // auto shared_todo_list = make_shared<CrudController<SimpleWebServer,
+    // Todo>>("/shared", router);
+    // #error shared todo list not implemented
+    auto handler = std::make_shared<SimpleWebServer>();
+    auto makeOwnerTodoRecord = [](const Http::Request& request) {
+        return std::make_shared<Filter::ByOwner>(request);
+    };
+    CrudController<Filter::ByOwner>("/todo", handler->router());
+    CrudController<Data::Event>("/event", handler->router());
+    handler->defaultHandler(Http::NullHandler);
+    handler->finish_init();
+
     auto secretHandlers = RequestHandlerList{
-        make_shared<CrudController<SimpleWebServer, Filter::ByOwner>>("/todo"),
-        make_shared<CrudController<SimpleWebServer, Data::Event>>("/event"),
+        handler,
         make_shared<PasswordChangeController<SimpleWebServer>>("/password"),
         make_shared<CalendarController<SimpleWebServer>>("/calendar"),
         make_shared<SendEmailController<SimpleWebServer>>("/email"),
     };
-    shared_ptr<RequestHandler> adminHandler = nullptr;
+    shared_ptr<SimpleWebServer> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
-    adminHandler
-        = make_shared<CrudController<SimpleWebServer, Data::User>>("/user");
+    adminHandler = make_shared<SimpleWebServer>();
+    CrudController<Data::User>("/user", adminHandler->router());
+    adminHandler->defaultHandler(Http::NullHandler);
+    adminHandler->finish_init();
 #endif
     shared_ptr<RequestHandler> publicHandler = nullptr;
 #ifdef ENABLE_SIGNUP

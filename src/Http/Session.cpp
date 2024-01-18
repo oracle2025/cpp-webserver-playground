@@ -110,6 +110,10 @@ struct SessionDataRecord : public Record {
         , data(data)
     {
     }
+    string presentableName() const override
+    {
+        return "Session";
+    }
     string key() const override
     {
         return id;

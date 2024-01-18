@@ -14,8 +14,6 @@ using std::vector;
 
 extern Poco::Data::Session* g_session;
 
-
-
 struct ColumnType {
     KeyStringType name;
     string type;
@@ -27,7 +25,7 @@ class Request;
 }
 
 template<typename T>
-struct RecordImpl : public T, public Record {
+struct RecordImpl : public T, public RecordExtended {
     using Session = Poco::Data::Session;
     RecordImpl() = default;
     explicit RecordImpl(const Http::Request& request){};
@@ -48,6 +46,18 @@ struct RecordImpl : public T, public Record {
     } catch (...) {
         TRACE_RETHROW("Could not create table");
     }
+    string presentableName() const override
+    {
+        return T::table_name();
+    }
+    void setImpl(const KeyStringType& key, const string& value) override
+    {
+        T::set(key, value);
+    }
+    string getImpl(const KeyStringType& key) const override
+    {
+        return T::get(key);
+    }
 
     string createStatement(const vector<ColumnType>& columns) const
     try {
@@ -63,7 +73,7 @@ struct RecordImpl : public T, public Record {
         TRACE_RETHROW("Could not create statement");
     }
 
-    void insert()
+    void insert() override
     {
         insertInto(*g_session);
     }
@@ -81,7 +91,7 @@ struct RecordImpl : public T, public Record {
     } catch (...) {
         TRACE_RETHROW("Could not insert");
     }
-    bool pop(const string& _id)
+    bool pop(const string& _id) override
     {
         return pop(*g_session, _id);
     }
@@ -129,7 +139,7 @@ struct RecordImpl : public T, public Record {
     } catch (...) {
         TRACE_RETHROW("Could not select");
     }
-    vector<shared_ptr<Record>> listAsPointers()
+    vector<shared_ptr<Record>> listAsPointers() override
     {
         return listAsPointers(*g_session);
     }
@@ -168,7 +178,7 @@ struct RecordImpl : public T, public Record {
         result = result.substr(0, result.length() - 2);
         return result;
     }
-    bool update()
+    bool update() override
     {
         return update(*g_session, key());
     }
@@ -204,7 +214,7 @@ struct RecordImpl : public T, public Record {
     } catch (...) {
         TRACE_RETHROW("Could not create statement");
     }
-    bool erase()
+    bool erase() override
     {
         return erase(*g_session, key());
     }
@@ -212,6 +222,15 @@ struct RecordImpl : public T, public Record {
     {
         return erase(*g_session, _id);
     }
+    string descriptionImpl() const override
+    {
+        return T::description();
+    }
+    std::vector<KeyStringType> presentableFieldsImpl() const override
+    {
+        return T::presentableFields();
+    }
+
     bool erase(Session& session, const string& _id)
     try {
         using namespace Poco::Data::Keywords;

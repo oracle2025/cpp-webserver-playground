@@ -12,7 +12,7 @@ using std::shared_ptr;
 using std::tuple;
 using std::vector;
 
-class ScaffoldRecord : public Record {
+class ScaffoldRecord : public RecordExtended {
 public:
     using FieldsType = vector<tuple<KeyStringType, HtmlInputType>>;
     ScaffoldRecord() = delete;
@@ -20,19 +20,19 @@ public:
     ScaffoldRecord(string name, FieldsType fields);
     [[nodiscard]] string key() const override;
     [[nodiscard]] std::vector<KeyStringType> fields() const override;
-    string presentableName();
-    vector<KeyStringType> presentableFields();
-    void set(const KeyStringType& field, const string& value);
-    bool pop(const string& query);
-    void insert();
-    void update();
-    void erase();
-    [[nodiscard]] string get(const KeyStringType& field) const;
-    vector<shared_ptr<Record>> listAsPointers();
+    [[nodiscard]] string presentableName() const override;
+    vector<KeyStringType> presentableFieldsImpl() const override;
+    void setImpl(const KeyStringType& field, const string& value) override;
+    bool pop(const string& query) override;
+    void insert() override;
+    bool update() override;
+    bool erase() override;
+    [[nodiscard]] string getImpl(const KeyStringType& field) const override;
+    vector<shared_ptr<Record>> listAsPointers() override;
     [[nodiscard]] std::map<KeyStringType, string> values() const override;
     [[nodiscard]] HtmlInputType inputType(
         const KeyStringType& field) const override;
-    [[nodiscard]] string description() const;
+    [[nodiscard]] string descriptionImpl() const override;
 
     void initFromCsv(std::istream& iss);
     bool find_and_pop(const KeyStringType& field, const string& value);

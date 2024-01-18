@@ -50,7 +50,6 @@ string UserDefinition::table_name() const
 {
     return "Users";
 }
-
 UserDefinition::UserDefinition(const UserDefinition::RecordType& d)
     : data{d}
     , id(data.get<0>())
@@ -84,10 +83,6 @@ string UserDefinition::description() const
 vector<KeyStringType> UserDefinition::presentableFields() const
 {
     return {"username"};
-}
-string UserDefinition::presentableName()
-{
-    return "User";
 }
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
 {

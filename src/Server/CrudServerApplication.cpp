@@ -5,7 +5,10 @@
 
 int CrudServerApplication::main(const vector<string>& args)
 {
-    CrudController<PocoWebServer, Todo> server("/todo");
+    PocoWebServer server;
+    CrudController<Todo> controller("/todo", server.router());
+    server.defaultHandler(Http::NullHandler);
+    server.finish_init();
     server.start();
     waitForTerminationRequest();
     server.stop();

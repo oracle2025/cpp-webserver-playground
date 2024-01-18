@@ -53,9 +53,12 @@ private:
 
 int Invoices::InvoicesApplication::main(const std::vector<std::string>& args)
 {
-    SimpleController<PocoWebServer> server(Http::RequestHandlerList{
-        make_shared<CrudController<SimpleWebServer, Invoice>>("/invoice"),
-        make_shared<CrudController<SimpleWebServer, Customer>>("/customer")});
+    auto handler = std::make_shared<SimpleWebServer>();
+    CrudController<Invoice>("/invoice", handler->router());
+    CrudController<Customer>("/customer", handler->router());
+    handler->defaultHandler(Http::NullHandler);
+    handler->finish_init();
+    SimpleController<PocoWebServer> server(Http::RequestHandlerList{handler});
     server.start();
     waitForTerminationRequest();
     server.stop();

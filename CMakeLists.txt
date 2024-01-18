@@ -211,7 +211,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/String/capitalize.hpp
             src/String/capitalize.cpp
             src/Server/SimpleController2.cpp
-            src/Server/SimpleController2.hpp)
+            src/Server/SimpleController2.hpp
+            src/Server/CrudController.cpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic

@@ -43,8 +43,10 @@ string extractUUID(const string& content)
 }
 TEST_CASE("By Owner")
 {
+    auto handler = std::make_shared<SimpleWebServer>();;
+    CrudController<Filter::ByOwner>("/item", handler->router());
     LoginController<TestServer> w(
-        make_shared<CrudController<TestServer, Filter::ByOwner>>("/item"),
+        handler,
         nullptr,
         nullptr,
         nullptr);

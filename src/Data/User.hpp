@@ -40,7 +40,6 @@ public:
     UserDefinition(const RecordType& d);
     UserDefinition(const UserDefinition& u);
     vector<KeyStringType> presentableFields() const;
-    static string presentableName();
 };
 
 using User = RecordImpl<UserDefinition>;

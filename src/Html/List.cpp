@@ -6,6 +6,7 @@
 #include "String/escape.hpp"
 
 #include <doctest.h>
+#include <ginger.h>
 
 #include <sstream>
 
@@ -17,22 +18,107 @@ TEST_CASE("Html::List")
     SUBCASE("empty")
     {
         List list({}, {});
-        CHECK(list() == R"(<table class="table"></table>)");
+        CHECK(list() == R"(<table class="table"></table>
+)");
     }
     SUBCASE("one record")
     {
-        List list(
-            {std::make_shared<Data::ScaffoldRecord>(
-                 "1", Data::ScaffoldRecord::FieldsType{{"name", HtmlInputType::TEXT}})},
-            {"name"});
-        CHECK(list() == R"(<table class="table"><tr><td class="max">John</td>=)"
-                         R"(<td><a href="/edit?1" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>=)"
-                         R"(<td><a href="/delete?1" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a></td></tr></table>)");
+        auto scaffold_record = std::make_shared<Data::ScaffoldRecord>(
+            "1",
+            Data::ScaffoldRecord::FieldsType{{"name", HtmlInputType::TEXT}});
+        scaffold_record->setImpl("name", "John");
+        scaffold_record->insert();
+        List list({scaffold_record}, {"name"});
+        auto actual = list();
+        CHECK(actual.find("John") != std::string::npos);
+        CHECK(actual.find("Edit") != std::string::npos);
+        CHECK(actual.find("Delete") != std::string::npos);
+    }
+    SUBCASE("render one column")
+    {
+        const string columns_template = R"(
+      $for value in columns {{
+        $if value.is_checkbox {{
+            <td style="width: 20px;">
+              <input type="hidden" name="${key}" value="no" />
+            $if value.checked {{
+              <input type="checkbox" checked name="${key}" value="yes" onchange="submitForm(this);">
+            }} $else {{
+              <input type="checkbox" name="${key}" value="yes" onchange="submitForm(this);">
+            }}
+            </td>
+        }} $else {{
+            <td class="max">${value.str}</td>
+        }}
+      }})";
+        std::map<std::string, ginger::object> t;
+        t["columns"] = std::vector<std::map<std::string, ginger::object>>{
+            {{"is_checkbox", true}, {"checked", true}, {"str", "John"}},
+            {{"is_checkbox", false}, {"checked", true}, {"str", "John"}}
+        };
+        t["key"] = "1";    ostringstream str_rendered;
+        ginger::parse(
+            columns_template, t, ginger::from_ios(str_rendered));
+        auto output = str_rendered.str();
+        CHECK(output.find("John") != std::string::npos);
     }
 }
 
 string List::operator()()
 {
+    const string checkbox_template = R"()";
+    const string text_template = R"(<td class="max">${value}</td>)";
+    const string columns_template = R"(
+      $for value in columns {{
+        $if value.is_checkbox {{
+            <td style="width: 20px;">
+              <input type="hidden" name="${key}" value="no" />
+            $if value.checked {{
+              <input type="checkbox" checked name="${key}" value="yes" onchange="submitForm(this);">
+            }} $else {{
+              <input type="checkbox" name="${key}" value="yes" onchange="submitForm(this);">
+            }}
+            </td>
+        }} $else {{
+            <td class="max">${value.str}</td>
+        }}
+      }})";
+    const string table_template = R"(
+<table class="table">
+    $for row in rows {{
+    <tr>
+      ${row.columns}
+      <td><a href="/edit?${row.key}" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>
+      <td><a href="/delete?${row.key}" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a></td>
+    </tr>
+    }}
+</table>)";
+    std::map<std::string, ginger::object> template_values;
+    std::vector<std::map<std::string, ginger::object>> template_rows;
+    for (const auto& record : records) {
+        std::vector<std::map<std::string, ginger::object>> template_columns(
+            columns.size());
+        auto values = record->values();
+        for (const auto& column : columns) {
+            template_columns.push_back(
+                {{"is_checkbox",
+                  record->inputType(column) == HtmlInputType::CHECKBOX},
+                 {"checked", values[column] == "yes"},
+                 {"str", String::escape(values[column])}});
+        }
+        ostringstream columns_rendered;
+        /*std::map<std::string, ginger::object> data
+            = {{"columns", template_columns}, {"key", record->key()}};
+        ginger::parse(
+            columns_template, data, ginger::from_ios(columns_rendered));*/
+        template_rows.push_back(
+            {{"columns", columns_rendered.str()}, {"key", record->key()}});
+    }
+    template_values["rows"] = template_rows;
+    ostringstream str_rendered;
+    ginger::parse(
+        table_template, template_values, ginger::from_ios(str_rendered));
+
     ostringstream str;
     str << R"(<table class="table">)";
     if (m_withHeader) {

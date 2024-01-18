@@ -35,7 +35,7 @@ Freitag, 31. November
      */
     std::set<Data::Date> dates;
     for (auto event : m_events) {
-        Data::Date startDate(event->get("startDate"));
+        Data::Date startDate(event->getImpl("startDate"));
         dates.insert(startDate);
     }
     return R"(<ul>

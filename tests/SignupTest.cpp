@@ -29,8 +29,12 @@ TEST_CASE("Signup")
     }
     SUBCASE("Signup and Login")
     {
+        Router router;
+        auto handler = std::make_shared<SimpleWebServer>();
+        ;
+        CrudController<Todo>("/todo", handler->router());
         LoginController<TestServer> w(
-            make_shared<CrudController<SimpleWebServer, Todo>>("/todo"),
+            handler,
             nullptr,
             make_shared<SignupController<SimpleWebServer>>("/signup"),
             std::make_shared<Html::Presentation>());

@@ -49,11 +49,11 @@ HtmlInputType ScaffoldRecord::inputType(const KeyStringType& field) const
     return HtmlInputType::HIDDEN;
 }
 
-string ScaffoldRecord::presentableName()
+string ScaffoldRecord::presentableName() const
 {
     return String::capitalize(m_name);
 }
-vector<KeyStringType> ScaffoldRecord::presentableFields()
+vector<KeyStringType> ScaffoldRecord::presentableFieldsImpl() const
 {
     vector<KeyStringType> fields;
     fields.reserve(m_fields.size());
@@ -62,7 +62,7 @@ vector<KeyStringType> ScaffoldRecord::presentableFields()
     }
     return fields;
 }
-void ScaffoldRecord::set(const KeyStringType& field, const string& value)
+void ScaffoldRecord::setImpl(const KeyStringType& field, const string& value)
 {
     m_values[field] = value;
 }
@@ -81,23 +81,25 @@ void ScaffoldRecord::insert()
     *record = *this;
     m_cache[id] = record;
 }
-void ScaffoldRecord::update()
+bool ScaffoldRecord::update()
 {
     if (id.empty()) {
         insert();
-        return;
+        return true;
     }
     auto record = std::make_shared<ScaffoldRecord>(m_name, m_fields);
     *record = *this;
     m_cache[id] = record;
+    return true;
 }
-void ScaffoldRecord::erase()
+bool ScaffoldRecord::erase()
 {
     if (m_cache.find(id) != m_cache.end()) {
         m_cache.erase(id);
     }
+    return true;
 }
-string ScaffoldRecord::get(const KeyStringType& field) const
+string ScaffoldRecord::getImpl(const KeyStringType& field) const
 {
     if (m_values.find(field) != m_values.end()) {
         return m_values.at(field);
@@ -114,7 +116,7 @@ vector<shared_ptr<Record>> ScaffoldRecord::listAsPointers()
     }
     return result;
 }
-string ScaffoldRecord::description() const
+string ScaffoldRecord::descriptionImpl() const
 {
     return m_values.at(0);
 }
@@ -130,7 +132,7 @@ void ScaffoldRecord::initFromCsv(std::istream& iss)
     {
         auto values_as_strings = String::split(line, ",");
         for (size_t i = 0; i < fields.size(); ++i) {
-            set(fields[i], values_as_strings[i] );
+            setImpl(fields[i], values_as_strings[i] );
         }
         insert();
     }
@@ -139,7 +141,7 @@ bool ScaffoldRecord::find_and_pop(
     const KeyStringType& field, const string& value)
 {
     for (auto& [_, record] : m_cache) {
-        if (record->get(field) == value) {
+        if (record->getImpl(field) == value) {
             m_values = record->m_values;
             return true;
         }
@@ -166,14 +168,14 @@ peppers,3.99
 )"};
     item.initFromCsv(csv);
     CHECK(item.find_and_pop("description", "salad"));
-    CHECK(item.get("description") == "salad");
-    CHECK(item.get("price") == "1.99");
+    CHECK(item.getImpl("description") == "salad");
+    CHECK(item.getImpl("price") == "1.99");
     CHECK(item.find_and_pop("description", "eggs"));
-    CHECK(item.get("description") == "eggs");
-    CHECK(item.get("price") == "2.99");
+    CHECK(item.getImpl("description") == "eggs");
+    CHECK(item.getImpl("price") == "2.99");
     CHECK(item.find_and_pop("description", "peppers"));
-    CHECK(item.get("description") == "peppers");
-    CHECK(item.get("price") == "3.99");
+    CHECK(item.getImpl("description") == "peppers");
+    CHECK(item.getImpl("price") == "3.99");
 }
 
 } // namespace Data

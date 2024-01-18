@@ -20,7 +20,7 @@ public:
             "T not derived from WebServer");
         T::router().get(prefix + "/send", [](const Request& request) {
             Filter::ByOwner record(request);
-            auto columns = record.presentableFields();
+            auto columns = record.presentableFieldsImpl();
 
             Html::List list(record.listAsPointers(), columns);
             const auto SMTP_SERVER

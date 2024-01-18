@@ -1,6 +1,7 @@
 #include "Person.hpp"
-#include "RecordImpl.hpp"
+
 #include "FieldTypes.hpp"
+#include "RecordImpl.hpp"
 #include "String/repeat.hpp"
 #include "doctest.h"
 
@@ -69,8 +70,15 @@ struct Person {
         }
         return "";
     }
+    string description() const
+    {
+        return "Person " + name;
+    }
+    std::vector<KeyStringType> presentableFields() const
+    {
+        return {"name"};
+    }
 };
-
 
 TEST_CASE("PersonRecord")
 {

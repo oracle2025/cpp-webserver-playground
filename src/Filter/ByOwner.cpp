@@ -21,15 +21,15 @@ HtmlInputType ByOwner::inputType(const KeyStringType& field) const
 {
     return m_todo.inputType(field);
 }
-string ByOwner::presentableName()
+string ByOwner::presentableName() const
 {
-    return Todo::presentableName();
+    return m_todo.presentableName();
 }
-vector<KeyStringType> ByOwner::presentableFields()
+vector<KeyStringType> ByOwner::presentableFieldsImpl() const
 {
     return Todo::presentableFields();
 }
-void ByOwner::set(const KeyStringType& field, const string& value)
+void ByOwner::setImpl(const KeyStringType& field, const string& value)
 {
     m_todo.set(field, value);
 }
@@ -48,15 +48,15 @@ void ByOwner::insert()
 {
     m_todo.insert();
 }
-void ByOwner::update()
+bool ByOwner::update()
 {
-    m_todo.update();
+    return m_todo.update();
 }
-void ByOwner::erase()
+bool ByOwner::erase()
 {
-    m_todo.erase();
+    return m_todo.erase();
 }
-string ByOwner::get(const KeyStringType& field) const
+string ByOwner::getImpl(const KeyStringType& field) const
 {
     return m_todo.get(field);
 }
@@ -73,7 +73,7 @@ vector<shared_ptr<Record>> ByOwner::listAsPointers()
     result.erase(new_logical_end, result.end());
     return result;
 }
-string ByOwner::description() const
+string ByOwner::descriptionImpl() const
 {
     return m_todo.description();
 }
