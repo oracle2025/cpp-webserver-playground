@@ -29,7 +29,8 @@ void addItem(
 {
     map<string, string> params;
     params["description"] = description;
-    auto r = w.handle({"/item/create", cookieJar, params, "", Http::Method::POST});
+    auto r
+        = w.handle({"/item/create", cookieJar, params, "", Http::Method::POST});
     //    CHECK(r->content() == "Success");
 }
 string extractUUID(const string& content)
@@ -43,13 +44,15 @@ string extractUUID(const string& content)
 }
 TEST_CASE("By Owner")
 {
-    auto handler = std::make_shared<SimpleWebServer>();;
-    CrudController<Filter::ByOwner>("/item", handler->router());
-    LoginController<TestServer> w(
-        handler,
-        nullptr,
-        nullptr,
-        nullptr);
+    auto handler = std::make_shared<SimpleWebServer>();
+    ;
+    CrudController<Filter::ByOwner> crud(
+        "/item",
+        [](const Request& request) {
+            return std::make_shared<Filter::ByOwner>(request);
+        },
+        handler->router());
+    LoginController<TestServer> w(handler, nullptr, nullptr, nullptr);
 
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");
@@ -143,7 +146,11 @@ TEST_CASE("By Owner")
         CHECK_EQ(response->status(), 200);
 
         response = w.handle(
-            {"/item/delete", cookieJar, {{"confirmed", "true"}}, uuid, Http::Method::POST});
+            {"/item/delete",
+             cookieJar,
+             {{"confirmed", "true"}},
+             uuid,
+             Http::Method::POST});
         CHECK_EQ(response->status(), 302);
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
         CHECK_EQ(response->status(), 404);
@@ -163,12 +170,20 @@ TEST_CASE("By Owner")
         loginAs(w, "bob", cookieJar);
 
         response = w.handle(
-            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid, Http::Method::POST});
+            {"/item/update",
+             cookieJar,
+             {{"description", "Buy Cream"}},
+             uuid,
+             Http::Method::POST});
         CHECK_EQ(response->status(), 404);
 
         loginAs(w, "alice", cookieJar);
         response = w.handle(
-            {"/item/update", cookieJar, {{"description", "Buy Cream"}}, uuid, Http::Method::POST});
+            {"/item/update",
+             cookieJar,
+             {{"description", "Buy Cream"}},
+             uuid,
+             Http::Method::POST});
         CHECK_EQ(response->status(), 302);
 
         response = w.handle({"/item/", cookieJar});
@@ -193,13 +208,14 @@ TEST_CASE("By Owner")
                 R"(input type="checkbox" name=")" + uuid + R"(" value="yes")")
             == string::npos);
 
-        response = w.handle({"/item/mark", cookieJar, {{uuid, "yes"}}, "", Http::Method::POST});
+        response = w.handle(
+            {"/item/mark", cookieJar, {{uuid, "yes"}}, "", Http::Method::POST});
         CHECK_EQ(response->status(), 302);
 
         response = w.handle({"/item/edit", cookieJar, {}, uuid});
         CHECK_EQ(response->status(), 200);
-        //CHECK_EQ(response->content(), "");
-        //R"(option value="yes" selected)";
+        // CHECK_EQ(response->content(), "");
+        // R"(option value="yes" selected)";
     }
     SUBCASE("Confirm Delete")
     {

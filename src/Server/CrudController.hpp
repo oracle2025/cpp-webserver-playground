@@ -9,11 +9,11 @@
 #include "Http/Response.hpp"
 #include "Http/Session.hpp"
 #include "List.hpp"
+#include "Router.hpp"
 #include "Server/WebServer.hpp"
 #include "Submit.hpp"
 #include "bunfet-example.hpp"
 #include "style.hpp"
-#include "Router.hpp"
 /*
  * A Simple Todo List:
  * Data Model:
@@ -55,10 +55,15 @@ template<typename F>
 struct CrudController {
     using Response = Http::Response;
     using Request = Http::Request;
-    CrudController(const string& prefix, Http::Router& router)
+    using make_record_func = std::function<std::shared_ptr<RecordExtended>(
+        const Request& request)>;
+    CrudController(
+        const string& prefix, make_record_func makeRecordFunc, Http::Router& router)
+        : m_makeRecord(makeRecordFunc)
     {
         static_assert(
-            std::is_base_of<RecordExtended, F>::value, "F not derived from Record");
+            std::is_base_of<RecordExtended, F>::value,
+            "F not derived from Record");
         router.get(prefix + "/new", [this, prefix](const Request& request) {
             using namespace Input;
             auto record = makeRecord(request);
@@ -91,12 +96,13 @@ struct CrudController {
             using namespace Input;
             auto record = makeRecord(request);
             if (record->pop(request.query())) {
-                return content(Form(
-                                   *record,
-                                   string(prefix + "/update?") + record->key(),
-                                   "post")
-                                   .appendElement(make_shared<Submit>(
-                                       "Update " + record->presentableName()))())
+                return content(
+                           Form(
+                               *record,
+                               string(prefix + "/update?") + record->key(),
+                               "post")
+                               .appendElement(make_shared<Submit>(
+                                   "Update " + record->presentableName()))())
                     ->appendNavBarAction({"Start", "/"})
                     .title("Edit " + record->presentableName())
                     .shared_from_this();
@@ -196,7 +202,8 @@ struct CrudController {
                                prefix + "/mark",
                                "post")())
                 ->appendAction(
-                    {"Create new " + record->presentableName(), prefix + "/new"})
+                    {"Create new " + record->presentableName(),
+                     prefix + "/new"})
                 .appendNavBarAction({"Start", "/"})
                 .title(record->presentableName() + " List")
                 .shared_from_this();
@@ -215,9 +222,10 @@ struct CrudController {
                 ->noPresentation(true)
                 .shared_from_this();
         });
-        //T::defaultHandler(Http::NullHandler);
-        //T::finish_init();
+        // T::defaultHandler(Http::NullHandler);
+        // T::finish_init();
     }
+    virtual ~CrudController() = default;
     static shared_ptr<Response> recordNotFound(
         const string& prefix, const string& presentableName)
     {
@@ -231,5 +239,5 @@ struct CrudController {
         auto record = std::make_shared<F>(request);
         return record;
     }
-    std::function<std::shared_ptr<RecordExtended>(const Request& request)> m_makeRecord;
+    make_record_func m_makeRecord;
 };

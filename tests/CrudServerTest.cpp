@@ -22,9 +22,12 @@ using Poco::Data::Session;
 
 TEST_CASE("Crud Server")
 {
-    //Router router;
+    // Router router;
     TestServer w;
-    CrudController<Todo> handler("", w.router());
+    CrudController<Todo> handler(
+        "",
+        [](const Request& request) { return std::make_shared<Todo>(request); },
+        w.router());
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");
     g_session = &session;

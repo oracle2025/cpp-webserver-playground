@@ -43,8 +43,18 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     auto makeOwnerTodoRecord = [](const Http::Request& request) {
         return std::make_shared<Filter::ByOwner>(request);
     };
-    CrudController<Filter::ByOwner>("/todo", handler->router());
-    CrudController<Data::Event>("/event", handler->router());
+    CrudController<Filter::ByOwner> todoCrud(
+        "/todo",
+        [](const Request& request) {
+            return std::make_shared<Filter::ByOwner>(request);
+        },
+        handler->router());
+    CrudController<Data::Event> eventCrud(
+        "/event",
+        [](const Request& request) {
+            return std::make_shared<Data::Event>(request);
+        },
+        handler->router());
     handler->defaultHandler(Http::NullHandler);
     handler->finish_init();
 
@@ -57,7 +67,12 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     shared_ptr<SimpleWebServer> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
     adminHandler = make_shared<SimpleWebServer>();
-    CrudController<Data::User>("/user", adminHandler->router());
+    CrudController<Data::User> userCrud(
+        "/user",
+        [](const Request& request) {
+            return std::make_shared<Data::User>(request);
+        },
+        adminHandler->router());
     adminHandler->defaultHandler(Http::NullHandler);
     adminHandler->finish_init();
 #endif

@@ -32,7 +32,12 @@ TEST_CASE("Signup")
         Router router;
         auto handler = std::make_shared<SimpleWebServer>();
         ;
-        CrudController<Todo>("/todo", handler->router());
+        CrudController<Todo> crud(
+            "/todo",
+            [](const Request& request) {
+                return std::make_shared<Todo>(request);
+            },
+            handler->router());
         LoginController<TestServer> w(
             handler,
             nullptr,
