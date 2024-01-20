@@ -54,13 +54,13 @@ private:
 int Invoices::InvoicesApplication::main(const std::vector<std::string>& args)
 {
     auto handler = std::make_shared<SimpleWebServer>();
-    CrudController<Invoice>(
+    CrudController(
         "/invoice",
         [](const Request& request) {
             return std::make_shared<Invoice>(request);
         },
         handler->router());
-    CrudController<Customer>(
+    CrudController(
         "/customer",
         [](const Request& request) {
             return std::make_shared<Customer>(request);

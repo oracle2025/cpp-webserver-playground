@@ -32,7 +32,7 @@ TEST_CASE("Signup")
         Router router;
         auto handler = std::make_shared<SimpleWebServer>();
         ;
-        CrudController<Todo> crud(
+        CrudController crud(
             "/todo",
             [](const Request& request) {
                 return std::make_shared<Todo>(request);

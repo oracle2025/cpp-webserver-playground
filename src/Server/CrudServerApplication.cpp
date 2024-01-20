@@ -6,7 +6,7 @@
 int CrudServerApplication::main(const vector<string>& args)
 {
     PocoWebServer server;
-    CrudController<Todo> controller(
+    CrudController controller(
         "/todo",
         [](const Request& request) { return std::make_shared<Todo>(request); },
         server.router());

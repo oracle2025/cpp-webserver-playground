@@ -57,24 +57,19 @@ static vector<std::tuple<KeyStringType, HtmlInputType>> extractFieldsFromCsv(
 }
 
 class ProtoCrudController : public SimpleWebServer,
-                            public CrudController<Data::ScaffoldRecord> {
+                            public CrudController {
 public:
     using FieldsType = Data::ScaffoldRecord::FieldsType;
     ProtoCrudController(string name, FieldsType fields)
         : CrudController(
               "/" + name,
-              [](const Request& request) {
-                  return std::make_shared<Data::ScaffoldRecord>(request);
+              [this](const Request& request) {
+                  return std::make_shared<Data::ScaffoldRecord>(m_name, m_fields);
               },
               m_router)
         , m_name(std::move(name))
         , m_fields(std::move(fields))
     {
-    }
-    std::shared_ptr<RecordExtended> makeRecord(const Request& request) override
-    {
-        auto record = std::make_shared<Data::ScaffoldRecord>(m_name, m_fields);
-        return record;
     }
 
 private:

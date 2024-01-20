@@ -24,7 +24,7 @@ TEST_CASE("Crud Server")
 {
     // Router router;
     TestServer w;
-    CrudController<Todo> handler(
+    CrudController handler(
         "",
         [](const Request& request) { return std::make_shared<Todo>(request); },
         w.router());

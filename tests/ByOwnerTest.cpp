@@ -46,7 +46,7 @@ TEST_CASE("By Owner")
 {
     auto handler = std::make_shared<SimpleWebServer>();
     ;
-    CrudController<Filter::ByOwner> crud(
+    CrudController crud(
         "/item",
         [](const Request& request) {
             return std::make_shared<Filter::ByOwner>(request);
