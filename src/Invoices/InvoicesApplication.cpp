@@ -5,6 +5,7 @@
 #include "Http/RequestDispatcher.hpp"
 #include "PocoWebServer.hpp"
 #include "SimpleWebServer.hpp"
+#include "Http/NullHandler.hpp"
 
 #include <utility>
 

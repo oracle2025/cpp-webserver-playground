@@ -40,15 +40,17 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     // Todo>>("/shared", router);
     // #error shared todo list not implemented
     auto handler = std::make_shared<SimpleWebServer>();
-    auto makeOwnerTodoRecord = [](const Http::Request& request) {
-        return std::make_shared<Filter::ByOwner>(request);
-    };
     CrudController todoCrud(
         "/todo",
         [](const Request& request) {
             return std::make_shared<Filter::ByOwner>(request);
         },
         handler->router());
+    CrudController sharedCrud(
+        "/shared",
+        [](const Request& request) { return std::make_shared<Todo>(request); },
+        handler->router());
+
     CrudController eventCrud(
         "/event",
         [](const Request& request) {

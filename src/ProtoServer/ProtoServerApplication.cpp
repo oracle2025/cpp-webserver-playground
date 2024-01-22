@@ -22,6 +22,7 @@ namespace fs = std::filesystem;
 namespace ProtoServer {
 
 using std::string;
+using std::make_shared;
 
 static string extractNameFromPath(const fs::path& path)
 {

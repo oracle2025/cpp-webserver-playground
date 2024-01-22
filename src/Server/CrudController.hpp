@@ -1,21 +1,8 @@
 #pragma once
 
-#include "Confirm.hpp"
-#include "Data/Todo.hpp"
-#include "Form.hpp"
-#include "Http/NotFoundHandler.hpp"
-#include "Http/NullHandler.hpp"
-#include "Http/Request.hpp"
-#include "Http/Response.hpp"
-#include "Http/Session.hpp"
-#include "List.hpp"
-#include "Router.hpp"
-#include "Server/WebServer.hpp"
-#include "Submit.hpp"
-#include "bunfet-example.hpp"
-#include "style.hpp"
+#include <functional>
+#include <iosfwd>
 
-#include <utility>
 /*
  * A Simple Todo List:
  * Data Model:
@@ -50,10 +37,16 @@
         std::chrono::system_clock::now();
  */
 
-using Http::content;
-using Http::redirect;
+namespace Http {
+class Request;
+class Response;
+class Router;
+} // namespace Http
+struct RecordExtended;
+using std::shared_ptr;
 
 struct CrudController {
+    using string = std::string;
     using Response = Http::Response;
     using Request = Http::Request;
     using make_record_func = std::function<std::shared_ptr<RecordExtended>(

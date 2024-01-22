@@ -1,4 +1,5 @@
 #include "Data/MigrationsV1.hpp"
+#include "Data/Todo.hpp"
 #include "Login/LoginController.hpp"
 #include "Signup/SignupController.hpp"
 #include "TestServer.hpp"
@@ -24,7 +25,8 @@ TEST_CASE("Signup")
         params["username"] = "porky";
         params["password"] = "S3cr3t!";
         params["confirm_password"] = "S3cr3t!";
-        auto response = w.handle({"/signup/submit", {}, params});
+        auto response
+            = w.handle({"/signup/submit", {}, params, {}, Http::Method::POST});
         CHECK(response->alert().message() == "User created");
     }
     SUBCASE("Signup and Login")
@@ -51,7 +53,8 @@ TEST_CASE("Signup")
         params["username"] = "porky";
         params["password"] = "S3cr3t!";
         params["confirm_password"] = "S3cr3t!";
-        response = w.handle({"/signup/submit", cookieJar, params});
+        response = w.handle(
+            {"/signup/submit", cookieJar, params, {}, Http::Method::POST});
         CHECK(response->alert().message() == "User created");
         cookieJar.merge(response->cookies());
         CHECK(w.handle({"/secret", cookieJar})->content() == "Success");

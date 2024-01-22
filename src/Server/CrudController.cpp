@@ -1,4 +1,20 @@
 #include "CrudController.hpp"
+#include "Confirm.hpp"
+#include "Form.hpp"
+#include "Http/NotFoundHandler.hpp"
+#include "Http/Session.hpp"
+#include "Server/WebServer.hpp"
+#include "Submit.hpp"
+#include "bunfet-example.hpp"
+#include "style.hpp"
+#include "Http/Request.hpp"
+#include "Http/Response.hpp"
+
+#include "List.hpp"
+#include "Router.hpp"
+
+using Http::content;
+using Http::redirect;
 
 CrudController::CrudController(
     const string& prefix, make_record_func makeRecordFunc, Http::Router& router)
@@ -17,7 +33,7 @@ CrudController::CrudController(
     router.post(prefix + "/create", [this, prefix](const Request& request) {
         using Http::Session;
         auto record = m_makeRecord(request);
-        for (auto field : record->fields()) {
+        for (const auto& field : record->fields()) {
             if (request.hasParameter(field)) {
                 record->setImpl(field, request.parameter(field));
             }

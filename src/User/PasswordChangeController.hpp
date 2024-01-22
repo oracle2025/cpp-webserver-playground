@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Data/User.hpp"
-#include "Http/NotFoundHandler.hpp"
+#include "Http/NullHandler.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Session.hpp"

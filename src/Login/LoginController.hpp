@@ -6,6 +6,7 @@
 #include "Http/Response.hpp"
 #include "Http/Session.hpp"
 #include "Impl/SimpleWebServer.hpp"
+#include "List.hpp"
 #include "Password.hpp"
 #include "Presentation.hpp"
 #include "Server/CrudController.hpp"
@@ -19,6 +20,7 @@
 #include <memory>
 #include <set>
 #include <string>
+using Http::redirect;
 using std::map;
 using std::set;
 using std::string;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Data/User.hpp"
+#include "Http/NullHandler.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Session.hpp"
@@ -35,7 +36,7 @@ struct SignupController : public T {
                 .form(form)
                 .shared_from_this();
         });
-        T::router().get(prefix + "/submit", [prefix](const Request& request) {
+        T::router().post(prefix + "/submit", [prefix](const Request& request) {
             Data::User user;
             const auto username = request.parameter("username");
             if (username == "admin" || findUser(*g_session, username, user)) {
