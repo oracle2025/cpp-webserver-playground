@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <iosfwd>
+#include <memory>
 
 /*
  * A Simple Todo List:

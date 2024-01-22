@@ -1,6 +1,7 @@
 #include "RequestDispatcher.hpp"
 
 #include "Http/NotFoundHandler.hpp"
+#include "Response.hpp"
 
 namespace Http {
 
@@ -13,6 +14,7 @@ shared_ptr<Response> RequestDispatcher::handle(const Request& request)
     for (auto& handler : m_handlers) {
         auto response = handler->handle(request);
         if (response) {
+            response->appendNavBarAction({"Hello From Dispatch", "/"});
             return response;
         }
     }

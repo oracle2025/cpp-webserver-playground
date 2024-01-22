@@ -35,28 +35,24 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
         event_items.initFromCsv(csv);
     }
 
-    // Router router;
-    // auto shared_todo_list = make_shared<CrudController<SimpleWebServer,
-    // Todo>>("/shared", router);
-    // #error shared todo list not implemented
     auto handler = std::make_shared<SimpleWebServer>();
+
+    CrudController sharedCrud(
+        "/shared",
+        [](const Request& request) { return std::make_shared<Todo>(request); },
+        handler->router());
     CrudController todoCrud(
         "/todo",
         [](const Request& request) {
             return std::make_shared<Filter::ByOwner>(request);
         },
         handler->router());
-    CrudController sharedCrud(
-        "/shared",
-        [](const Request& request) { return std::make_shared<Todo>(request); },
-        handler->router());
-
-    CrudController eventCrud(
+    /*CrudController eventCrud(
         "/event",
         [](const Request& request) {
             return std::make_shared<Data::Event>(request);
         },
-        handler->router());
+        handler->router());*/
     handler->defaultHandler(Http::NullHandler);
     handler->finish_init();
 
@@ -90,6 +86,11 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
         std::make_shared<Presentation>());
 
     // server.addButtonBar({"Calendar", "Events", "Todo", "Users", "Tickets"});
+    /*
+     * How to add NavBar Links:
+     * 1) Inside Request Dispatcher
+     * 2) Add to secretHandler, adminHandler, publicHandler
+     */
 
     server.start();
     waitForTerminationRequest();
