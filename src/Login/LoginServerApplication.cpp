@@ -11,6 +11,8 @@
 #include "User/PasswordChangeController.hpp"
 #include "doctest.h"
 
+#include <inja.hpp>
+
 using Email::SendEmailController;
 using Events::CalendarController;
 using Http::RequestDispatcher;
@@ -47,6 +49,20 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
             return std::make_shared<Filter::ByOwner>(request);
         },
         handler->router());
+    handler->router().get("/", [](const Request& request) {
+        std::ostringstream out;
+        try {
+            const auto tpl = "../html/home.html";
+            inja::Environment env;
+            const inja::Template temp = env.parse_template(tpl);
+            out << env.render(temp, {});
+        } catch (...) {
+            TRACE_RETHROW("Could not render template");
+        }
+        return content(out.str())
+            ->appendNavBarAction({"Start", "/"})
+            .shared_from_this();
+    });
     /*CrudController eventCrud(
         "/event",
         [](const Request& request) {

@@ -8,7 +8,7 @@
 #include "NullHandler.hpp"
 #include "Server/WebServer.hpp"
 
-#include <ginger.h>
+#include <ginger/ginger.h>
 namespace Events {
 
 using Http::content;

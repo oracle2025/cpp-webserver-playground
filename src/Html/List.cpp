@@ -6,7 +6,7 @@
 #include "String/escape.hpp"
 
 #include <doctest.h>
-#include <ginger.h>
+#include <ginger/ginger.h>
 
 #include <sstream>
 

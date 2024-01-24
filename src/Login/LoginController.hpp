@@ -20,6 +20,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 using Http::redirect;
 using std::map;
 using std::set;
@@ -44,10 +45,10 @@ struct LoginController : public T {
         shared_ptr<RequestHandler> adminHandler,
         shared_ptr<RequestHandler> publicHandler,
         shared_ptr<Html::Presentation> presentation)
-        : m_secretHandler(secretHandler)
-        , m_adminHandler(adminHandler)
-        , m_publicHandler(publicHandler)
-        , m_presentation(presentation)
+        : m_secretHandler(std::move(secretHandler))
+        , m_adminHandler(std::move(adminHandler))
+        , m_publicHandler(std::move(publicHandler))
+        , m_presentation(std::move(presentation))
     {
         using Http::Session;
         T::router().get("/", [this](const Request& request) {

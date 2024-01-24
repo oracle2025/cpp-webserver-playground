@@ -6,6 +6,7 @@
 #include "Html/List.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "NullHandler.hpp"
 #include "WebServer.hpp"
 
 namespace Email {
@@ -41,6 +42,16 @@ public:
                 .title("Send Email")
                 .shared_from_this();
         });
+        T::defaultHandler(Http::NullHandler);
+        T::finish_init();
+    }
+    std::string generateEmailBody(const Http::Request& request)
+    {
+        Filter::ByOwner record(request);
+        const auto columns = record.presentableFieldsImpl();
+
+        Html::List list(record.listAsPointers(), columns);
+        return list();
     }
 };
 } // namespace Email

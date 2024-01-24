@@ -64,7 +64,7 @@ if (ENABLE_BACKWARD)
 endif ()
 
 include_directories(SYSTEM ${PROJECT_BINARY_DIR}/include)
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/lib/ginger)
+include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/lib/include)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
 if (${Poco_FOUND} AND ${spdlog_FOUND})
