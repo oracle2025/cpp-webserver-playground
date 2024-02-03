@@ -1,6 +1,7 @@
 #include "LoginServerApplication.hpp"
 
 #include "Data/Event.hpp"
+#include "Data/SharedTodo.hpp"
 #include "Email/SendEmailController.hpp"
 #include "Events/CalendarController.hpp"
 #include "Filter/ByOwner.hpp"
@@ -41,7 +42,7 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
 
     CrudController sharedCrud(
         "/shared",
-        [](const Request& request) { return std::make_shared<Todo>(request); },
+        [](const Request& request) { return std::make_shared<SharedTodo>(request); },
         handler->router());
     CrudController todoCrud(
         "/todo",

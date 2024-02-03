@@ -77,6 +77,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             # src/stb/stb_implementation.cpp
             src/Data/Todo.cpp
             src/Data/Todo.hpp
+            src/Data/SharedTodo.cpp
+            src/Data/SharedTodo.hpp
             src/Html/Table.cpp
             src/Html/Table.hpp
             src/Data/Record.cpp
@@ -212,7 +214,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/String/capitalize.cpp
             src/Server/SimpleController2.cpp
             src/Server/SimpleController2.hpp
-            src/Server/CrudController.cpp)
+            src/Server/CrudController.cpp
+            src/Data/MigrationsV4.cpp
+            src/Data/MigrationsV4.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
