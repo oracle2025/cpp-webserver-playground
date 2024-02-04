@@ -3,6 +3,7 @@
 #include "Login/LoginController.hpp"
 #include "Server/TestServer.hpp"
 #include "doctest.h"
+#include "Http/Session.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
 

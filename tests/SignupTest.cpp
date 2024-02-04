@@ -1,6 +1,7 @@
 #include "Data/MigrationsV1.hpp"
 #include "Data/Todo.hpp"
 #include "Login/LoginController.hpp"
+#include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
 #include "TestServer.hpp"
 #include "doctest.h"

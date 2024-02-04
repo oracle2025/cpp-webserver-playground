@@ -216,7 +216,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Server/SimpleController2.hpp
             src/Server/CrudController.cpp
             src/Data/MigrationsV4.cpp
-            src/Data/MigrationsV4.hpp)
+            src/Data/MigrationsV4.hpp
+            src/Login/LoginController.cpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic

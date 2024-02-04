@@ -13,6 +13,7 @@
 
 using Http::content;
 using std::string;
+using Http::redirect;
 
 template<typename T>
 struct PasswordChangeController : public T {

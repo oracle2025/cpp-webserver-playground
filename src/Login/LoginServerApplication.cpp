@@ -8,7 +8,9 @@
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "LoginController.hpp"
+#include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
+#include "SimpleWebServer.hpp"
 #include "User/PasswordChangeController.hpp"
 #include "doctest.h"
 
@@ -42,7 +44,9 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
 
     CrudController sharedCrud(
         "/shared",
-        [](const Request& request) { return std::make_shared<SharedTodo>(request); },
+        [](const Request& request) {
+            return std::make_shared<SharedTodo>(request);
+        },
         handler->router());
     CrudController todoCrud(
         "/todo",
@@ -102,7 +106,8 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
         make_shared<RequestDispatcher>(secretHandlers),
         adminHandler,
         publicHandler,
-        presentation, server2.router());
+        presentation,
+        server2.router());
     server2.defaultHandler(server.getDefaultHandler());
     server2.setPresentation(presentation);
     server2.finish_init();
