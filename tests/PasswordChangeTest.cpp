@@ -32,11 +32,15 @@ TEST_CASE("Change Password")
 
     Data::User user;
 
-    LoginController<TestServer> w(
+    TestServer w;
+    LoginController login_controller(
         std::make_shared<PasswordChangeController<TestServer>>("/password"),
         nullptr,
         nullptr,
-        nullptr);
+        nullptr,w.router());
+    w.defaultHandler(login_controller.getDefaultHandler());
+    w.setPresentation(nullptr);
+    w.finish_init();
     SUBCASE("Change password")
     {
         CHECK(loginSuccess("admin", "Adm1n!", w));
@@ -88,11 +92,15 @@ TEST_CASE("Change Password with Fake Browser")
     g_session = &session;
     Data::MigrationsLatest m;
     m.perform();
-    LoginController<TestServer> handler(
+    TestServer handler;
+    LoginController login_controller(
         std::make_shared<PasswordChangeController<TestServer>>("/password"),
         nullptr,
         nullptr,
-        nullptr);
+        nullptr,handler.router());
+    handler.defaultHandler(login_controller.getDefaultHandler());
+    handler.setPresentation(nullptr);
+    handler.finish_init();
     PocoPageHandler pageHandler(
         [&handler](const Request& request) { return handler.handle(request); },
         nullptr);

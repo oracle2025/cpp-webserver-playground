@@ -26,8 +26,7 @@ using std::map;
 using std::set;
 using std::string;
 
-template<typename T>
-struct LoginController : public T {
+struct LoginController {
     static bool isLoginAttempt(const map<string, string>& parameters)
     {
         return parameters.count("username") && parameters.count("password");
@@ -40,27 +39,50 @@ struct LoginController : public T {
             parameters.at("username"), parameters.at("password"), user);
     }
 
+    handler_type getDefaultHandler()
+    {
+        return [this](const Request& request) {
+            if (m_adminHandler && Http::Session(request).isLoggedIn()
+                && Http::Session(request).isAdmin()) {
+                auto response = m_adminHandler->handle(request);
+                if (response) {
+                    return addLinksToResponse(request, response);
+                } else {
+                    return forwardToSecretHandler(request);
+                }
+            } else if (Http::Session(request).isLoggedIn()) {
+                return forwardToSecretHandler(request);
+            } else if (!m_publicHandler) {
+            } else if (auto response = m_publicHandler->handle(request)) {
+                return response->appendNavBarAction({"🔒 Login", "/", "right"})
+                    .shared_from_this();
+            }
+            return redirect("/")
+                ->alert("Please login", Html::AlertType::INFO)
+                .shared_from_this();
+        };
+    }
     LoginController(
         shared_ptr<RequestHandler> secretHandler,
         shared_ptr<RequestHandler> adminHandler,
         shared_ptr<RequestHandler> publicHandler,
-        shared_ptr<Html::Presentation> presentation)
+        shared_ptr<Html::Presentation> presentation, Http::Router& router)
         : m_secretHandler(std::move(secretHandler))
         , m_adminHandler(std::move(adminHandler))
         , m_publicHandler(std::move(publicHandler))
         , m_presentation(std::move(presentation))
     {
         using Http::Session;
-        T::router().get("/", [this](const Request& request) {
+        router.get("/", [this](const Request& request) {
             if (Session(request).isLoggedIn() && m_secretHandler) {
                 return forwardToSecretHandler(request);
             } else {
                 return redirect("/login");
             }
         });
-        T::router().get(
+        router.get(
             "/login", [this](const Request& request) { return loginForm(); });
-        T::router().post("/login", [this](const Request& request) {
+        router.post("/login", [this](const Request& request) {
             if (!isLoginAttempt(request.allParameters())) {
                 return content("Invalid Request");
             }
@@ -80,7 +102,7 @@ struct LoginController : public T {
             Http::Session::addAlertToSession(request, *response);
             return response;
         });
-        T::router().get("/secret", [](const Request& request) {
+        router.get("/secret", [](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 return content("Success");
             } else {
@@ -89,7 +111,7 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/logout", [this](const Request& request) {
+        router.get("/logout", [this](const Request& request) {
             if (Session(request).isLoggedIn()) {
                 auto response = loginForm()
                                     ->alert("Logged out", Html::AlertType::INFO)
@@ -103,7 +125,7 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/sessions", [this](const Request& request) {
+        router.get("/sessions", [this](const Request& request) {
             if (Session(request).isAdmin()) {
                 auto response = content(Html::List(
                                             Session::listAll(),
@@ -124,31 +146,12 @@ struct LoginController : public T {
                     .shared_from_this();
             }
         });
-        T::router().get("/css/style.css", [](const Request& request) {
+        router.get("/css/style.css", [](const Request& request) {
             return content(STYLE_SHEET, "text/css");
         });
-        T::defaultHandler([this](const Request& request) {
-            if (m_adminHandler && Session(request).isLoggedIn()
-                && Session(request).isAdmin()) {
-                auto response = m_adminHandler->handle(request);
-                if (response) {
-                    return addLinksToResponse(request, response);
-                } else {
-                    return forwardToSecretHandler(request);
-                }
-            } else if (Session(request).isLoggedIn()) {
-                return forwardToSecretHandler(request);
-            } else if (!m_publicHandler) {
-            } else if (auto response = m_publicHandler->handle(request)) {
-                return response->appendNavBarAction({"🔒 Login", "/", "right"})
-                    .shared_from_this();
-            }
-            return redirect("/")
-                ->alert("Please login", Html::AlertType::INFO)
-                .shared_from_this();
-        });
-        T::setPresentation(m_presentation);
-        T::finish_init();
+        //T::defaultHandler(getDefaultHandler());
+        //T::setPresentation(m_presentation);
+        //T::finish_init();
     }
     shared_ptr<Response> forwardToSecretHandler(const Request& request)
     {

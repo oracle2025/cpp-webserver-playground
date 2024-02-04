@@ -55,11 +55,15 @@ TEST_CASE("Login Logout Cookies Test")
      * 5 Logout -> delete cookie
      */
     using std::make_shared;
-    auto handler = make_shared<LoginController<SimpleWebServer>>(
+    auto handler = make_shared<SimpleWebServer>();
+    auto login_controller = make_shared<LoginController>(
         make_shared<HelloHandler>("Secret"),
         make_shared<HelloHandler>("Admin"),
         make_shared<HelloHandler>("Public"),
-        nullptr);
+        nullptr, handler->router());
+    handler->defaultHandler(login_controller->getDefaultHandler());
+    handler->setPresentation(nullptr);
+    handler->finish_init();
 
     PocoPageHandler pageHandler(
         [handler](const Request& request) { return handler->handle(request); },
@@ -104,11 +108,15 @@ TEST_CASE("Render Alert after Redirect")
 
     private:
     };
-    auto handler = make_shared<LoginController<SimpleWebServer>>(
+    auto handler = make_shared<SimpleWebServer>();
+    auto login_controller = make_shared<LoginController>(
         make_shared<AlertAndRedirectHandler>(),
         nullptr,
         make_shared<HelloHandler>("Public"),
-        nullptr);
+        nullptr, handler->router());
+    handler->defaultHandler(login_controller->getDefaultHandler());
+    handler->setPresentation(nullptr);
+    handler->finish_init();
 
     PocoPageHandler pageHandler(
         [handler](const Request& request) { return handler->handle(request); },

@@ -52,7 +52,11 @@ TEST_CASE("By Owner")
             return std::make_shared<Filter::ByOwner>(request);
         },
         handler->router());
-    LoginController<TestServer> w(handler, nullptr, nullptr, nullptr);
+    TestServer w;
+    LoginController login_controller(handler, nullptr, nullptr, nullptr, w.router());
+    w.defaultHandler(login_controller.getDefaultHandler());
+    w.setPresentation(nullptr);
+    w.finish_init();
 
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");

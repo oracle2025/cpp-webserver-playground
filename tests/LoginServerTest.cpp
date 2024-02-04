@@ -6,13 +6,14 @@
 
 #include <Poco/Data/SQLite/Connector.h>
 
-void loginLogout(LoginController<TestServer>& w, map<string, string>& cookieJar)
+void loginLogout(RequestHandler& w, map<string, string>& cookieJar)
 {
     CHECK(w.handle({"/secret", cookieJar})->content() == "Access denied");
     map<string, string> params;
     params["username"] = "admin";
     params["password"] = "Adm1n!";
-    auto response = w.handle({"/login", cookieJar, params, "", Http::Method::POST});
+    auto response
+        = w.handle({"/login", cookieJar, params, "", Http::Method::POST});
     cookieJar = response->cookies();
     response = w.handle({"/secret", cookieJar});
     CHECK(response->content() == "Success");
@@ -30,7 +31,12 @@ TEST_CASE("Login Server")
     Data::MigrationsLatest m;
     m.perform();
 
-    LoginController<TestServer> w(nullptr, nullptr, nullptr, nullptr);
+    TestServer w;
+    LoginController login_controller(
+        nullptr, nullptr, nullptr, nullptr, w.router());
+    w.defaultHandler(login_controller.getDefaultHandler());
+    w.setPresentation(nullptr);
+    w.finish_init();
     Session::clearAll();
     SUBCASE("Login")
     {
@@ -38,7 +44,8 @@ TEST_CASE("Login Server")
         map<string, string> params;
         params["username"] = "admin";
         params["password"] = "Adm1n!";
-        auto response = w.handle({"/login", {}, params, "", Http::Method::POST});
+        auto response
+            = w.handle({"/login", {}, params, "", Http::Method::POST});
         CHECK(
             w.handle({"/secret", response->cookies()})->content() == "Success");
     }

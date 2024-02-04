@@ -96,12 +96,16 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     publicHandler
         = make_shared<Signup::SignupController<SimpleWebServer>>("/signup");
 #endif
-    LoginController<PocoWebServer> server(
+    PocoWebServer server2;
+    auto presentation = std::make_shared<Presentation>();
+    LoginController server(
         make_shared<RequestDispatcher>(secretHandlers),
         adminHandler,
         publicHandler,
-        std::make_shared<Presentation>());
-
+        presentation, server2.router());
+    server2.defaultHandler(server.getDefaultHandler());
+    server2.setPresentation(presentation);
+    server2.finish_init();
     // server.addButtonBar({"Calendar", "Events", "Todo", "Users", "Tickets"});
     /*
      * How to add NavBar Links:
@@ -109,8 +113,8 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
      * 2) Add to secretHandler, adminHandler, publicHandler
      */
 
-    server.start();
+    server2.start();
     waitForTerminationRequest();
-    server.stop();
+    server2.stop();
     return EXIT_OK;
 }

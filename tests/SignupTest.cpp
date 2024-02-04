@@ -40,11 +40,17 @@ TEST_CASE("Signup")
                 return std::make_shared<Todo>(request);
             },
             handler->router());
-        LoginController<TestServer> w(
+        TestServer w;
+        auto presentation = std::make_shared<Html::Presentation>();
+        LoginController login_controller(
             handler,
             nullptr,
             make_shared<SignupController<SimpleWebServer>>("/signup"),
-            std::make_shared<Html::Presentation>());
+            presentation,
+            w.router());
+        w.defaultHandler(login_controller.getDefaultHandler());
+        w.setPresentation(presentation);
+        w.finish_init();
         CHECK(w.handle({"/secret"})->content() == "Access denied");
         auto response = w.handle({"/signup/"});
         CHECK((response->content().find("username") != string::npos));
