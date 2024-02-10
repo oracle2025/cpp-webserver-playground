@@ -1,5 +1,7 @@
 #include "Router.hpp"
 
+#include <utility>
+
 #include "Http/NotFoundHandler.hpp"
 #include "Http/Request.hpp"
 
@@ -16,7 +18,7 @@ handler_type& Router::findHandlerOrReturnDefault(
 }
 Router& Router::get(const std::string& path, handler_type handler)
 {
-    (*this)[path] = handler;
+    (*this)[RouteId(path)] = std::move(handler);
     return *this;
 }
 shared_ptr<Response> Router::handle(const Request& request)

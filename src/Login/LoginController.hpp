@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Data/User.hpp"
-#include "Http/Router.hpp"
+#include "Http/handler_type.hpp"
 
 #include <set>
 #include <map>
@@ -13,6 +13,7 @@ using std::map;
 namespace Http {
 class Response;
 class RequestHandler;
+class Router;
 }
 namespace Html {
 struct Presentation;
