@@ -58,7 +58,7 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     handler->router().get("/", [](const Request& request) {
         std::ostringstream out;
         try {
-            const auto tpl = "../html/home.html";
+            const auto tpl = TEMPLATE_DIR "/home.html";
             inja::Environment env;
             const inja::Template temp = env.parse_template(tpl);
             out << env.render(temp, {});
@@ -72,7 +72,6 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
 
     handler->defaultHandler(Http::NullHandler);
     handler->finish_init();
-
 
     shared_ptr<SimpleWebServer> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
@@ -94,11 +93,7 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     PocoWebServer server2;
     auto presentation = std::make_shared<Presentation>();
     LoginController server(
-        handler,
-        adminHandler,
-        publicHandler,
-        presentation,
-        server2.router());
+        handler, adminHandler, publicHandler, presentation, server2.router());
     server2.defaultHandler(server.getDefaultHandler());
     server2.setPresentation(presentation);
     server2.finish_init();
