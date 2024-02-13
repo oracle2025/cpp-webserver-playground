@@ -12,17 +12,16 @@
 #include <string>
 
 using Http::content;
-using std::string;
 using Http::redirect;
+using std::string;
 
-template<typename T>
-struct PasswordChangeController : public T {
+struct PasswordChangeController {
     using Request = Http::Request;
     using Response = Http::Response;
     using Session = Http::Session;
-    PasswordChangeController(const string& prefix)
+    PasswordChangeController(const string& prefix, Http::Router& router)
     {
-        T::router().get(prefix + "/", [prefix](const Request& request) {
+        router.get(prefix + "/", [prefix](const Request& request) {
             using namespace Input;
             Data::User user;
             if (user.pop(Session(request).userId())) { // current session user
@@ -49,7 +48,7 @@ struct PasswordChangeController : public T {
                 ;
             }
         });
-        T::router().post(prefix + "/update", [prefix](const Request& request) {
+        router.post(prefix + "/update", [prefix](const Request& request) {
             Data::User user;
             if (user.pop(Session(request).userId())) {
                 if (request.parameter("new_password")
@@ -80,11 +79,11 @@ struct PasswordChangeController : public T {
             }
         });
         if (!prefix.empty()) {
-            T::router().get("/", [prefix](const Request& request) {
+            router.get("/", [prefix](const Request& request) {
                 return redirect(prefix + "/");
             });
         }
-        T::defaultHandler(Http::NullHandler);
-        T::finish_init();
+        // T::defaultHandler(Http::NullHandler);
+        // T::finish_init();
     }
 };

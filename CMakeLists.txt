@@ -20,9 +20,14 @@ add_definitions(-DTODO_DATABASE_DIR="${TODO_DATABASE_DIR}")
 # if build mode is debug, set config dir to the users home folder
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DCONFIG_DIR="$ENV{HOME}/.todo")
-else()
+    add_definitions(-DTEMPLATE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/html")
+else ()
+    set(TEMPLATE_DIR "${CMAKE_INSTALL_FULL_DATAROOTDIR}/todo")
     add_definitions(-DCONFIG_DIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}/todo")
-endif()
+    add_definitions(-DTEMPLATE_DIR="${TEMPLATE_DIR}")
+    install(DIRECTORY html/ DESTINATION ${TEMPLATE_DIR}
+            FILES_MATCHING PATTERN "*.html")
+endif ()
 
 
 install(DIRECTORY DESTINATION ${TODO_DATABASE_DIR})
@@ -314,7 +319,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     target_link_libraries(invoices-server webservers)
 
     add_executable(send-email src/Email/SendEmailMain.cpp
-    src/Email/SendEmail.cpp)
+            src/Email/SendEmail.cpp)
     target_link_libraries(send-email PRIVATE
             Poco::Net
             Poco::Util

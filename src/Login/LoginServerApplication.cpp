@@ -41,7 +41,8 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     }
 
     auto handler = std::make_shared<SimpleWebServer>();
-
+    PasswordChangeController password_change_controller(
+        "/password", handler->router());
     CrudController sharedCrud(
         "/shared",
         [](const Request& request) {
@@ -68,21 +69,11 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
             ->appendNavBarAction({"Start", "/"})
             .shared_from_this();
     });
-    /*CrudController eventCrud(
-        "/event",
-        [](const Request& request) {
-            return std::make_shared<Data::Event>(request);
-        },
-        handler->router());*/
+
     handler->defaultHandler(Http::NullHandler);
     handler->finish_init();
 
-    auto secretHandlers = RequestHandlerList{
-        handler,
-        make_shared<PasswordChangeController<SimpleWebServer>>("/password"),
-        make_shared<CalendarController<SimpleWebServer>>("/calendar"),
-        make_shared<SendEmailController<SimpleWebServer>>("/email"),
-    };
+
     shared_ptr<SimpleWebServer> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
     adminHandler = make_shared<SimpleWebServer>();
@@ -103,7 +94,7 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     PocoWebServer server2;
     auto presentation = std::make_shared<Presentation>();
     LoginController server(
-        make_shared<RequestDispatcher>(secretHandlers),
+        handler,
         adminHandler,
         publicHandler,
         presentation,

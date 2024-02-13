@@ -33,11 +33,12 @@ TEST_CASE("Change Password")
     Data::User user;
 
     TestServer w;
+    auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
+    PasswordChangeController password_change_controller(
+        "/password", passwordChangeHandler->router());
+
     LoginController login_controller(
-        std::make_shared<PasswordChangeController<TestServer>>("/password"),
-        nullptr,
-        nullptr,
-        nullptr,w.router());
+        passwordChangeHandler, nullptr, nullptr, nullptr, w.router());
     w.defaultHandler(login_controller.getDefaultHandler());
     w.setPresentation(nullptr);
     w.finish_init();
@@ -60,7 +61,8 @@ TEST_CASE("Change Password")
         params["new_password"] = "S3cr3t&";
         params["confirm_password"] = "S3cr3t&";
 
-        response = w.handle({"/password/update", cookieJar, params, "", Http::Method::POST});
+        response = w.handle(
+            {"/password/update", cookieJar, params, "", Http::Method::POST});
         CHECK(response->content() == "Password updated successfully");
         CHECK(loginSuccess("admin", "S3cr3t&", w));
     }
@@ -93,11 +95,15 @@ TEST_CASE("Change Password with Fake Browser")
     Data::MigrationsLatest m;
     m.perform();
     TestServer handler;
+    auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
+    PasswordChangeController password_change_controller(
+        "/password", passwordChangeHandler->router());
     LoginController login_controller(
-        std::make_shared<PasswordChangeController<TestServer>>("/password"),
+        passwordChangeHandler,
         nullptr,
         nullptr,
-        nullptr,handler.router());
+        nullptr,
+        handler.router());
     handler.defaultHandler(login_controller.getDefaultHandler());
     handler.setPresentation(nullptr);
     handler.finish_init();

@@ -20,6 +20,8 @@ int main(int argc, char** argv)
         Data::MigrationsLatest migration;
         migration.perform();
         spdlog::info("Config Directory: {}", CONFIG_DIR);
+        spdlog::info("Database Directory: {}", TODO_DATABASE_DIR);
+        spdlog::info("Template Directory: {}", TEMPLATE_DIR);
         LoginServerApplication app;
         return app.run(argc, argv);
 
