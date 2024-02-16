@@ -1,0 +1,25 @@
+[Unit]
+Description=CPP Webserver
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/login-server
+User=www-data
+StandardOutput=syslog
+
+# Sandboxing features
+PrivateTmp=yes
+NoNewPrivileges=true
+# ProtectSystem=full
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_DAC_READ_SEARCH
+RestrictNamespaces=uts ipc pid user cgroup
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+PrivateDevices=yes
+RestrictSUIDSGID=true
+IPAddressDeny=any
+IPAddressAllow=localhost
+
+[Install]
+WantedBy=multi-user.target

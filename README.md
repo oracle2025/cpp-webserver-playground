@@ -6,6 +6,8 @@ It was created to practice writing web applications in C++ with TDD (Test Driven
 
 It uses Poco libraries for the web server and SQLite for the database.
 
+It includes a systemd service file for installation: [cpp-webserver.service](systemd/cpp-webserver.service.in)
+
 ## Dependencies
 
 The easy way to see the dependencies is to look at the [.github/workflows/c-cpp.yml](.github/workflows/c-cpp.yml) file.
@@ -27,3 +29,8 @@ If an exception happens, the server will log a stacktrace to the console.
 ## Screenshot
 
 ![Screenshot Todo List App](doc/images/cpp-todo-web.png)
+
+## Similar projects
+
+- [trifecta](https://github.com/berthubert/trifecta) - A simple open source image sharing site, built with a combination
+  of modern C++, database and web technologies.
