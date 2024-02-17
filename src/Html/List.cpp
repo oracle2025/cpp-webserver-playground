@@ -66,59 +66,6 @@ TEST_CASE("Html::List")
 
 string List::operator()()
 {
-    const string checkbox_template = R"()";
-    const string text_template = R"(<td class="max">${value}</td>)";
-    const string columns_template = R"(
-      $for value in columns {{
-        $if value.is_checkbox {{
-            <td style="width: 20px;">
-              <input type="hidden" name="${key}" value="no" />
-            $if value.checked {{
-              <input type="checkbox" checked name="${key}" value="yes" onchange="submitForm(this);">
-            }} $else {{
-              <input type="checkbox" name="${key}" value="yes" onchange="submitForm(this);">
-            }}
-            </td>
-        }} $else {{
-            <td class="max">${value.str}</td>
-        }}
-      }})";
-    const string table_template = R"(
-<table class="table">
-    $for row in rows {{
-    <tr>
-      ${row.columns}
-      <td><a href="/edit?${row.key}" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>
-      <td><a href="/delete?${row.key}" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a></td>
-    </tr>
-    }}
-</table>)";
-    std::map<std::string, ginger::object> template_values;
-    std::vector<std::map<std::string, ginger::object>> template_rows;
-    for (const auto& record : records) {
-        std::vector<std::map<std::string, ginger::object>> template_columns(
-            columns.size());
-        auto values = record->values();
-        for (const auto& column : columns) {
-            template_columns.push_back(
-                {{"is_checkbox",
-                  record->inputType(column) == HtmlInputType::CHECKBOX},
-                 {"checked", values[column] == "yes"},
-                 {"str", String::escape(values[column])}});
-        }
-        ostringstream columns_rendered;
-        /*std::map<std::string, ginger::object> data
-            = {{"columns", template_columns}, {"key", record->key()}};
-        ginger::parse(
-            columns_template, data, ginger::from_ios(columns_rendered));*/
-        template_rows.push_back(
-            {{"columns", columns_rendered.str()}, {"key", record->key()}});
-    }
-    template_values["rows"] = template_rows;
-    ostringstream str_rendered;
-    ginger::parse(
-        table_template, template_values, ginger::from_ios(str_rendered));
-
     ostringstream str;
     str << R"(<table class="table">)";
     if (m_withHeader) {
