@@ -1,6 +1,7 @@
 #include "Data/MigrationsV1.hpp"
 #include "Data/Todo.hpp"
 #include "Login/LoginController.hpp"
+#include "NullHandler.hpp"
 #include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
 #include "TestServer.hpp"
@@ -21,7 +22,8 @@ TEST_CASE("Signup")
 
     SUBCASE("Signup")
     {
-        SignupController<TestServer> w("/signup");
+        TestServer w;
+        SignupController signup_controller("/signup", w.router());
         map<string, string> params;
         params["username"] = "porky";
         params["password"] = "S3cr3t!";
@@ -32,23 +34,27 @@ TEST_CASE("Signup")
     }
     SUBCASE("Signup and Login")
     {
-        Router router;
         auto handler = std::make_shared<SimpleWebServer>();
-        ;
+
         CrudController crud(
             "/todo",
             [](const Request& request) {
                 return std::make_shared<Todo>(request);
             },
             handler->router());
+        handler->defaultHandler(Http::NullHandler);
+        handler->finish_init();
+
+        auto signupHandler = std::make_shared<SimpleWebServer>();
+        SignupController signup_controller(
+            "/signup", signupHandler->router());
+        signupHandler->defaultHandler(Http::NullHandler);
+        signupHandler->finish_init();
+
         TestServer w;
         auto presentation = std::make_shared<Html::Presentation>();
         LoginController login_controller(
-            handler,
-            nullptr,
-            make_shared<SignupController<SimpleWebServer>>("/signup"),
-            presentation,
-            w.router());
+            handler, nullptr, signupHandler, presentation, w.router());
         w.defaultHandler(login_controller.getDefaultHandler());
         w.setPresentation(presentation);
         w.finish_init();

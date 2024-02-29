@@ -85,10 +85,13 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     adminHandler->defaultHandler(Http::NullHandler);
     adminHandler->finish_init();
 #endif
-    shared_ptr<RequestHandler> publicHandler = nullptr;
+    shared_ptr<SimpleWebServer> publicHandler = nullptr;
 #ifdef ENABLE_SIGNUP
-    publicHandler
-        = make_shared<Signup::SignupController<SimpleWebServer>>("/signup");
+    publicHandler = std::make_shared<SimpleWebServer>();
+    Signup::SignupController signup_controller(
+        "/signup", publicHandler->router());
+    publicHandler->defaultHandler(Http::NullHandler);
+    publicHandler->finish_init();
 #endif
     PocoWebServer server2;
     auto presentation = std::make_shared<Presentation>();

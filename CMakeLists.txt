@@ -226,7 +226,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Login/LoginController.cpp
             src/Http/handler_type.hpp
             src/Http/RouteId.cpp
-            src/Http/RouteId.hpp)
+            src/Http/RouteId.hpp
+            src/Signup/SignupController.cpp
+            src/User/PasswordChangeController.cpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
