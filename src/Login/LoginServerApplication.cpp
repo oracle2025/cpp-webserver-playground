@@ -2,7 +2,6 @@
 
 #include "Data/Event.hpp"
 #include "Data/SharedTodo.hpp"
-#include "Email/SendEmailController.hpp"
 #include "Events/CalendarController.hpp"
 #include "Filter/ByOwner.hpp"
 #include "Http/RequestDispatcher.hpp"
@@ -16,7 +15,6 @@
 
 #include <inja.hpp>
 
-using Email::SendEmailController;
 using Events::CalendarController;
 using Http::RequestDispatcher;
 using Http::RequestHandlerList;
