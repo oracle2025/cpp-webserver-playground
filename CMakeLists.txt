@@ -201,8 +201,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/FileSystem/ReadFromFile.hpp
             src/String/split.hpp
             src/String/split.cpp
-            src/ProtoServer/ProtoServerApplication.cpp
-            src/ProtoServer/ProtoServerApplication.hpp
             src/Server/SimpleController.cpp
             src/Server/SimpleController.hpp
             src/String/capitalize.hpp
@@ -304,8 +302,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
 
-    add_executable(proto-server src/ProtoServer/ProtoServerMain.cpp tests/doctest_impl.cpp)
-    target_link_libraries(proto-server webservers)
 
 
     # add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
@@ -320,7 +316,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(test-migration)
         add_backward(crud-server)
         add_backward(login-server)
-        add_backward(proto-server)
         # add_backward(image-browser-server)
     endif ()
 endif ()
