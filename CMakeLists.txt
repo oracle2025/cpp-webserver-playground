@@ -193,12 +193,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/FileSystem/ReadFromFile.hpp
             src/String/split.hpp
             src/String/split.cpp
-            src/Server/SimpleController.cpp
-            src/Server/SimpleController.hpp
             src/String/capitalize.hpp
             src/String/capitalize.cpp
-            src/Server/SimpleController2.cpp
-            src/Server/SimpleController2.hpp
             src/Server/CrudController.cpp
             src/Data/MigrationsV4.cpp
             src/Data/MigrationsV4.hpp
