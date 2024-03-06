@@ -181,8 +181,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/PasswordSalting.hpp
             src/Data/MigrationsV3.cpp
             src/Data/MigrationsV3.hpp
-            src/Groups/GroupManagementApplication.cpp
-            src/Groups/GroupManagementApplication.hpp
             src/String/escape.hpp
             src/String/escape.cpp
             src/Impl/PocoPageHandler.cpp
