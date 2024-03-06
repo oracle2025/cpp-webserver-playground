@@ -6,7 +6,6 @@
 #include "String/escape.hpp"
 
 #include <doctest.h>
-#include <ginger/ginger.h>
 
 #include <sstream>
 
@@ -33,34 +32,6 @@ TEST_CASE("Html::List")
         CHECK(actual.find("John") != std::string::npos);
         CHECK(actual.find("Edit") != std::string::npos);
         CHECK(actual.find("Delete") != std::string::npos);
-    }
-    SUBCASE("render one column")
-    {
-        const string columns_template = R"(
-      $for value in columns {{
-        $if value.is_checkbox {{
-            <td style="width: 20px;">
-              <input type="hidden" name="${key}" value="no" />
-            $if value.checked {{
-              <input type="checkbox" checked name="${key}" value="yes" onchange="submitForm(this);">
-            }} $else {{
-              <input type="checkbox" name="${key}" value="yes" onchange="submitForm(this);">
-            }}
-            </td>
-        }} $else {{
-            <td class="max">${value.str}</td>
-        }}
-      }})";
-        std::map<std::string, ginger::object> t;
-        t["columns"] = std::vector<std::map<std::string, ginger::object>>{
-            {{"is_checkbox", true}, {"checked", true}, {"str", "John"}},
-            {{"is_checkbox", false}, {"checked", true}, {"str", "John"}}
-        };
-        t["key"] = "1";    ostringstream str_rendered;
-        ginger::parse(
-            columns_template, t, ginger::from_ios(str_rendered));
-        auto output = str_rendered.str();
-        CHECK(output.find("John") != std::string::npos);
     }
 }
 
