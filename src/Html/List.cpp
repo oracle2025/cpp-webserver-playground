@@ -2,7 +2,7 @@
 
 #include "List.hpp"
 
-#include "Data/ScaffoldRecord.hpp"
+#include "Proto/ScaffoldRecord.hpp"
 #include "String/escape.hpp"
 
 #include <doctest.h>

@@ -1,5 +1,5 @@
 
-#include "Event.hpp"
+#include "Proto/Event.hpp"
 
 #include <doctest.h>
 

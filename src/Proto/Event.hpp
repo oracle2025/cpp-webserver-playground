@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Record.hpp"
-#include "Request.hpp"
+#include "../Data/Record.hpp"
+#include "../Http/Request.hpp"
 #include "ScaffoldRecord.hpp"
 namespace Data {
 using std::map;

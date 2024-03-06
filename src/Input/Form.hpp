@@ -28,7 +28,7 @@ struct Form : public Element, std::enable_shared_from_this<Form> {
 
     string action() const;
 
-    string data() const; // "username=admin&password=Adm1n!"
+    string data() const;
 
 private:
     vector<string> m_elements;

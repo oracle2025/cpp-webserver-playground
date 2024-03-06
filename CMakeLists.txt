@@ -175,13 +175,13 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/String/escape.cpp
             src/Impl/PocoPageHandler.cpp
             src/Impl/PocoPageHandler.hpp
-            src/Data/Event.cpp
-            src/Data/Event.hpp
+            src/Proto/Event.cpp
+            src/Proto/Event.hpp
             src/Input/Date.cpp
             src/Input/Date.h
             src/Input/TimeElement.cpp
-            src/Data/ScaffoldRecord.cpp
-            src/Data/ScaffoldRecord.hpp
+            src/Proto/ScaffoldRecord.cpp
+            src/Proto/ScaffoldRecord.hpp
             src/Data/Date.cpp
             src/Data/Date.hpp
             src/String/split.hpp
