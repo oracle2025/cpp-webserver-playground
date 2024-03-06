@@ -77,10 +77,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
 
     add_library(
             webservers OBJECT
-            # src/stb/stb_image.h
-            # src/stb/stb_image_resize.h
-            # src/stb/stb_image_write.h
-            # src/stb/stb_implementation.cpp
             src/Data/Todo.cpp
             src/Data/Todo.hpp
             src/Data/SharedTodo.cpp
@@ -175,8 +171,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Filter/ByOwner.hpp
             src/Data/MigrationsV2.cpp
             src/Data/MigrationsV2.hpp
-            # src/ImageBrowser/ImageBrowserController.hpp
-            # src/ImageBrowser/ImageBrowserApplication.cpp
             src/Data/PasswordSalting.cpp
             src/Data/PasswordSalting.hpp
             src/Data/MigrationsV3.cpp
@@ -279,7 +273,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/PasswordChangeTest.cpp
             tests/SignupTest.cpp
             tests/ByOwnerTest.cpp
-            # tests/ImageBrowserTest.cpp
             tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
@@ -302,10 +295,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
 
 
 
-    # add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
-    #                                     tests/doctest_impl.cpp)
-    # target_link_libraries(image-browser-server webservers)
-
     install(TARGETS login-server DESTINATION bin)
 
     if (ENABLE_BACKWARD)
@@ -314,7 +303,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(test-migration)
         add_backward(crud-server)
         add_backward(login-server)
-        # add_backward(image-browser-server)
     endif ()
 endif ()
 
