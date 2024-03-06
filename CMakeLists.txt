@@ -111,8 +111,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Impl/PocoWebServer.hpp
             src/Login/LoginServerApplication.cpp
             src/Login/LoginServerApplication.hpp
-            src/Server/CrudServerApplication.cpp
-            src/Server/CrudServerApplication.hpp
             src/Http/RequestHandler.hpp
             src/Server/style.hpp
             src/Data/FieldTypes.hpp
@@ -259,7 +257,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/InputTest.cpp
             tests/WebServerTest.cpp
             tests/ResponseTest.cpp
-            tests/PocoWebServerTest.cpp
             tests/CrudServerTest.cpp
             tests/TodoTest.cpp
             tests/AlertTest.cpp
@@ -280,9 +277,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
     add_test(NAME test-migration COMMAND $<TARGET_FILE:test-migration>)
 
-    add_executable(crud-server src/Server/CrudMain.cpp tests/doctest_impl.cpp
-            src/User/PasswordChangeController.hpp)
-    target_link_libraries(crud-server webservers)
 
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
@@ -295,7 +289,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(webservers)
         add_backward(tests)
         add_backward(test-migration)
-        add_backward(crud-server)
         add_backward(login-server)
     endif ()
 endif ()
