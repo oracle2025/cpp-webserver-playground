@@ -1,7 +1,7 @@
 #include "Data/MigrationsV3.hpp"
 #include "Data/User.hpp"
 #include "Login/LoginController.hpp"
-#include "Server/TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 #include "Http/Session.hpp"
 
@@ -32,7 +32,7 @@ TEST_CASE("Login Server")
     Data::MigrationsLatest m;
     m.perform();
 
-    TestServer w;
+    SimpleWebServer w;
     LoginController login_controller(
         nullptr, nullptr, nullptr, nullptr, w.router());
     w.defaultHandler(login_controller.getDefaultHandler());

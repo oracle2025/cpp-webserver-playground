@@ -1,7 +1,7 @@
-#include "Server/TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 TEST_CASE("Web Server")
 {
-    TestServer w;
+    SimpleWebServer w;
     w.router().get("/", [](const Request& request) { return Http::content("Hello World"); });
 }

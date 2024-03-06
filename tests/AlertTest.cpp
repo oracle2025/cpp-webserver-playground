@@ -3,7 +3,7 @@
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Session.hpp"
-#include "Server/TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 
 using Http::content;
@@ -40,7 +40,7 @@ struct SimpleAlertComponent : public T {
 
 TEST_CASE("Alert")
 {
-    SimpleAlertComponent<TestServer> w;
+    SimpleAlertComponent<SimpleWebServer> w;
     auto r = w.handle({"/alert"});
     auto cookieJar = r->cookies();
     auto page = Html::Presentation().render(*r);

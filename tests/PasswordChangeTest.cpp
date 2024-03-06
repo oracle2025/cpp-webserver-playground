@@ -1,7 +1,7 @@
 #include "Data/MigrationsV3.hpp"
 #include "FakeBrowser.hpp"
 #include "Login/LoginController.hpp"
-#include "Server/TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "User/PasswordChangeController.hpp"
 #include "doctest.h"
 
@@ -32,7 +32,7 @@ TEST_CASE("Change Password")
 
     Data::User user;
 
-    TestServer w;
+    SimpleWebServer w;
     auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
     PasswordChangeController password_change_controller(
         "/password", passwordChangeHandler->router());
@@ -94,7 +94,7 @@ TEST_CASE("Change Password with Fake Browser")
     g_session = &session;
     Data::MigrationsLatest m;
     m.perform();
-    TestServer handler;
+    SimpleWebServer handler;
     auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
     PasswordChangeController password_change_controller(
         "/password", passwordChangeHandler->router());

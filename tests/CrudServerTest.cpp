@@ -1,6 +1,6 @@
 #include "Data/Todo.hpp"
 #include "Server/CrudController.hpp"
-#include "Server/TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -23,7 +23,7 @@ using Poco::Data::Session;
 TEST_CASE("Crud Server")
 {
     // Router router;
-    TestServer w;
+    SimpleWebServer w;
     CrudController handler(
         "",
         [](const Request& request) { return std::make_shared<Todo>(request); },

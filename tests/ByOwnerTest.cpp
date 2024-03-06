@@ -2,7 +2,7 @@
 #include "Filter/ByOwner.hpp"
 #include "Login/LoginController.hpp"
 #include "Server/CrudController.hpp"
-#include "Server/TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -52,7 +52,7 @@ TEST_CASE("By Owner")
             return std::make_shared<Filter::ByOwner>(request);
         },
         handler->router());
-    TestServer w;
+    SimpleWebServer w;
     LoginController login_controller(handler, nullptr, nullptr, nullptr, w.router());
     w.defaultHandler(login_controller.getDefaultHandler());
     w.setPresentation(nullptr);

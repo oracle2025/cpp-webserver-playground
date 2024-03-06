@@ -4,7 +4,7 @@
 #include "NullHandler.hpp"
 #include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
-#include "TestServer.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -22,7 +22,7 @@ TEST_CASE("Signup")
 
     SUBCASE("Signup")
     {
-        TestServer w;
+        SimpleWebServer w;
         SignupController signup_controller("/signup", w.router());
         map<string, string> params;
         params["username"] = "porky";
@@ -51,7 +51,7 @@ TEST_CASE("Signup")
         signupHandler->defaultHandler(Http::NullHandler);
         signupHandler->finish_init();
 
-        TestServer w;
+        SimpleWebServer w;
         auto presentation = std::make_shared<Html::Presentation>();
         LoginController login_controller(
             handler, nullptr, signupHandler, presentation, w.router());

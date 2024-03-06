@@ -103,8 +103,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Http/Response.hpp
             src/Http/Request.cpp
             src/Http/Request.hpp
-            src/Server/TestServer.cpp
-            src/Server/TestServer.hpp
             src/Http/SessionId.cpp
             src/Http/SessionId.hpp
             src/Login/LoginController.hpp
