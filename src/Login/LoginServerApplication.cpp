@@ -1,12 +1,11 @@
 #include "LoginServerApplication.hpp"
 
-#include "Data/Event.hpp"
 #include "Data/SharedTodo.hpp"
-#include "Events/CalendarController.hpp"
 #include "Filter/ByOwner.hpp"
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "LoginController.hpp"
+#include "NullHandler.hpp"
 #include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
@@ -15,29 +14,12 @@
 
 #include <inja.hpp>
 
-using Events::CalendarController;
 using Http::RequestDispatcher;
 using Http::RequestHandlerList;
 using std::make_shared;
 
 int LoginServerApplication::main(const vector<string>& args)
 {
-    Data::Event event_items{Http::Request{}};
-    std::ifstream input_stream(CONFIG_DIR "/events.csv");
-
-    // check stream status
-    if (input_stream) {
-        event_items.initFromCsv(input_stream);
-    } else {
-        std::istringstream csv(R"(subject,startDate,endDate,startTime,endTime
-First of January,2021-01-01,2021-01-01,00:00,23:59
-First of February,2021-02-01,2021-02-01,00:00,23:59
-First of March,2021-03-01,2021-03-01,00:00,23:59
-First of April,2021-04-01,2021-04-01,00:00,23:59
-)");
-        event_items.initFromCsv(csv);
-    }
-
     auto handler = std::make_shared<SimpleWebServer>();
     PasswordChangeController password_change_controller(
         "/password", handler->router());
@@ -98,12 +80,6 @@ First of April,2021-04-01,2021-04-01,00:00,23:59
     server2.defaultHandler(server.getDefaultHandler());
     server2.setPresentation(presentation);
     server2.finish_init();
-    // server.addButtonBar({"Calendar", "Events", "Todo", "Users", "Tickets"});
-    /*
-     * How to add NavBar Links:
-     * 1) Inside Request Dispatcher
-     * 2) Add to secretHandler, adminHandler, publicHandler
-     */
 
     server2.start();
     waitForTerminationRequest();

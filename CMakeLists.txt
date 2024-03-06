@@ -192,22 +192,11 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Input/Date.cpp
             src/Input/Date.h
             src/Input/TimeElement.cpp
-            src/Events/CalendarController.cpp
-            src/Events/CalendarController.hpp
             src/Data/ScaffoldRecord.cpp
             src/Data/ScaffoldRecord.hpp
-            src/Invoices/InvoicesApplication.cpp
-            src/Invoices/InvoicesApplication.hpp
-            src/Email/SendEmail.cpp
-            src/Email/SendEmail.hpp
-            src/Events/WeeklyAgenda.cpp
-            src/Events/WeeklyAgenda.hpp
-            src/Events/EventList.cpp
-            src/Events/EventList.hpp
             src/Data/Date.cpp
             src/Data/Date.hpp
             src/Server/bunfet-example.hpp
-            src/Email/SendEmailController.hpp
             src/FileSystem/ReadFromFile.cpp
             src/FileSystem/ReadFromFile.hpp
             src/String/split.hpp
@@ -318,17 +307,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_executable(proto-server src/ProtoServer/ProtoServerMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(proto-server webservers)
 
-    add_executable(invoices-server src/Invoices/InvoicesMain.cpp tests/doctest_impl.cpp)
-    target_link_libraries(invoices-server webservers)
-
-    add_executable(send-email src/Email/SendEmailMain.cpp
-            src/Email/SendEmail.cpp)
-    target_link_libraries(send-email PRIVATE
-            Poco::Net
-            Poco::Util
-            Poco::Data
-            Poco::NetSSL
-    )
 
     # add_executable(image-browser-server src/ImageBrowser/ImageBrowserMain.cpp
     #                                     tests/doctest_impl.cpp)
@@ -343,7 +321,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(crud-server)
         add_backward(login-server)
         add_backward(proto-server)
-        add_backward(invoices-server)
         # add_backward(image-browser-server)
     endif ()
 endif ()
