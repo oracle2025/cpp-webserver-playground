@@ -4,7 +4,6 @@
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
 #include "Presentation.hpp"
-#include "WebServer.hpp"
 
 #include <Poco/Net/HTMLForm.h>
 #include <Poco/Net/HTTPRequestHandler.h>
@@ -28,18 +27,18 @@ using std::function;
 using std::shared_ptr;
 using std::variant;
 
-class PocoWebServer : public WebServer {
+class PocoWebServer  {
 public:
     using HTTPServer = Poco::Net::HTTPServer;
 
-    void finish_init() override;
+    void finish_init() ;
 
     void start();
 
     void stop();
-    void defaultHandler(handler_type handler) override;
-    void setPresentation(shared_ptr<Presentation> presentation) override;
-    Router& router() override;
+    void defaultHandler(handler_type handler) ;
+    void setPresentation(shared_ptr<Presentation> presentation) ;
+    Router& router() ;
 
 private:
     Router m_router;

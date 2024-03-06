@@ -184,9 +184,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/ScaffoldRecord.hpp
             src/Data/Date.cpp
             src/Data/Date.hpp
-            src/Server/bunfet-example.hpp
-            src/FileSystem/ReadFromFile.cpp
-            src/FileSystem/ReadFromFile.hpp
             src/String/split.hpp
             src/String/split.cpp
             src/String/capitalize.hpp

@@ -3,9 +3,7 @@
 #include "Form.hpp"
 #include "Http/NotFoundHandler.hpp"
 #include "Http/Session.hpp"
-#include "Server/WebServer.hpp"
 #include "Submit.hpp"
-#include "bunfet-example.hpp"
 #include "style.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
@@ -15,6 +13,7 @@
 
 using Http::content;
 using Http::redirect;
+using Http::Response;
 
 CrudController::CrudController(
     const string& prefix, make_record_func makeRecordFunc, Http::Router& router)
@@ -168,10 +167,6 @@ CrudController::CrudController(
     }
     router.get("/css/style.css", [](const Request& request) {
         return content(STYLE_SHEET, "text/css");
-    });
-    // Return bootstrap3 sample for testing in HaikuOS
-    router.get("/bunfet-example/", [](const Request& request) {
-        return content(BUNFET_EXAMPLE)->noPresentation(true).shared_from_this();
     });
     // T::defaultHandler(Http::NullHandler);
     // T::finish_init();

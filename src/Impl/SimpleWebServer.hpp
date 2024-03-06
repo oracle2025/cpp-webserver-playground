@@ -4,7 +4,6 @@
 #include "Http/RequestHandler.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
-#include "Server/WebServer.hpp"
 
 #include <functional>
 #include <memory>
@@ -23,13 +22,13 @@ using std::variant;
 namespace Html {
 struct Presentation;
 }
-class SimpleWebServer : public RequestHandler, public WebServer {
+class SimpleWebServer : public RequestHandler {
 public:
-    void finish_init() override;
+    void finish_init() ;
     shared_ptr<Response> handle(const Request& request) override;
-    void defaultHandler(handler_type handler) override;
-    void setPresentation(shared_ptr<Html::Presentation> presentation) override;
-    Router& router() override;
+    void defaultHandler(handler_type handler) ;
+    void setPresentation(shared_ptr<Html::Presentation> presentation) ;
+    Router& router() ;
 
 protected:
     Router m_router;
