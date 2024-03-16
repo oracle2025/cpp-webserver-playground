@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iosfwd>
 #include <Poco/Data/LOB.h>
 
 namespace Data {
