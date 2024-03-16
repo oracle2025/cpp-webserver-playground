@@ -282,6 +282,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
 
     install(TARGETS login-server DESTINATION bin)
 
+    configure_file(systemd/todo.service.in systemd/todo.service @ONLY)
+
     if (ENABLE_BACKWARD)
         add_backward(webservers)
         add_backward(tests)

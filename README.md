@@ -6,7 +6,7 @@ It was created to practice writing web applications in C++ with TDD (Test Driven
 
 It uses Poco libraries for the web server and SQLite for the database.
 
-It includes a systemd service file for installation: [cpp-webserver.service](systemd/cpp-webserver.service.in)
+It includes a systemd service file for installation: [cpp-webserver.service](systemd/todo.service.in)
 
 ## Dependencies
 

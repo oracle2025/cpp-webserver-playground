@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <Poco/Data/LOB.h>
 
 namespace Data {

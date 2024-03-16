@@ -1,9 +1,9 @@
 [Unit]
-Description=CPP Webserver
+Description=Todo Webserver
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/login-server
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/login-server
 User=www-data
 StandardOutput=syslog
 
