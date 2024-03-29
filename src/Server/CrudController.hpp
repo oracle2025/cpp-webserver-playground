@@ -56,9 +56,15 @@ struct CrudController {
         const string& prefix,
         make_record_func makeRecordFunc,
         Http::Router& router);
-    virtual ~CrudController() = default;
+    virtual ~CrudController();
     static shared_ptr<Response> recordNotFound(
         const string& prefix, const string& presentableName);
+    const string& prefix() const;
+protected:
+    virtual std::shared_ptr<Response> editRecord(const Request& request);
 
     make_record_func m_makeRecord;
+private:
+    struct CrudControllerImpl;
+    std::unique_ptr<CrudControllerImpl> impl_;
 };

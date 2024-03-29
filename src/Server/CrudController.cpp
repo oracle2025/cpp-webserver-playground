@@ -15,10 +15,15 @@ using Http::content;
 using Http::redirect;
 using Http::Response;
 
+struct CrudController::CrudControllerImpl {
+    string prefix;
+};
+
 CrudController::CrudController(
     const string& prefix, make_record_func makeRecordFunc, Http::Router& router)
-    : m_makeRecord(std::move(makeRecordFunc))
+    : m_makeRecord(std::move(makeRecordFunc)), impl_(new CrudControllerImpl)
 {
+    impl_->prefix = prefix;
     router.get(prefix + "/new", [this, prefix](const Request& request) {
         using namespace Input;
         auto record = m_makeRecord(request);
@@ -47,22 +52,8 @@ CrudController::CrudController(
                 Html::AlertType::SUCCESS)
             .shared_from_this();
     });
-    router.get(prefix + "/edit", [this, prefix](const Request& request) {
-        using namespace Input;
-        auto record = m_makeRecord(request);
-        if (record->pop(request.query())) {
-            return content(Form(
-                               *record,
-                               string(prefix + "/update?") + record->key(),
-                               "post")
-                               .appendElement(make_shared<Submit>(
-                                   "Update " + record->presentableName()))())
-                ->appendNavBarAction({"Start", "/"})
-                .title("Edit " + record->presentableName())
-                .shared_from_this();
-        } else {
-            return recordNotFound(prefix, record->presentableName());
-        }
+    router.get(prefix + "/edit", [this](const Request& request) {
+        return editRecord(request);
     });
     router.post(prefix + "/update", [this, prefix](const Request& request) {
         auto record = m_makeRecord(request);
@@ -171,6 +162,7 @@ CrudController::CrudController(
     // T::defaultHandler(Http::NullHandler);
     // T::finish_init();
 }
+CrudController::~CrudController() = default;
 
 shared_ptr<Response> CrudController::recordNotFound(
     const string& prefix, const string& presentableName)
@@ -179,4 +171,26 @@ shared_ptr<Response> CrudController::recordNotFound(
         ->code(Response::NOT_FOUND)
         .appendNavBarAction({"Start", "/"})
         .shared_from_this();
+}
+const string& CrudController::prefix() const
+{
+    return impl_->prefix;
+}
+std::shared_ptr<Response> CrudController::editRecord(const Request& request)
+{
+    using namespace Input;
+    auto record = m_makeRecord(request);
+    if (record->pop(request.query())) {
+        return content(Form(
+                           *record,
+                           string(prefix() + "/update?") + record->key(),
+                           "post")
+                           .appendElement(make_shared<Submit>(
+                               "Update " + record->presentableName()))())
+            ->appendNavBarAction({"Start", "/"})
+            .title("Edit " + record->presentableName())
+            .shared_from_this();
+    } else {
+        return recordNotFound(prefix(), record->presentableName());
+    }
 }

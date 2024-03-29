@@ -9,6 +9,7 @@
 #include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
+#include "TodoController.hpp"
 #include "User/PasswordChangeController.hpp"
 #include "doctest.h"
 
@@ -29,7 +30,7 @@ int LoginServerApplication::main(const vector<string>& args)
             return std::make_shared<SharedTodo>(request);
         },
         handler->router());
-    CrudController todoCrud(
+    TodoController todoCrud(
         "/todo",
         [](const Request& request) {
             return std::make_shared<Filter::ByOwner>(request);

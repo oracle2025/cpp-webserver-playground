@@ -1,0 +1,18 @@
+<h2>Edit Todo</h2>
+<form action="/todo/update?{{id}}" method="post">
+    <input type="hidden" id="id" name="id" value="{{id}}"><br>
+    <label for="checked">Checked</label><br>
+    <select class="form-control" name="checked" id="checked">
+        <option value="yes" {{checked_Yes}}>Yes</option>
+        <option value="no" {{checked_No}}>No</option>
+    </select><br>
+    <input type="hidden" id="created_at" name="created_at" value=""><br>
+    <label for="description">Description</label><br>
+    <input class="form-control" type="text" id="description"
+           name="description" value="{{description}}"><br>
+    <input type="hidden" id="updated_at" name="updated_at" value=""><br>
+    <input type="hidden" id="user_id" name="user_id" value="{{user_id}}"><br>
+    <button class="btn btn-block btn-lg btn-success" type="submit" id="Update Todo" name="Update Todo">Update Todo
+    </button>
+    <br>
+</form>

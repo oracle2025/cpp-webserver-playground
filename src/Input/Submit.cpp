@@ -18,9 +18,9 @@ string Submit::operator()()
     string value;
     string buttonClass;
     if (m_name.empty()) {
-        name = R"(" name=")" + m_label + R"(")";
+        name = R"(name=")" + m_label + R"(")";
     } else {
-        name = R"(" name=")" + m_name + R"(")";
+        name = R"(name=")" + m_name + R"(")";
     }
     if (!m_value.empty()) {
         value = R"(" value=")" + m_value + R"(")";
