@@ -1,5 +1,7 @@
 #include "TodoController.hpp"
 
+#include <utility>
+
 #include "Data/AsJson.hpp"
 #include "Data/Record.hpp"
 #include "Request.hpp"
@@ -11,7 +13,7 @@ using BaseTemplate = Template::BaseTemplate;
 
 TodoController::TodoController(
     const string& prefix, make_record_func makeRecordFunc, Http::Router& router)
-    : CrudController(prefix, makeRecordFunc, router)
+    : CrudController(prefix, std::move(makeRecordFunc), router)
 {
 }
 std::shared_ptr<CrudController::Response> TodoController::editRecord(
