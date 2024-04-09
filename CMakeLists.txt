@@ -144,6 +144,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Http/SessionData.hpp
             src/Data/User.cpp
             src/Data/User.hpp
+            src/Data/V2/UserV2.cpp
+            src/Data/V2/UserV2.hpp
             src/Server/Confirm.cpp
             src/Server/Confirm.hpp
             src/Data/MigrationsV0.cpp
@@ -202,7 +204,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Template/BaseTemplate.cpp
             src/Template/BaseTemplate.hpp
             src/Data/AsJson.cpp
-            src/Data/AsJson.hpp)
+            src/Data/AsJson.hpp
+            src/Data/Migrations.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic

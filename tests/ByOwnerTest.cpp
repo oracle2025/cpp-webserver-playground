@@ -1,8 +1,9 @@
+#include "Data/Migrations.hpp"
 #include "Data/MigrationsV2.hpp"
 #include "Filter/ByOwner.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "Server/CrudController.hpp"
-#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -69,7 +70,7 @@ TEST_CASE("By Owner")
         "CREATE TABLE Todo (id VARCHAR, description VARCHAR, created_at "
         "VARCHAR, updated_at VARCHAR, checked INTEGER(3), user_id VARCHAR)");
 
-    Data::MigrationsV2 m;
+    Data::MigrationsLatest m;
     m.perform();
 
     Data::User user;

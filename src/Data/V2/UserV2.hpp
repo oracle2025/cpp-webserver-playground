@@ -1,28 +1,29 @@
 #pragma once
 
-#include "RecordImpl.hpp"
 #include "Data/PasswordSalting.hpp"
+#include "Data/RecordImpl.hpp"
 
-#include <Poco/Tuple.h>
 #include <Poco/Data/LOB.h>
+#include <Poco/Tuple.h>
 
 #include <string>
 
 using std::string;
 
 namespace Data {
+namespace V2 {
 
-class UserDefinition {
+class UserDefinitionV2 {
 public:
-    using RecordType = Poco::Tuple<string, string, Poco::Data::CLOB, string, string>;
+    using RecordType
+        = Poco::Tuple<string, string, Poco::Data::CLOB, string>;
     RecordType data;
     string& id;
     string& username;
     Poco::Data::CLOB& password;
     string& salt;
-    string& start_page;
-    //Poco::Data::BLOB password_hash;
-    UserDefinition();
+    // Poco::Data::BLOB password_hash;
+    UserDefinitionV2();
     vector<ColumnType> columns() const;
     string get(const KeyStringType& key) const;
     void setPassword(const string& password);
@@ -38,13 +39,14 @@ public:
     }
     void set(const KeyStringType& key, const string& value);
     string description() const;
-    UserDefinition(const RecordType& d);
-    UserDefinition(const UserDefinition& u);
+    UserDefinitionV2(const RecordType& d);
+    UserDefinitionV2(const UserDefinitionV2& u);
     vector<KeyStringType> presentableFields() const;
 };
 
-using User = RecordImpl<UserDefinition>;
+using UserV2 = RecordImpl<UserDefinitionV2>;
 
-bool findUser(Poco::Data::Session& session, const string& username, User& user);
+bool findUser(Poco::Data::Session& session, const string& username, UserV2& user);
 
+} // namespace V2
 } // namespace Data

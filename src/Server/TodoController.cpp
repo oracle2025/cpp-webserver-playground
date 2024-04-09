@@ -21,8 +21,19 @@ std::shared_ptr<CrudController::Response> TodoController::editRecord(
 {
     auto record = m_makeRecord(request);
     if (record->pop(request.query())) {
+        auto data = Data::AsJson::fromRecord(*record);
+        auto my_array = nlohmann::json::array();
+
+        for (auto i : record->listAsPointers()) {
+            auto one_todo = nlohmann::json::object();
+            one_todo["id"] = i->key();
+            one_todo["selected"] = "";
+            one_todo["description"] = i->values()["description"];
+            my_array.push_back(one_todo);
+        }
+        data["todos"] = my_array;
         return content(BaseTemplate(TEMPLATE_DIR "/todo/edit.html")
-                           .render(Data::AsJson::fromRecord(*record)))
+                           .render(data))
             ->appendNavBarAction({"Start", "/"})
             .shared_from_this();
     } else {

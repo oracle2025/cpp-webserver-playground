@@ -10,6 +10,13 @@
     <label for="description">Description</label><br>
     <input class="form-control" type="text" id="description"
            name="description" value="{{description}}"><br>
+    <label for="parent_id">Parent</label>
+    <select class="form-control" name="parent_id" id="parent_id">
+        <option value="0">None</option>
+## for todo in todos
+        <option value="{{todo.id}}" {{todo.selected}}>{{todo.description}}</option>
+## endfor
+    </select><br>
     <input type="hidden" id="updated_at" name="updated_at" value=""><br>
     <input type="hidden" id="user_id" name="user_id" value="{{user_id}}"><br>
     <button class="btn btn-block btn-lg btn-success" type="submit" id="Update Todo" name="Update Todo">Update Todo

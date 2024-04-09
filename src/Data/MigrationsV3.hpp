@@ -14,7 +14,6 @@ public:
     void perform() override;
 };
 
-using MigrationsLatest = MigrationsV3;
 
 } // namespace Data
 

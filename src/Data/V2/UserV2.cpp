@@ -1,34 +1,32 @@
-#include "User.hpp"
-
-#include "RecordImpl.hpp"
+#include "Data/RecordImpl.hpp"
 #include "Trace/trace.hpp"
+#include "UserV2.hpp"
 #include "backward.hpp"
 #include "doctest.h"
 
 namespace Data {
+namespace V2 {
 
 TEST_CASE("UserRecord")
 {
-    RecordImpl<UserDefinition> user;
+    RecordImpl<UserDefinitionV2> user;
 }
-UserDefinition::UserDefinition()
+UserDefinitionV2::UserDefinitionV2()
     : data{"", "", {}, ""}
     , id(data.get<0>())
     , username(data.get<1>())
     , password(data.get<2>())
     , salt(data.get<3>())
-    , start_page(data.get<4>())
 {
 }
-vector<ColumnType> UserDefinition::columns() const
+vector<ColumnType> UserDefinitionV2::columns() const
 {
     return {
         {"username", "VARCHAR", HtmlInputType::TEXT},
         {"password", "BLOB", HtmlInputType::TEXT},
-        {"salt", "VARCHAR", HtmlInputType::TEXT},
-        {"start_page", "VARCHAR", HtmlInputType::TEXT}};
+        {"salt", "VARCHAR", HtmlInputType::TEXT}};
 }
-string UserDefinition::get(const KeyStringType& key) const
+string UserDefinitionV2::get(const KeyStringType& key) const
 {
     if (key == "username") {
         return username;
@@ -36,40 +34,36 @@ string UserDefinition::get(const KeyStringType& key) const
         return "";
     } else if (key == "salt") {
         return salt;
-    } else if (key == "start_page") {
-        return start_page;
     }
     return "";
 }
 
-void UserDefinition::setPassword(const string& _password)
+void UserDefinitionV2::setPassword(const string& _password)
 {
     salt = String::createRandomUUID();
     password = PasswordSalting(_password, salt).hash();
 }
-string UserDefinition::table_name() const
+string UserDefinitionV2::table_name() const
 {
     return "Users";
 }
-UserDefinition::UserDefinition(const UserDefinition::RecordType& d)
+UserDefinitionV2::UserDefinitionV2(const UserDefinitionV2::RecordType& d)
     : data{d}
     , id(data.get<0>())
     , username(data.get<1>())
     , password(data.get<2>())
     , salt(data.get<3>())
-    , start_page(data.get<4>())
 {
 }
-UserDefinition::UserDefinition(const UserDefinition& u)
+UserDefinitionV2::UserDefinitionV2(const UserDefinitionV2& u)
     : data{u.data}
     , id(data.get<0>())
     , username(data.get<1>())
     , password(data.get<2>())
     , salt(data.get<3>())
-    , start_page(data.get<4>())
 {
 }
-void UserDefinition::set(const KeyStringType& key, const string& value)
+void UserDefinitionV2::set(const KeyStringType& key, const string& value)
 {
     if (key == "username") {
         username = value;
@@ -77,27 +71,25 @@ void UserDefinition::set(const KeyStringType& key, const string& value)
         setPassword(value);
     } else if (key == "salt") {
         salt = value;
-    } else if (key == "start_page") {
-        start_page = value;
     }
 }
-string UserDefinition::description() const
+string UserDefinitionV2::description() const
 {
     return "User: " + username;
 }
-vector<KeyStringType> UserDefinition::presentableFields() const
+vector<KeyStringType> UserDefinitionV2::presentableFields() const
 {
     return {"username"};
 }
-bool findUser(Poco::Data::Session& session, const string& username, User& user)
+bool findUser(Poco::Data::Session& session, const string& username, UserV2& user)
 {
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
     using String::repeat;
     Statement select(session);
     string copy(username);
-    select << "SELECT id, username, password, salt, start_page FROM " + user.table_name()
-            + " WHERE username = ?",
+    select << "SELECT id, username, password, salt FROM "
+            + user.table_name() + " WHERE username = ?",
         use(copy), into(user.data), range(0, 1);
     try {
         if (select.execute() == 0) {
@@ -108,4 +100,5 @@ bool findUser(Poco::Data::Session& session, const string& username, User& user)
         TRACE_RETHROW("Could not find user");
     }
 }
+} // namespace V2
 } // namespace Data

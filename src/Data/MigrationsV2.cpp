@@ -2,6 +2,7 @@
 
 #include "MigrationsV2.hpp"
 
+#include "Data/V2/UserV2.hpp"
 #include "Migration.hpp"
 #include "MigrationsV1.hpp"
 #include "Trace/trace.hpp"
@@ -20,7 +21,8 @@ void MigrationsV2::perform()
     }
     try {
         using namespace Poco::Data::Keywords;
-        User user;
+        // Can't use this here, because the User may be changed, wold need something like UserV2, ... that stays put
+        V2::UserV2 user;
         auto users = user.list();
         auto user_id  = users.front().key();
         // Hardcoding the table creation is not a good idea, because if

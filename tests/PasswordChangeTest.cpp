@@ -1,4 +1,4 @@
-#include "Data/MigrationsV3.hpp"
+#include "Data/Migrations.hpp"
 #include "FakeBrowser.hpp"
 #include "Login/LoginController.hpp"
 #include "Impl/SimpleWebServer.hpp"

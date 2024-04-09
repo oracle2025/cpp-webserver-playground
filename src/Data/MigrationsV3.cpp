@@ -1,5 +1,6 @@
 #include "MigrationsV3.hpp"
 
+#include "Data/V2/UserV2.hpp"
 #include "Migration.hpp"
 #include "PasswordSalting.hpp"
 #include "User.hpp"
@@ -57,20 +58,20 @@ TEST_CASE("MigrationV3PasswordSalting")
     Data::MigrationsV3 m;
     m.perform();
 
-    Data::User user;
+    Data::V2::UserV2 user;
     user.username = "mary";
     user.setPassword("Mary!");
     user.insert();
 
     auto expected = user.password;
 
-    CHECK(Data::findUser(session, "mary", user));
+    CHECK(Data::V2::findUser(session, "mary", user));
 
     auto actual = user.password;
 
     CHECK(expected == actual);
 
-    CHECK(Data::User::isValidUser("mary", "Mary!", user));
+    CHECK(Data::V2::UserV2::isValidUser("mary", "Mary!", user));
 }
 TEST_CASE("MigrationV3")
 {
@@ -82,7 +83,7 @@ TEST_CASE("MigrationV3")
     Data::MigrationsV3 m;
     m.perform();
 
-    Data::User user;
+    Data::V2::UserV2 user;
     for (auto& u : user.list()) {
         CHECK(u.username == "admin");
         CHECK(Data::PasswordSalting("Adm1n!", u.salt).isValid(u.password));

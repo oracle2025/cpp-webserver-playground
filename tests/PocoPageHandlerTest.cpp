@@ -1,4 +1,4 @@
-#include "Data/MigrationsV3.hpp"
+#include "Data/Migrations.hpp"
 #include "Impl/SimpleWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "PocoPageHandler.hpp"

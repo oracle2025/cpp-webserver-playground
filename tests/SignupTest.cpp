@@ -1,12 +1,13 @@
+#include "Data/Migrations.hpp"
 #include "Data/MigrationsV1.hpp"
 #include "Data/Todo.hpp"
+#include "Html/Presentation.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "NullHandler.hpp"
 #include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
-#include "Impl/SimpleWebServer.hpp"
 #include "doctest.h"
-#include "Html/Presentation.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
 
@@ -18,7 +19,7 @@ TEST_CASE("Signup")
     Poco::Data::Session session("SQLite", ":memory:");
     g_session = &session;
 
-    Data::MigrationsV1 m;
+    Data::MigrationsLatest m;
     m.perform();
 
     SUBCASE("Signup")

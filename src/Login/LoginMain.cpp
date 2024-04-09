@@ -1,4 +1,4 @@
-#include "Data/MigrationsV3.hpp"
+#include "Data/Migrations.hpp"
 #include "LoginServerApplication.hpp"
 #include "Trace/trace.hpp"
 #include "spdlog/spdlog.h"
