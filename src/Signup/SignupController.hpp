@@ -9,7 +9,7 @@ class Router;
 namespace Signup {
 
 struct SignupController {
-    explicit SignupController(const std::string& prefix, Http::Router& router);
+    static void initialize(const std::string& prefix, Http::Router& router);
 };
 
 } // namespace Signup

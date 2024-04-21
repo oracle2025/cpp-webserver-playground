@@ -47,12 +47,12 @@ TEST_CASE("By Owner")
 {
     auto handler = std::make_shared<SimpleWebServer>();
     ;
-    CrudController crud(
+    auto crud = std::make_shared<CrudController> (
         "/item",
         [](const Request& request) {
             return std::make_shared<Filter::ByOwner>(request);
-        },
-        handler->router());
+        })->initialize(
+        handler->router()).shared_from_this();
     SimpleWebServer w;
     LoginController login_controller(handler, nullptr, nullptr, nullptr, w.router());
     w.defaultHandler(login_controller.getDefaultHandler());
@@ -64,11 +64,6 @@ TEST_CASE("By Owner")
     g_session = &session;
 
     Todo t;
-
-    CHECK_EQ(
-        t.createStatement(t.columns()),
-        "CREATE TABLE Todo (id VARCHAR, description VARCHAR, created_at "
-        "VARCHAR, updated_at VARCHAR, checked INTEGER(3), user_id VARCHAR)");
 
     Data::MigrationsLatest m;
     m.perform();

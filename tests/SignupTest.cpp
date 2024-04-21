@@ -38,18 +38,18 @@ TEST_CASE("Signup")
     {
         auto handler = std::make_shared<SimpleWebServer>();
 
-        CrudController crud(
-            "/todo",
-            [](const Request& request) {
-                return std::make_shared<Todo>(request);
-            },
-            handler->router());
+        auto crud = std::make_shared<CrudController>(
+                        "/todo",
+                        [](const Request& request) {
+                            return std::make_shared<Todo>(request);
+                        })
+                        ->initialize(handler->router())
+                        .shared_from_this();
         handler->defaultHandler(Http::NullHandler);
         handler->finish_init();
 
         auto signupHandler = std::make_shared<SimpleWebServer>();
-        SignupController signup_controller(
-            "/signup", signupHandler->router());
+        SignupController signup_controller("/signup", signupHandler->router());
         signupHandler->defaultHandler(Http::NullHandler);
         signupHandler->finish_init();
 

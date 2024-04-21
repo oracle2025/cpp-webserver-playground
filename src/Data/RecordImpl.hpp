@@ -84,9 +84,10 @@ struct RecordImpl : public T, public RecordExtended {
         using String::repeat;
         T::id = String::createRandomUUID();
         Statement insert(session);
-        insert << "INSERT INTO " + T::table_name() + " ("
-                + orderedColumnNames(T::columns()) + ")VALUES(" + "?, "
-                + repeat("?", ", ", T::columns().size()) + ")",
+        const string sql = "INSERT INTO "
+            + T::table_name() + " (" + orderedColumnNames(T::columns())
+            + ")VALUES(" + "?, " + repeat("?", ", ", T::columns().size()) + ")";
+        insert << sql,
             use(T::data), now;
     } catch (...) {
         TRACE_RETHROW("Could not insert");

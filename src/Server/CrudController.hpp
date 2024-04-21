@@ -46,7 +46,7 @@ class Router;
 struct RecordExtended;
 using std::shared_ptr;
 
-struct CrudController {
+struct CrudController : public std::enable_shared_from_this<CrudController>{
     using string = std::string;
     using Response = Http::Response;
     using Request = Http::Request;
@@ -54,16 +54,19 @@ struct CrudController {
         const Request& request)>;
     CrudController(
         const string& prefix,
-        make_record_func makeRecordFunc,
-        Http::Router& router);
+        make_record_func makeRecordFunc);
+    virtual CrudController& initialize(Http::Router& router);
     virtual ~CrudController();
     static shared_ptr<Response> recordNotFound(
         const string& prefix, const string& presentableName);
     const string& prefix() const;
+
 protected:
     virtual std::shared_ptr<Response> editRecord(const Request& request);
+    virtual std::shared_ptr<Response> listRecords(const Request& request);
 
     make_record_func m_makeRecord;
+
 private:
     struct CrudControllerImpl;
     std::unique_ptr<CrudControllerImpl> impl_;

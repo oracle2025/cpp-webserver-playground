@@ -17,7 +17,7 @@ using Request = Http::Request;
 using Response = Http::Response;
 using Session = Http::Session;
 
-PasswordChangeController::PasswordChangeController(
+void PasswordChangeController::initialize(
     const string& prefix, Http::Router& router)
 {
     router.get(prefix + "/", [prefix](const Request& request) {

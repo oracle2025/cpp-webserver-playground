@@ -1,15 +1,15 @@
 #include "CrudController.hpp"
+
 #include "Confirm.hpp"
 #include "Form.hpp"
 #include "Http/NotFoundHandler.hpp"
-#include "Http/Session.hpp"
-#include "Submit.hpp"
-#include "style.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
-
+#include "Http/Session.hpp"
 #include "List.hpp"
 #include "Router.hpp"
+#include "Submit.hpp"
+#include "style.hpp"
 
 using Http::content;
 using Http::redirect;
@@ -20,13 +20,19 @@ struct CrudController::CrudControllerImpl {
 };
 
 CrudController::CrudController(
-    const string& prefix, make_record_func makeRecordFunc, Http::Router& router)
-    : m_makeRecord(std::move(makeRecordFunc)), impl_(new CrudControllerImpl)
+    const string& prefix, make_record_func makeRecordFunc)
+    : m_makeRecord(std::move(makeRecordFunc))
+    , impl_(new CrudControllerImpl)
 {
     impl_->prefix = prefix;
-    router.get(prefix + "/new", [this, prefix](const Request& request) {
+}
+CrudController &CrudController::initialize(Http::Router& router)
+{
+    const auto prefix = impl_->prefix;
+    auto ptr = shared_from_this();
+    router.get(prefix + "/new", [ptr, prefix](const Request& request) {
         using namespace Input;
-        auto record = m_makeRecord(request);
+        auto record = ptr->m_makeRecord(request);
         return content(Form(*record, prefix + "/create", "post")
                            .appendElement(make_shared<Submit>(
                                "Create " + record->presentableName()))())
@@ -34,9 +40,9 @@ CrudController::CrudController(
             .title("Create " + record->presentableName())
             .shared_from_this();
     });
-    router.post(prefix + "/create", [this, prefix](const Request& request) {
+    router.post(prefix + "/create", [ptr, prefix](const Request& request) {
         using Http::Session;
-        auto record = m_makeRecord(request);
+        auto record = ptr->m_makeRecord(request);
         for (const auto& field : record->fields()) {
             if (request.hasParameter(field)) {
                 record->setImpl(field, request.parameter(field));
@@ -52,11 +58,11 @@ CrudController::CrudController(
                 Html::AlertType::SUCCESS)
             .shared_from_this();
     });
-    router.get(prefix + "/edit", [this](const Request& request) {
-        return editRecord(request);
+    router.get(prefix + "/edit", [ptr](const Request& request) {
+        return ptr->editRecord(request);
     });
-    router.post(prefix + "/update", [this, prefix](const Request& request) {
-        auto record = m_makeRecord(request);
+    router.post(prefix + "/update", [ptr, prefix](const Request& request) {
+        auto record = ptr->m_makeRecord(request);
         if (record->pop(request.query())) {
             for (auto i : record->fields()) {
                 if (request.hasParameter(i)) {
@@ -73,8 +79,8 @@ CrudController::CrudController(
             return recordNotFound(prefix, record->presentableName());
         }
     });
-    router.post(prefix + "/mark", [this, prefix](const Request& request) {
-        auto record = m_makeRecord(request);
+    router.post(prefix + "/mark", [ptr, prefix](const Request& request) {
+        auto record = ptr->m_makeRecord(request);
         std::ostringstream str;
         for (const auto& [key, value] : request.allParameters()) {
             record->pop(key);
@@ -89,8 +95,8 @@ CrudController::CrudController(
             ->alert("Todo " + str.str(), Html::AlertType::SUCCESS)
             .shared_from_this();
     });
-    router.post(prefix + "/delete", [this, prefix](const Request& request) {
-        auto record = m_makeRecord(request);
+    router.post(prefix + "/delete", [ptr, prefix](const Request& request) {
+        auto record = ptr->m_makeRecord(request);
         if (record->pop(request.query())) {
             if (request.hasParameter("confirmed")) {
                 record->erase();
@@ -112,8 +118,8 @@ CrudController::CrudController(
             return recordNotFound(prefix, record->presentableName());
         }
     });
-    router.get(prefix + "/delete", [this, prefix](const Request& request) {
-        auto record = m_makeRecord(request);
+    router.get(prefix + "/delete", [ptr, prefix](const Request& request) {
+        auto record = ptr->m_makeRecord(request);
         if (record->pop(request.query())) {
             return redirect(prefix + "/confirm?" + record->key())
                 ->alert(
@@ -125,9 +131,9 @@ CrudController::CrudController(
             return recordNotFound(prefix, record->presentableName());
         }
     });
-    router.get(prefix + "/confirm", [this, prefix](const Request& request) {
+    router.get(prefix + "/confirm", [ptr, prefix](const Request& request) {
         using namespace Input;
-        auto record = m_makeRecord(request);
+        auto record = ptr->m_makeRecord(request);
         if (record->pop(request.query())) {
             return Confirm(prefix, *record, record->descriptionImpl())()
                 ->appendNavBarAction({"Start", "/"})
@@ -136,20 +142,8 @@ CrudController::CrudController(
             return recordNotFound(prefix, record->presentableName());
         }
     });
-    router.get(prefix + "/", [this, prefix](const Request& request) {
-        auto record = m_makeRecord(request);
-        using namespace Input;
-        auto columns = record->presentableFieldsImpl();
-        return content(Form(
-                           Html::List(record->listAsPointers(), columns)
-                               .prefix(prefix)(),
-                           prefix + "/mark",
-                           "post")())
-            ->appendAction(
-                {"Create new " + record->presentableName(), prefix + "/new"})
-            .appendNavBarAction({"Start", "/"})
-            .title(record->presentableName() + " List")
-            .shared_from_this();
+    router.get(prefix + "/", [ptr, prefix](const Request& request) {
+        return ptr->listRecords(request);
     });
     if (!prefix.empty()) {
         router.get("/", [prefix](const Request& request) {
@@ -161,6 +155,7 @@ CrudController::CrudController(
     });
     // T::defaultHandler(Http::NullHandler);
     // T::finish_init();
+    return *this;
 }
 CrudController::~CrudController() = default;
 
@@ -193,4 +188,20 @@ std::shared_ptr<Response> CrudController::editRecord(const Request& request)
     } else {
         return recordNotFound(prefix(), record->presentableName());
     }
+}
+std::shared_ptr<Response> CrudController::listRecords(const Request& request)
+{
+    auto record = m_makeRecord(request);
+    using namespace Input;
+    auto columns = record->presentableFieldsImpl();
+    return content(Form(
+                       Html::List(record->listAsPointers(), columns)
+                           .prefix(prefix())(),
+                       prefix() + "/mark",
+                       "post")())
+        ->appendAction(
+            {"Create new " + record->presentableName(), prefix() + "/new"})
+        .appendNavBarAction({"Start", "/"})
+        .title(record->presentableName() + " List")
+        .shared_from_this();
 }

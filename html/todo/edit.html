@@ -12,7 +12,7 @@
            name="description" value="{{description}}"><br>
     <label for="parent_id">Parent</label>
     <select class="form-control" name="parent_id" id="parent_id">
-        <option value="0">None</option>
+        <option value="" {{none_selected}}>None</option>
 ## for todo in todos
         <option value="{{todo.id}}" {{todo.selected}}>{{todo.description}}</option>
 ## endfor

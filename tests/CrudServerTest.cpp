@@ -1,6 +1,6 @@
 #include "Data/Todo.hpp"
-#include "Server/CrudController.hpp"
 #include "Impl/SimpleWebServer.hpp"
+#include "Server/CrudController.hpp"
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -24,10 +24,13 @@ TEST_CASE("Crud Server")
 {
     // Router router;
     SimpleWebServer w;
-    CrudController handler(
-        "",
-        [](const Request& request) { return std::make_shared<Todo>(request); },
-        w.router());
+    auto handler = std::make_shared<CrudController>(
+                       "",
+                       [](const Request& request) {
+                           return std::make_shared<Todo>(request);
+                       })
+                       ->initialize(w.router())
+                       .shared_from_this();
     Poco::Data::SQLite::Connector::registerConnector();
     Session session("SQLite", ":memory:");
     g_session = &session;

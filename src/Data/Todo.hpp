@@ -20,7 +20,8 @@ extern Poco::Data::Session* g_session;
 using std::string;
 
 struct TodoDefinition {
-    using RecordType = Poco::Tuple<string, string, string, string, bool, string>;
+    using RecordType
+        = Poco::Tuple<string, string, string, string, bool, string, string>;
     RecordType data;
     string& id;
     string& m_description;
@@ -28,7 +29,8 @@ struct TodoDefinition {
     string& updated_at;
     bool& checked;
     string& user_id;
-    explicit TodoDefinition(RecordType  d)
+    string& parent_id;
+    explicit TodoDefinition(RecordType d)
         : data{std::move(d)}
         , id(data.get<0>())
         , m_description(data.get<1>())
@@ -36,6 +38,7 @@ struct TodoDefinition {
         , updated_at(data.get<3>())
         , checked(data.get<4>())
         , user_id(data.get<5>())
+        , parent_id(data.get<6>())
     {
     }
     TodoDefinition()
@@ -46,6 +49,7 @@ struct TodoDefinition {
         , updated_at(data.get<3>())
         , checked(data.get<4>())
         , user_id(data.get<5>())
+        , parent_id(data.get<6>())
     {
     }
     TodoDefinition(const TodoDefinition& t)
@@ -56,6 +60,7 @@ struct TodoDefinition {
         , updated_at(data.get<3>())
         , checked(data.get<4>())
         , user_id(data.get<5>())
+        , parent_id(data.get<6>())
     {
     }
     TodoDefinition& operator=(const TodoDefinition& other)

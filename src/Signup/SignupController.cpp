@@ -15,7 +15,7 @@ using Http::redirect;
 using Request = Http::Request;
 using Session = Http::Session;
 using Response = Http::Response;
-SignupController::SignupController(const string& prefix, Http::Router& router)
+void SignupController::initialize(const string& prefix, Http::Router& router)
 {
     using namespace Input;
     router.get(prefix + "/", [prefix](const Request& request) {

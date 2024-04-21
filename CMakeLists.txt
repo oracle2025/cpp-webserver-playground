@@ -150,6 +150,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Server/Confirm.hpp
             src/Data/MigrationsV0.cpp
             src/Data/MigrationsV0.hpp
+            src/Data/MigrationsV5.cpp
+            src/Data/MigrationsV5.hpp
             src/Data/Migration.cpp
             src/Data/Migration.hpp
             src/Data/SessionImpl.cpp

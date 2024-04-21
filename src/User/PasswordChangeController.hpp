@@ -7,5 +7,5 @@ namespace Http {
 class Router;
 }
 struct PasswordChangeController {
-    PasswordChangeController(const string& prefix, Http::Router& router);
+    static void initialize(const string& prefix, Http::Router& router);
 };

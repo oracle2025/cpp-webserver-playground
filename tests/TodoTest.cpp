@@ -4,8 +4,8 @@
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 using Poco::Data::Session;
+#include "Data/Migrations.hpp"
 #include "Data/Todo.hpp"
-#include "Data/MigrationsV2.hpp"
 
 #include <sstream>
 
@@ -15,11 +15,11 @@ TEST_CASE("todo")
     Session session("SQLite", ":memory:");
     g_session = &session;
 
-    Data::MigrationsV2 m;
+    Data::MigrationsLatest m;
     m.perform();
 
     Todo todo{Todo::RecordType{
-        "0123", "Buy Milk", time_string(), time_string(), false}};
+        "0123", "Buy Milk", time_string(), time_string(), false, "", ""}};
     todo.insert();
     auto id = todo.key();
     SUBCASE("list")
