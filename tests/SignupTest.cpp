@@ -25,7 +25,7 @@ TEST_CASE("Signup")
     SUBCASE("Signup")
     {
         SimpleWebServer w;
-        SignupController signup_controller("/signup", w.router());
+        SignupController::initialize("/signup", w.router());
         map<string, string> params;
         params["username"] = "porky";
         params["password"] = "S3cr3t!";
@@ -49,7 +49,7 @@ TEST_CASE("Signup")
         handler->finish_init();
 
         auto signupHandler = std::make_shared<SimpleWebServer>();
-        SignupController signup_controller("/signup", signupHandler->router());
+        SignupController::initialize("/signup", signupHandler->router());
         signupHandler->defaultHandler(Http::NullHandler);
         signupHandler->finish_init();
 

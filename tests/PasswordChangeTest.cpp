@@ -34,7 +34,7 @@ TEST_CASE("Change Password")
 
     SimpleWebServer w;
     auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
-    PasswordChangeController password_change_controller(
+    PasswordChangeController::initialize(
         "/password", passwordChangeHandler->router());
 
     LoginController login_controller(
@@ -96,7 +96,7 @@ TEST_CASE("Change Password with Fake Browser")
     m.perform();
     SimpleWebServer handler;
     auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
-    PasswordChangeController password_change_controller(
+    PasswordChangeController::initialize(
         "/password", passwordChangeHandler->router());
     LoginController login_controller(
         passwordChangeHandler,
