@@ -1,7 +1,7 @@
 #include "Data/Migrations.hpp"
 #include "FakeBrowser.hpp"
-#include "Login/LoginController.hpp"
 #include "Impl/SimpleWebServer.hpp"
+#include "Login/LoginController.hpp"
 #include "User/PasswordChangeController.hpp"
 #include "doctest.h"
 
@@ -37,9 +37,12 @@ TEST_CASE("Change Password")
     PasswordChangeController::initialize(
         "/password", passwordChangeHandler->router());
 
-    LoginController login_controller(
-        passwordChangeHandler, nullptr, nullptr, nullptr, w.router());
-    w.defaultHandler(login_controller.getDefaultHandler());
+    auto login_controller
+        = std::make_shared<LoginController>(
+              passwordChangeHandler, nullptr, nullptr, nullptr)
+              ->initialize(w.router())
+              .shared_from_this();
+    w.defaultHandler(login_controller->getDefaultHandler());
     w.setPresentation(nullptr);
     w.finish_init();
     SUBCASE("Change password")
@@ -98,13 +101,12 @@ TEST_CASE("Change Password with Fake Browser")
     auto passwordChangeHandler = std::make_shared<SimpleWebServer>();
     PasswordChangeController::initialize(
         "/password", passwordChangeHandler->router());
-    LoginController login_controller(
-        passwordChangeHandler,
-        nullptr,
-        nullptr,
-        nullptr,
-        handler.router());
-    handler.defaultHandler(login_controller.getDefaultHandler());
+    auto login_controller
+        = std::make_shared<LoginController>(
+              passwordChangeHandler, nullptr, nullptr, nullptr)
+              ->initialize(handler.router())
+              .shared_from_this();
+    handler.defaultHandler(login_controller->getDefaultHandler());
     handler.setPresentation(nullptr);
     handler.finish_init();
     PocoPageHandler pageHandler(

@@ -60,7 +60,7 @@ TEST_CASE("Login Logout Cookies Test")
         make_shared<HelloHandler>("Secret"),
         make_shared<HelloHandler>("Admin"),
         make_shared<HelloHandler>("Public"),
-        nullptr, handler->router());
+        nullptr)->initialize(handler->router()).shared_from_this();
     handler->defaultHandler(login_controller->getDefaultHandler());
     handler->setPresentation(nullptr);
     handler->finish_init();
@@ -113,7 +113,7 @@ TEST_CASE("Render Alert after Redirect")
         make_shared<AlertAndRedirectHandler>(),
         nullptr,
         make_shared<HelloHandler>("Public"),
-        nullptr, handler->router());
+        nullptr)->initialize(handler->router()).shared_from_this();
     handler->defaultHandler(login_controller->getDefaultHandler());
     handler->setPresentation(nullptr);
     handler->finish_init();

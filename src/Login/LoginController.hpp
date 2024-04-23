@@ -3,38 +3,39 @@
 #include "Data/User.hpp"
 #include "Http/handler_type.hpp"
 
-#include <set>
 #include <map>
+#include <set>
 #include <string>
+using std::map;
 using std::set;
 using std::string;
-using std::map;
 
 namespace Http {
 class Response;
 class RequestHandler;
 class Router;
-}
+} // namespace Http
 namespace Html {
 struct Presentation;
 }
-struct LoginController {
+struct LoginController : public std::enable_shared_from_this<LoginController> {
     static bool isLoginAttempt(const map<string, string>& parameters);
 
     static bool isValidUser(
         const map<string, string>& parameters, Data::User& user);
 
     Http::handler_type getDefaultHandler();
-    using RequestHandler=Http::RequestHandler;
-    using Response=Http::Response;
-    using Request=Http::Request;
+    using RequestHandler = Http::RequestHandler;
+    using Response = Http::Response;
+    using Request = Http::Request;
 
     LoginController(
         shared_ptr<RequestHandler> secretHandler,
         shared_ptr<RequestHandler> adminHandler,
         shared_ptr<RequestHandler> publicHandler,
-        shared_ptr<Html::Presentation> presentation,
-        Http::Router& router);
+        shared_ptr<Html::Presentation> presentation);
+    LoginController &initialize(Http::Router& router);
+    virtual ~LoginController();
 
     shared_ptr<Response> forwardToSecretHandler(const Request& request);
 

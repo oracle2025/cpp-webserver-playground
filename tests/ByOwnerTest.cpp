@@ -47,15 +47,19 @@ TEST_CASE("By Owner")
 {
     auto handler = std::make_shared<SimpleWebServer>();
     ;
-    auto crud = std::make_shared<CrudController> (
-        "/item",
-        [](const Request& request) {
-            return std::make_shared<Filter::ByOwner>(request);
-        })->initialize(
-        handler->router()).shared_from_this();
+    auto crud = std::make_shared<CrudController>(
+                    "/item",
+                    [](const Request& request) {
+                        return std::make_shared<Filter::ByOwner>(request);
+                    })
+                    ->initialize(handler->router())
+                    .shared_from_this();
     SimpleWebServer w;
-    LoginController login_controller(handler, nullptr, nullptr, nullptr, w.router());
-    w.defaultHandler(login_controller.getDefaultHandler());
+    auto login_controller
+        = std::make_shared<LoginController>(handler, nullptr, nullptr, nullptr)
+              ->initialize(w.router())
+              .shared_from_this();
+    w.defaultHandler(login_controller->getDefaultHandler());
     w.setPresentation(nullptr);
     w.finish_init();
 

@@ -84,9 +84,11 @@ int LoginServerApplication::main(const vector<string>& args)
     // So I can test it without needing to init PocoWebServer
     PocoWebServer server2;
     auto presentation = std::make_shared<Presentation>();
-    LoginController server(
-        handler, adminHandler, publicHandler, presentation, server2.router());
-    server2.defaultHandler(server.getDefaultHandler());
+    auto server = std::make_shared<LoginController>(
+                      handler, adminHandler, publicHandler, presentation)
+                      ->initialize(server2.router())
+                      .shared_from_this();
+    server2.defaultHandler(server->getDefaultHandler());
     server2.setPresentation(presentation);
     server2.finish_init();
 

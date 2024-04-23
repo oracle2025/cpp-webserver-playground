@@ -55,9 +55,9 @@ TEST_CASE("Signup")
 
         SimpleWebServer w;
         auto presentation = std::make_shared<Html::Presentation>();
-        LoginController login_controller(
-            handler, nullptr, signupHandler, presentation, w.router());
-        w.defaultHandler(login_controller.getDefaultHandler());
+        auto login_controller = std::make_shared<LoginController>(
+            handler, nullptr, signupHandler, presentation)->initialize(w.router()).shared_from_this();
+        w.defaultHandler(login_controller->getDefaultHandler());
         w.setPresentation(presentation);
         w.finish_init();
         CHECK(w.handle({"/secret"})->content() == "Access denied");

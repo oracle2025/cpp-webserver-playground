@@ -33,9 +33,9 @@ TEST_CASE("Login Server")
     m.perform();
 
     SimpleWebServer w;
-    LoginController login_controller(
-        nullptr, nullptr, nullptr, nullptr, w.router());
-    w.defaultHandler(login_controller.getDefaultHandler());
+    auto login_controller= std::make_shared<LoginController>(
+        nullptr, nullptr, nullptr, nullptr)->initialize(w.router()).shared_from_this();
+    w.defaultHandler(login_controller->getDefaultHandler());
     w.setPresentation(nullptr);
     w.finish_init();
     Session::clearAll();

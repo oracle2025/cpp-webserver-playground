@@ -25,30 +25,32 @@ LoginController::LoginController(
     shared_ptr<RequestHandler> secretHandler,
     shared_ptr<RequestHandler> adminHandler,
     shared_ptr<RequestHandler> publicHandler,
-    shared_ptr<Html::Presentation> presentation,
-    Http::Router& router)
+    shared_ptr<Html::Presentation> presentation)
     : m_secretHandler(std::move(secretHandler))
     , m_adminHandler(std::move(adminHandler))
     , m_publicHandler(std::move(publicHandler))
     , m_presentation(std::move(presentation))
 {
+}
+LoginController& LoginController::initialize(Http::Router& router) {
     using Http::Session;
-    router.get("/", [this](const Request& request) {
-        if (Session(request).isLoggedIn() && m_secretHandler) {
-            return forwardToSecretHandler(request);
+    auto ptr = shared_from_this();
+    router.get("/", [ptr](const Request& request) {
+        if (Session(request).isLoggedIn() && ptr->m_secretHandler) {
+            return ptr->forwardToSecretHandler(request);
         } else {
             return redirect("/login");
         }
     });
     router.get(
-        "/login", [this](const Request& request) { return loginForm(); });
-    router.post("/login", [this](const Request& request) {
+        "/login", [ptr](const Request& request) { return ptr->loginForm(); });
+    router.post("/login", [ptr](const Request& request) {
         if (!isLoginAttempt(request.allParameters())) {
             return content("Invalid Request");
         }
         Data::User user;
         if (!isValidUser(request.allParameters(), user)) {
-            return loginForm()
+            return ptr->loginForm()
                 ->alert("Invalid Login", Html::AlertType::DANGER)
                 .shared_from_this();
         }
@@ -70,9 +72,9 @@ LoginController::LoginController(
                 .shared_from_this();
         }
     });
-    router.get("/logout", [this](const Request& request) {
+    router.get("/logout", [ptr](const Request& request) {
         if (Session(request).isLoggedIn()) {
-            auto response = loginForm()
+            auto response = ptr->loginForm()
                                 ->alert("Logged out", Html::AlertType::INFO)
                                 .shared_from_this();
             Session(request).current(*response).logout();
@@ -84,7 +86,7 @@ LoginController::LoginController(
                 .shared_from_this();
         }
     });
-    router.get("/sessions", [this](const Request& request) {
+    router.get("/sessions", [ptr](const Request& request) {
         if (Session(request).isAdmin()) {
             auto response = content(Html::List(
                                         Session::listAll(),
@@ -98,7 +100,7 @@ LoginController::LoginController(
                                         .withHeader()())
                                 ->appendNavBarAction({"Start", "/"})
                                 .shared_from_this();
-            return addLinksToResponse(request, response);
+            return ptr->addLinksToResponse(request, response);
         } else {
             return content("Access denied")
                 ->code(Response::UNAUTHORIZED)
@@ -111,7 +113,9 @@ LoginController::LoginController(
     // T::defaultHandler(getDefaultHandler());
     // T::setPresentation(m_presentation);
     // T::finish_init();
+    return *this;
 }
+LoginController::~LoginController() = default;
 
 bool LoginController::isLoginAttempt(const map<string, string>& parameters)
 {
