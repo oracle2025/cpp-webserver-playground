@@ -19,30 +19,26 @@ using Http::RequestDispatcher;
 using Http::RequestHandlerList;
 using std::make_shared;
 
-void makeCruds(std::shared_ptr<SimpleWebServer> handler)
+void makeCruds(Http::Router& router)
 {
     auto sharedCrud = std::make_shared<CrudController>(
                           "/shared",
                           [](const Request& request) {
                               return std::make_shared<SharedTodo>(request);
                           })
-                          ->initialize(handler->router())
+                          ->initialize(router)
                           .shared_from_this();
     auto todoCrud = std::make_shared<TodoController>(
                         "/todo",
                         [](const Request& request) {
                             return std::make_shared<Filter::ByOwner>(request);
                         })
-                        ->initialize(handler->router())
+                        ->initialize(router)
                         .shared_from_this();
 }
-
-int LoginServerApplication::main(const vector<string>& args)
+void makeHome(Http::Router& router)
 {
-    auto handler = std::make_shared<SimpleWebServer>();
-    PasswordChangeController::initialize("/password", handler->router());
-    makeCruds(handler);
-    handler->router().get("/", [](const Request& request) {
+    router.get("/", [](const Request& request) {
         std::ostringstream out;
         try {
             const auto tpl = TEMPLATE_DIR "/home.html";
@@ -56,13 +52,10 @@ int LoginServerApplication::main(const vector<string>& args)
             ->appendNavBarAction({"Start", "/"})
             .shared_from_this();
     });
-
-    handler->defaultHandler(Http::NotFoundHandler);
-    handler->finish_init();
-
-    shared_ptr<SimpleWebServer> adminHandler = nullptr;
-#ifdef ENABLE_USER_LIST
-    adminHandler = make_shared<SimpleWebServer>();
+}
+std::shared_ptr<SimpleWebServer> makeAdminHandler()
+{
+    auto adminHandler = make_shared<SimpleWebServer>();
     auto userCrud = std::make_shared<CrudController>(
                         "/user",
                         [](const Request& request) {
@@ -72,22 +65,48 @@ int LoginServerApplication::main(const vector<string>& args)
                         .shared_from_this();
     adminHandler->defaultHandler(Http::NullHandler);
     adminHandler->finish_init();
+    return adminHandler;
+}
+std::shared_ptr<SimpleWebServer> makeSignupHandler()
+{
+    auto signupHandler = std::make_shared<SimpleWebServer>();
+    Signup::SignupController::initialize("/signup", signupHandler->router());
+    signupHandler->defaultHandler(Http::NullHandler);
+    signupHandler->finish_init();
+    return signupHandler;
+}
+std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
+{
+    auto handler = std::make_shared<SimpleWebServer>();
+    PasswordChangeController::initialize("/password", handler->router());
+    makeCruds(handler->router());
+    makeHome(handler->router());
+    handler->defaultHandler(Http::NotFoundHandler);
+    handler->finish_init();
+
+    shared_ptr<SimpleWebServer> adminHandler = nullptr;
+#ifdef ENABLE_USER_LIST
+    adminHandler = makeAdminHandler();
 #endif
     shared_ptr<SimpleWebServer> publicHandler = nullptr;
 #ifdef ENABLE_SIGNUP
-    publicHandler = std::make_shared<SimpleWebServer>();
-    Signup::SignupController::initialize("/signup", publicHandler->router());
-    publicHandler->defaultHandler(Http::NullHandler);
-    publicHandler->finish_init();
+    publicHandler = makeSignupHandler();
 #endif
-    // Goal: Extract the generation of LoginController to a separate Method,
-    // So I can test it without needing to init PocoWebServer
-    PocoWebServer server2;
     auto presentation = std::make_shared<Presentation>();
+
     auto server = std::make_shared<LoginController>(
                       handler, adminHandler, publicHandler, presentation)
-                      ->initialize(server2.router())
+                      ->initialize(router)
                       .shared_from_this();
+    return server;
+}
+
+int LoginServerApplication::main(const vector<string>& args)
+{
+    PocoWebServer server2;
+    auto presentation = std::make_shared<Presentation>();
+
+    auto server = makeLoginController(server2.router());
     server2.defaultHandler(server->getDefaultHandler());
     server2.setPresentation(presentation);
     server2.finish_init();
