@@ -261,6 +261,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests
             tests/doctest.cpp
             tests/LoginServerTest.cpp
+            tests/LambdaTest.cpp
             tests/SessionIdTest.cpp
             tests/InputTest.cpp
             tests/WebServerTest.cpp
@@ -272,7 +273,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/PasswordChangeTest.cpp
             tests/SignupTest.cpp
             tests/ByOwnerTest.cpp
-            tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp)
+            tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp
+            tests/LambdaTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
