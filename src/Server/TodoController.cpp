@@ -106,9 +106,13 @@ shared_ptr<CrudController::Response> TodoController::listRecords(
 {
 
     auto record = m_makeRecord(request);
-    return content(
-               R"(<table class="table">)"
-               + recurseTodos(record->listAsPointers()) + "</table>")
+    using namespace Input;
+    return content(Form(
+                       R"(<table class="table">)"
+                           + recurseTodos(record->listAsPointers())
+                           + "</table>",
+                       prefix() + "/mark",
+                       "post")())
         ->appendAction(
             {"Create new " + record->presentableName(), prefix() + "/new"})
         .appendNavBarAction({"Start", "/"})
