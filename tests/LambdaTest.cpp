@@ -1,5 +1,6 @@
 #include "doctest.h"
 #include <functional>
+#include <memory>
 
 struct ReferenceCounting {
     ReferenceCounting()
