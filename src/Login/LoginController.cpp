@@ -167,7 +167,7 @@ shared_ptr<Response> LoginController::addLinksToResponse(
     }
     return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
         .appendNavBarAction(
-            {"👤 " + Session(request).userName(), "/password/", "right"})
+            {"👤 " + Session(request).userName(), "/profile/", "right"})
         .shared_from_this();
 }
 

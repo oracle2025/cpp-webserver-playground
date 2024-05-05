@@ -2,8 +2,10 @@
 
 #include "Data/AsJson.hpp"
 #include "Data/Record.hpp"
+#include "Input/CheckBoxSelect.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "String/escape.hpp"
 #include "Template/BaseTemplate.hpp"
 
 #include <sstream>
@@ -37,7 +39,8 @@ std::shared_ptr<CrudController::Response> TodoController::editRecord(
             auto one_todo = nlohmann::json::object();
             one_todo["id"] = i->key();
             one_todo["selected"] = selected ? "selected" : "";
-            one_todo["description"] = i->values()["description"];
+            one_todo["description"]
+                = String::escape(i->values()["description"]);
             my_array.push_back(one_todo);
         }
         data["todos"] = my_array;
@@ -50,12 +53,19 @@ std::shared_ptr<CrudController::Response> TodoController::editRecord(
     }
 }
 
-std::string recurseTodos(const std::vector<std::shared_ptr<Record>>& list, const std::string& parent_id = ""){
+/* it may be simpler to just indent by number of parents
+ * instead of using nested lists.
+ * Table should give better formatting also*/
+std::string recurseTodos(
+    const std::vector<std::shared_ptr<Record>>& list,
+    int level = 0,
+    const std::string& parent_id = "")
+{
     // filter list for parent_id
     std::vector<std::shared_ptr<Record>> filtered;
-    for (const auto& i:list) {
+    for (const auto& i : list) {
         if (i->values()["parent_id"] != parent_id) {
-                continue;
+            continue;
         }
         filtered.push_back(i);
     }
@@ -64,14 +74,30 @@ std::string recurseTodos(const std::vector<std::shared_ptr<Record>>& list, const
         return {};
     }
     std::ostringstream str;
-    str << "<ul>";
-    for (const auto& i:filtered) {
-        str << "<li>";
+    for (const auto& i : filtered) {
+        str << R"(<tr><td class="max">)" << "\n";
+        for (int c = 0; c < level; c++) {
+            str << "&nbsp;&nbsp;&nbsp;&nbsp;";
+        }
+        str << R"(<input type="hidden" name=")" << i->key()
+            << R"(" value="no" />)";
+        if (i->values()["checked"] == "yes") {
+            str << R"(<input type="checkbox" name=")" << i->key()
+                << R"(" checked value="yes" onchange="submitForm(this);">)";
+        } else {
+            str << R"(<input type="checkbox" name=")" << i->key()
+                << R"(" value="yes" onchange="submitForm(this);">)";
+        }
+        str << "&nbsp;&nbsp;&nbsp;&nbsp;";
         str << i->values()["description"];
-        str << recurseTodos(list, i->key());
-        str << "</li>";
+        str << R"(</td><td><a href="/todo/edit?)" << i->key()
+            << R"(" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>
+<td><a href="/todo/delete?)"
+            << i->key()
+            << R"(" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a>)";
+        str << recurseTodos(list, level + 1, i->key());
+        str << "</td></tr>\n";
     }
-    str << "</ul>";
     return str.str();
 }
 
@@ -80,7 +106,9 @@ shared_ptr<CrudController::Response> TodoController::listRecords(
 {
 
     auto record = m_makeRecord(request);
-    return content(recurseTodos(record->listAsPointers()))
+    return content(
+               R"(<table class="table">)"
+               + recurseTodos(record->listAsPointers()) + "</table>")
         ->appendAction(
             {"Create new " + record->presentableName(), prefix() + "/new"})
         .appendNavBarAction({"Start", "/"})

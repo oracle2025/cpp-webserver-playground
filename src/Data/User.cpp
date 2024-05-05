@@ -24,8 +24,8 @@ vector<ColumnType> UserDefinition::columns() const
 {
     return {
         {"username", "VARCHAR", HtmlInputType::TEXT},
-        {"password", "BLOB", HtmlInputType::TEXT},
-        {"salt", "VARCHAR", HtmlInputType::TEXT},
+        {"password", "BLOB", HtmlInputType::HIDDEN},
+        {"salt", "VARCHAR", HtmlInputType::HIDDEN},
         {"start_page", "VARCHAR", HtmlInputType::TEXT}};
 }
 string UserDefinition::get(const KeyStringType& key) const

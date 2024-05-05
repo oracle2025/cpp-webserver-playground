@@ -4,9 +4,11 @@
 #include "Filter/ByOwner.hpp"
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
+#include "Login/ProfileController.hpp"
 #include "LoginController.hpp"
 #include "NullHandler.hpp"
 #include "Server/CrudController.hpp"
+#include "Session.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
 #include "TodoController.hpp"
@@ -38,19 +40,29 @@ void makeCruds(Http::Router& router)
 }
 void makeHome(Http::Router& router)
 {
+    using Data::User;
+    using Http::redirect;
     router.get("/", [](const Request& request) {
-        std::ostringstream out;
-        try {
-            const auto tpl = TEMPLATE_DIR "/home.html";
-            inja::Environment env;
-            const inja::Template temp = env.parse_template(tpl);
-            out << env.render(temp, {});
-        } catch (...) {
-            TRACE_RETHROW("Could not render template");
+        auto user = std::make_shared<User>();
+        if (!user->pop(Http::Session(request).userId())) {
+            throw std::runtime_error("Logged in User not found");
         }
-        return content(out.str())
-            ->appendNavBarAction({"Start", "/"})
-            .shared_from_this();
+        if (user->values()["start_page"] != "/") {
+            return redirect(user->values()["start_page"]);
+        } else {
+            std::ostringstream out;
+            try {
+                const auto tpl = TEMPLATE_DIR "/home.html";
+                inja::Environment env;
+                const inja::Template temp = env.parse_template(tpl);
+                out << env.render(temp, {});
+            } catch (...) {
+                TRACE_RETHROW("Could not render template");
+            }
+            return content(out.str())
+                ->appendNavBarAction({"Start", "/"})
+                .shared_from_this();
+        }
     });
 }
 std::shared_ptr<SimpleWebServer> makeAdminHandler()
@@ -75,12 +87,18 @@ std::shared_ptr<SimpleWebServer> makeSignupHandler()
     signupHandler->finish_init();
     return signupHandler;
 }
+void makeProfile(Http::Router& router)
+{
+    auto profileController = std::make_shared<Login::ProfileController>();
+    profileController->initialize(router);
+}
 std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
 {
     auto handler = std::make_shared<SimpleWebServer>();
     PasswordChangeController::initialize("/password", handler->router());
     makeCruds(handler->router());
     makeHome(handler->router());
+    makeProfile(handler->router());
     handler->defaultHandler(Http::NotFoundHandler);
     handler->finish_init();
 
@@ -112,6 +130,8 @@ int LoginServerApplication::main(const vector<string>& args)
     server2.finish_init();
 
     server2.start();
+    // Start a "Fake" Webmail server, for testing password restore via email
+    // process?
     waitForTerminationRequest();
     server2.stop();
     return EXIT_OK;

@@ -207,7 +207,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Template/BaseTemplate.hpp
             src/Data/AsJson.cpp
             src/Data/AsJson.hpp
-            src/Data/Migrations.hpp)
+            src/Data/Migrations.hpp
+            src/Login/ProfileController.cpp
+            src/Login/ProfileController.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
