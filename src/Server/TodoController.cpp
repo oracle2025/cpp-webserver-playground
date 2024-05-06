@@ -53,6 +53,20 @@ std::shared_ptr<CrudController::Response> TodoController::editRecord(
     }
 }
 
+std::vector<std::shared_ptr<Record>> filtered(
+    const std::vector<std::shared_ptr<Record>>& list,
+    const std::string& parent_id)
+{
+    std::vector<std::shared_ptr<Record>> result;
+    for (const auto& i : list) {
+        if (i->values()["parent_id"] != parent_id) {
+            continue;
+        }
+        result.push_back(i);
+    }
+    return result;
+}
+
 /* it may be simpler to just indent by number of parents
  * instead of using nested lists.
  * Table should give better formatting also*/
@@ -62,20 +76,20 @@ std::string recurseTodos(
     const std::string& parent_id = "")
 {
     // filter list for parent_id
-    std::vector<std::shared_ptr<Record>> filtered;
-    for (const auto& i : list) {
-        if (i->values()["parent_id"] != parent_id) {
-            continue;
-        }
-        filtered.push_back(i);
-    }
+    std::vector<std::shared_ptr<Record>> descendents = filtered(list, parent_id);
 
-    if (list.empty()) {
+    if (descendents.empty()) {
         return {};
     }
     std::ostringstream str;
-    for (const auto& i : filtered) {
-        str << R"(<tr><td class="max">)" << "\n";
+    if (level > 0) {
+        str << R"(<tr><td colspan="3" style="padding: 0px;">)";
+        str << R"(<table class="table" id="subitems-)" << parent_id << "\">\n";
+    } else {
+        str << "<table class=\"table\">\n";
+    }
+    for (const auto& i : descendents) {
+        str << R"(<tr><td class="max" width="99%">)" << "\n";
         for (int c = 0; c < level; c++) {
             str << "&nbsp;&nbsp;&nbsp;&nbsp;";
         }
@@ -83,20 +97,29 @@ std::string recurseTodos(
             << R"(" value="no" />)";
         if (i->values()["checked"] == "yes") {
             str << R"(<input type="checkbox" name=")" << i->key()
-                << R"(" checked value="yes" onchange="submitForm(this);">)";
+                << R"(" checked value="yes" onchange="submitForm(this);">)"
+                << "\n";
         } else {
             str << R"(<input type="checkbox" name=")" << i->key()
-                << R"(" value="yes" onchange="submitForm(this);">)";
+                << R"(" value="yes" onchange="submitForm(this);">)" << "\n";
         }
         str << "&nbsp;&nbsp;&nbsp;&nbsp;";
         str << i->values()["description"];
+        if (level == 0 && !filtered(list, i->key()).empty()) {
+            str << R"( <a href="#" class="toggle-subitems" id="hide-)"
+                << i->key() << R"(">Hide&nbsp;subtasks</a>)" << "\n";
+        }
         str << R"(</td><td><a href="/todo/edit?)" << i->key()
             << R"(" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>
 <td><a href="/todo/delete?)"
             << i->key()
             << R"(" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a>)";
-        str << recurseTodos(list, level + 1, i->key());
         str << "</td></tr>\n";
+        str << recurseTodos(list, level + 1, i->key());
+    }
+    str << "</table>\n";
+    if (level > 0) {
+        str << R"(</td></tr>)" << "\n";
     }
     return str.str();
 }
@@ -108,9 +131,9 @@ shared_ptr<CrudController::Response> TodoController::listRecords(
     auto record = m_makeRecord(request);
     using namespace Input;
     return content(Form(
-                       R"(<table class="table">)"
-                           + recurseTodos(record->listAsPointers())
-                           + "</table>",
+                       /*R"(<table class="table">)" + */
+                       recurseTodos(record->listAsPointers())
+                       /*+ "</table>"*/,
                        prefix() + "/mark",
                        "post")())
         ->appendAction(

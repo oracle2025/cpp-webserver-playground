@@ -149,6 +149,16 @@ function submitForm(elem) {
     </div>
 </div>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<script>
+document.querySelectorAll('.toggle-subitems').forEach(button => {
+  button.addEventListener('click', () => {
+    var parent_id = button.id.replace('hide-', '');
+    const subitems = document.querySelector('#subitems-' + parent_id);
+    subitems.classList.toggle('hidden');
+    button.textContent = subitems.classList.contains('hidden') ? 'Show subtasks' : 'Hide subtasks';
+  });
+});
+</script>
 </body></html>)";
     return result.str();
 }
