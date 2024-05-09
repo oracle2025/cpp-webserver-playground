@@ -106,7 +106,7 @@ std::string recurseTodos(
         str << "&nbsp;&nbsp;&nbsp;&nbsp;";
         str << i->values()["description"];
         if (level == 0 && !filtered(list, i->key()).empty()) {
-            str << R"( <a href="#" class="toggle-subitems" id="hide-)"
+            str << R"( <a href="" class="toggle-subitems" id="hide-)"
                 << i->key() << R"(">Hide&nbsp;subtasks</a>)" << "\n";
         }
         str << R"(</td><td><a href="/todo/edit?)" << i->key()
