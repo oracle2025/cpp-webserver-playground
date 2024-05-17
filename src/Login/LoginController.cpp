@@ -1,19 +1,19 @@
 #include "LoginController.hpp"
 
+#include "Data/User.hpp"
 #include "Form.hpp"
 #include "Http/Request.hpp"
+#include "Http/Response.hpp"
 #include "Http/Session.hpp"
+#include "Impl/SimpleWebServer.hpp"
 #include "List.hpp"
 #include "Password.hpp"
+#include "Presentation.hpp"
 #include "Server/CrudController.hpp"
-#include "Impl/SimpleWebServer.hpp"
 #include "Server/style.hpp"
 #include "Submit.hpp"
 #include "Text.hpp"
 #include "doctest.h"
-#include "Data/User.hpp"
-#include "Http/Response.hpp"
-#include "Presentation.hpp"
 
 #include <map>
 #include <memory>
@@ -32,7 +32,8 @@ LoginController::LoginController(
     , m_presentation(std::move(presentation))
 {
 }
-LoginController& LoginController::initialize(Http::Router& router) {
+LoginController& LoginController::initialize(Http::Router& router)
+{
     using Http::Session;
     auto ptr = shared_from_this();
     router.get("/", [ptr](const Request& request) {
@@ -159,6 +160,9 @@ shared_ptr<Response> LoginController::addLinksToResponse(
     const Request& request, shared_ptr<Response> response) const
 {
     using Http::Session;
+    response->appendNavBarAction({"Todos", "/todo/"})
+        .appendNavBarAction({"Documents", "/document/"})
+        .appendNavBarAction({"Shared", "/shared/"});
     if (Session(request).isAdmin()) {
 #ifdef ENABLE_USER_LIST
         response->appendNavBarAction({"Users", "/user/", "right"});

@@ -29,8 +29,7 @@ ProfileController& ProfileController::initialize(Http::Router& router)
             data["start_page"] = String::escape(user->values()["start_page"]);
             return content(BaseTemplate(TEMPLATE_DIR "/profile/edit.html")
                                .render(data))
-                ->appendNavBarAction({"Start", "/"})
-                .title(
+                ->title(
                     "Edit Profile: "
                     + String::escape(user->values()["username"]))
                 .shared_from_this();

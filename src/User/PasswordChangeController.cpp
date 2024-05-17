@@ -36,13 +36,11 @@ void PasswordChangeController::initialize(
                       .shared_from_this();
             return content((*form)())
                 ->form(form)
-                .appendNavBarAction({"Start", "/"})
                 .title("Change Password")
                 .shared_from_this();
         } else {
             return content("User not found")
                 ->code(Response::NOT_FOUND)
-                .appendNavBarAction({"Start", "/"})
                 .shared_from_this();
             ;
         }
@@ -54,7 +52,6 @@ void PasswordChangeController::initialize(
                 != request.parameter("confirm_password")) {
                 return content("Passwords do not match")
                     ->code(Response::NOT_FOUND)
-                    .appendNavBarAction({"Start", "/"})
                     .shared_from_this();
             }
             if (!user.isValidUser(
@@ -63,7 +60,6 @@ void PasswordChangeController::initialize(
                     user)) {
                 return content("Current password is incorrect")
                     ->code(Response::NOT_FOUND)
-                    .appendNavBarAction({"Start", "/"})
                     .shared_from_this();
             }
             user.setPassword(request.parameter("new_password"));
@@ -72,7 +68,6 @@ void PasswordChangeController::initialize(
         } else {
             return content("User not found")
                 ->code(Response::NOT_FOUND)
-                .appendNavBarAction({"Start", "/"})
                 .shared_from_this();
             ;
         }

@@ -45,9 +45,7 @@ std::shared_ptr<CrudController::Response> TodoController::editRecord(
         }
         data["todos"] = my_array;
         return content(
-                   BaseTemplate(TEMPLATE_DIR "/todo/edit.html").render(data))
-            ->appendNavBarAction({"Start", "/"})
-            .shared_from_this();
+            BaseTemplate(TEMPLATE_DIR "/todo/edit.html").render(data));
     } else {
         return recordNotFound(prefix(), record->presentableName());
     }
@@ -76,7 +74,8 @@ std::string recurseTodos(
     const std::string& parent_id = "")
 {
     // filter list for parent_id
-    std::vector<std::shared_ptr<Record>> descendents = filtered(list, parent_id);
+    std::vector<std::shared_ptr<Record>> descendents
+        = filtered(list, parent_id);
 
     if (descendents.empty()) {
         return {};
@@ -138,7 +137,6 @@ shared_ptr<CrudController::Response> TodoController::listRecords(
                        "post")())
         ->appendAction(
             {"Create new " + record->presentableName(), prefix() + "/new"})
-        .appendNavBarAction({"Start", "/"})
         .title(record->presentableName() + " List")
         .shared_from_this();
 

@@ -3,7 +3,7 @@
 #include "Data/SharedTodo.hpp"
 #include "Document/DocumentController.hpp"
 #include "Filter/ByOwner.hpp"
-#include "Http/RequestDispatcher.hpp"
+#include "Http/RequestHandlerList.hpp"
 #include "Impl/PocoWebServer.hpp"
 #include "Login/ProfileController.hpp"
 #include "LoginController.hpp"
@@ -18,7 +18,6 @@
 
 #include <inja.hpp>
 
-using Http::RequestDispatcher;
 using Http::RequestHandlerList;
 using std::make_shared;
 
@@ -60,9 +59,7 @@ void makeHome(Http::Router& router)
             } catch (...) {
                 TRACE_RETHROW("Could not render template");
             }
-            return content(out.str())
-                ->appendNavBarAction({"Start", "/"})
-                .shared_from_this();
+            return content(out.str());
         }
     });
 }
@@ -123,18 +120,18 @@ std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
 
 int LoginServerApplication::main(const vector<string>& args)
 {
-    PocoWebServer server2;
+    PocoWebServer httpServer;
     auto presentation = std::make_shared<Presentation>();
 
-    auto server = makeLoginController(server2.router());
-    server2.defaultHandler(server->getDefaultHandler());
-    server2.setPresentation(presentation);
-    server2.finish_init();
+    auto loginController = makeLoginController(httpServer.router());
+    httpServer.defaultHandler(loginController->getDefaultHandler());
+    httpServer.setPresentation(presentation);
+    httpServer.finish_init();
 
-    server2.start();
+    httpServer.start();
     // Start a "Fake" Webmail server, for testing password restore via email
     // process?
     waitForTerminationRequest();
-    server2.stop();
+    httpServer.stop();
     return EXIT_OK;
 }

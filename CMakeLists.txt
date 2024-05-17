@@ -162,8 +162,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Trace/Exception.hpp
             ${BACKWARD_ENABLE}
             src/User/PasswordChangeController.hpp
-            src/Http/RequestDispatcher.cpp
-            src/Http/RequestDispatcher.hpp
             src/Http/NullHandler.cpp
             src/Http/NullHandler.hpp
             src/Signup/SignupController.hpp
@@ -211,7 +209,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Login/ProfileController.cpp
             src/Login/ProfileController.hpp
             src/Document/DocumentController.cpp
-            src/Document/DocumentController.hpp)
+            src/Document/DocumentController.hpp
+            src/Http/RequestHandlerList.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic

@@ -36,8 +36,7 @@ CrudController &CrudController::initialize(Http::Router& router)
         return content(Form(*record, prefix + "/create", "post")
                            .appendElement(make_shared<Submit>(
                                "Create " + record->presentableName()))())
-            ->appendNavBarAction({"Start", "/"})
-            .title("Create " + record->presentableName())
+            ->title("Create " + record->presentableName())
             .shared_from_this();
     });
     router.post(prefix + "/create", [ptr, prefix](const Request& request) {
@@ -136,8 +135,7 @@ CrudController &CrudController::initialize(Http::Router& router)
         auto record = ptr->m_makeRecord(request);
         if (record->pop(request.query())) {
             return Confirm(prefix, *record, record->descriptionImpl())()
-                ->appendNavBarAction({"Start", "/"})
-                .shared_from_this();
+                ;
         } else {
             return recordNotFound(prefix, record->presentableName());
         }
@@ -164,7 +162,6 @@ shared_ptr<Response> CrudController::recordNotFound(
 {
     return content(presentableName + " not found")
         ->code(Response::NOT_FOUND)
-        .appendNavBarAction({"Start", "/"})
         .shared_from_this();
 }
 const string& CrudController::prefix() const
@@ -182,8 +179,7 @@ std::shared_ptr<Response> CrudController::editRecord(const Request& request)
                            "post")
                            .appendElement(make_shared<Submit>(
                                "Update " + record->presentableName()))())
-            ->appendNavBarAction({"Start", "/"})
-            .title("Edit " + record->presentableName())
+            ->title("Edit " + record->presentableName())
             .shared_from_this();
     } else {
         return recordNotFound(prefix(), record->presentableName());
@@ -201,7 +197,6 @@ std::shared_ptr<Response> CrudController::listRecords(const Request& request)
                        "post")())
         ->appendAction(
             {"Create new " + record->presentableName(), prefix() + "/new"})
-        .appendNavBarAction({"Start", "/"})
         .title(record->presentableName() + " List")
         .shared_from_this();
 }
