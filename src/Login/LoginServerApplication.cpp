@@ -1,5 +1,6 @@
 #include "LoginServerApplication.hpp"
 
+#include "Data/Movie.hpp"
 #include "Data/SharedTodo.hpp"
 #include "Document/DocumentController.hpp"
 #include "Filter/ByOwner.hpp"
@@ -37,6 +38,13 @@ void makeCruds(Http::Router& router)
                         })
                         ->initialize(router)
                         .shared_from_this();
+    auto movieCrud = std::make_shared<CrudController>(
+                         "/movie",
+                         [](const Request& request) {
+                             return std::make_shared<Data::Movie>(request);
+                         })
+                         ->initialize(router)
+                         .shared_from_this();
 }
 void makeHome(Http::Router& router)
 {

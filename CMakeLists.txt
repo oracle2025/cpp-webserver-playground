@@ -210,7 +210,11 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Login/ProfileController.hpp
             src/Document/DocumentController.cpp
             src/Document/DocumentController.hpp
-            src/Http/RequestHandlerList.hpp)
+            src/Http/RequestHandlerList.hpp
+            src/Data/Movie.cpp
+            src/Data/Movie.hpp
+            src/Data/MigrationsV6.cpp
+            src/Data/MigrationsV6.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
@@ -277,7 +281,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/SignupTest.cpp
             tests/ByOwnerTest.cpp
             tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp
-            tests/LambdaTest.cpp)
+            tests/LambdaTest.cpp
+            tests/MovieTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 

@@ -162,7 +162,8 @@ shared_ptr<Response> LoginController::addLinksToResponse(
     using Http::Session;
     response->appendNavBarAction({"Todos", "/todo/"})
         .appendNavBarAction({"Documents", "/document/"})
-        .appendNavBarAction({"Shared", "/shared/"});
+        .appendNavBarAction({"Shared", "/shared/"})
+        .appendNavBarAction({"Movies", "/movie/"});
     if (Session(request).isAdmin()) {
 #ifdef ENABLE_USER_LIST
         response->appendNavBarAction({"Users", "/user/", "right"});
