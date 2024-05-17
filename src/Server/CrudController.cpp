@@ -2,7 +2,6 @@
 
 #include "Confirm.hpp"
 #include "Form.hpp"
-#include "Http/NotFoundHandler.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Session.hpp"
