@@ -1,6 +1,7 @@
 #include "LoginServerApplication.hpp"
 
 #include "Data/SharedTodo.hpp"
+#include "Document/DocumentController.hpp"
 #include "Filter/ByOwner.hpp"
 #include "Http/RequestDispatcher.hpp"
 #include "Impl/PocoWebServer.hpp"
@@ -99,6 +100,7 @@ std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
     makeCruds(handler->router());
     makeHome(handler->router());
     makeProfile(handler->router());
+    Document::DocumentController::initialize(handler->router());
     handler->defaultHandler(Http::NotFoundHandler);
     handler->finish_init();
 

@@ -1,6 +1,9 @@
 #include "Presentation.hpp"
 
 #include "String/escape.hpp"
+#include "Template/BaseTemplate.hpp"
+
+#include <nlohmann/json.hpp>
 
 namespace Html {
 
@@ -63,103 +66,32 @@ string Presentation::renderNavBarActions(const vector<ActionLink>& actions)
         return "";
     }
     ostringstream result;
-    result << R"(<ul class="nav navbar-nav">)"
-           << "\n";
+    result << R"(<ul class="nav navbar-nav">)" << "\n";
     for (const auto& action : actions) {
         if (action.liClass != "right") {
             result << R"(<li class=")" << action.liClass << R"("><a href=")"
                    << action.url << R"(">)" << action.title << R"(</a></li>)";
         }
     }
-    result << R"(</ul>)"
-           << "\n";
-    result << R"(<ul class="nav navbar-nav navbar-right">)"
-           << "\n";
+    result << R"(</ul>)" << "\n";
+    result << R"(<ul class="nav navbar-nav navbar-right">)" << "\n";
     for (const auto& action : actions) {
         if (action.liClass == "right") {
             result << R"(<li class=")" << action.liClass << R"("><a href=")"
                    << action.url << R"(">)" << action.title << R"(</a></li>)";
         }
     }
-    result << R"(</ul>)"
-           << "\n";
+    result << R"(</ul>)" << "\n";
     return result.str();
 }
+
 string Presentation::renderHtml(const Response& response)
 {
-    ostringstream result;
-    result << R"(<!DOCTYPE html><html lang="de"><head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-<!-- <link rel="stylesheet" type="text/css" href="/css/style.css"> -->
-<style>
-body {
-  padding-top: 50px;
-}
-</style>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
-<script>
-function submitForm(elem) {
-        elem.form.submit();
-}
-</script>
-<title>)";
-    result << response.title();
-    result << R"(</title>
-</head>
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Todo List</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          )";
-    result << renderNavBarActions(response.navBarActions());
-    result << R"(
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
-<div class="container">
-    <div class=row>
-        <div class="col-sm-3">
-        </div>
-        <div class="col-sm-6">
-<h2>)";
-    result << response.title();
-    result << R"(</h2>)";
-    result << renderAlert(response.alert());
-    result << renderActions(response.actions());
-    result << response.content();
-    result << R"(
-        </div>
-        <div class="col-sm-3">
-        </div>
-    </div>
-</div>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<script>
-document.querySelectorAll('.toggle-subitems').forEach(button => {
-  button.addEventListener('click', () => {
-    var parent_id = button.id.replace('hide-', '');
-    const subitems = document.querySelector('#subitems-' + parent_id);
-    subitems.classList.toggle('hidden');
-    button.textContent = subitems.classList.contains('hidden') ? 'Show subtasks' : 'Hide subtasks';
-  });
-});
-</script>
-</body></html>)";
-    return result.str();
-}
+    auto data = nlohmann::json::object();
+    data["title"] = response.title();
+    data["navBarActions"] = renderNavBarActions(response.navBarActions());
+    data["alerts"] = renderAlert(response.alert());
+    data["actions"] = renderActions(response.actions());
+    data["content"] = response.content();
+    return Template::BaseTemplate(TEMPLATE_DIR "/index.html").render(data);}
 } // namespace Html

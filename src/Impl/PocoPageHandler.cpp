@@ -49,32 +49,50 @@ void PocoPageHandler::handleRequest(
 {
     response.setChunkedTransferEncoding(true);
     response.setContentType("text/html");
-
-    NameValueCollection cookies;
-    request.getCookies(cookies);
-
-    Poco::URI uri(request.getURI());
-
-    spdlog::info("Request: {}", uri.toString());
-
-    const Http::Method method = httpMethod(request.getMethod());
-    if (method == Http::Method::METHOD_NOT_ALLOWED) {
-        response.setStatus(Poco::Net::HTTPResponse::HTTP_METHOD_NOT_ALLOWED);
-        response.send() << "Method Not Allowed\n";
-        return;
-    }
-
-    const Request req(
-        uri.getPath(),
-        (convert(cookies)),
-        (convert(HTMLForm(request, request.stream()))),
-        uri.getQuery(),
-        method,
-        (request.get("User-Agent", "")));
-
-    shared_ptr<Response> result;
     try {
+
+        NameValueCollection cookies;
+        request.getCookies(cookies);
+
+        Poco::URI uri(request.getURI());
+
+        spdlog::info("Request: {}", uri.toString());
+
+        const Http::Method method = httpMethod(request.getMethod());
+        if (method == Http::Method::METHOD_NOT_ALLOWED) {
+            response.setStatus(
+                Poco::Net::HTTPResponse::HTTP_METHOD_NOT_ALLOWED);
+            response.send() << "Method Not Allowed\n";
+            return;
+        }
+
+        const Request req(
+            uri.getPath(),
+            (convert(cookies)),
+            (convert(HTMLForm(request, request.stream()))),
+            uri.getQuery(),
+            method,
+            (request.get("User-Agent", "")));
+
+        shared_ptr<Response> result;
         result = handler(req);
+
+        m_form = result->form();
+
+        addCookiesToResponse(response, *result);
+
+        response.setContentType(result->mimetype());
+        if (result->status() == Response::HTTP_FOUND
+            && (!result->location().empty())) {
+            response.redirect(result->location());
+            return;
+        }
+        if (result->sendFile()) {
+            response.sendFile(result->filename(), result->mimetype());
+        } else {
+            auto& responseStream = response.send();
+            responseStream << Html::Presentation::render(*result);
+        }
     } catch (...) {
         std::ostringstream str;
         Trace::backtrace(std::current_exception(), str);
@@ -83,22 +101,6 @@ void PocoPageHandler::handleRequest(
         response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
         response.send() << "Internal Server Error\n";
         return;
-    }
-    m_form = result->form();
-
-    addCookiesToResponse(response, *result);
-
-    response.setContentType(result->mimetype());
-    if (result->status() == Response::HTTP_FOUND
-        && (!result->location().empty())) {
-        response.redirect(result->location());
-        return;
-    }
-    if (result->sendFile()) {
-        response.sendFile(result->filename(), result->mimetype());
-    } else {
-        auto& responseStream = response.send();
-        responseStream << Html::Presentation::render(*result);
     }
 }
 Input::FormPtr PocoPageHandler::form() const
