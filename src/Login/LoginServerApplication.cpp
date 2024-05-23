@@ -8,6 +8,7 @@
 #include "Impl/PocoWebServer.hpp"
 #include "Login/ProfileController.hpp"
 #include "LoginController.hpp"
+#include "MovieController.hpp"
 #include "NullHandler.hpp"
 #include "Server/CrudController.hpp"
 #include "Session.hpp"
@@ -38,7 +39,7 @@ void makeCruds(Http::Router& router)
                         })
                         ->initialize(router)
                         .shared_from_this();
-    auto movieCrud = std::make_shared<CrudController>(
+    auto movieCrud = std::make_shared<MovieController>(
                          "/movie",
                          [](const Request& request) {
                              return std::make_shared<Data::Movie>(request);

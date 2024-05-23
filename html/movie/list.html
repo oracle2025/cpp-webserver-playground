@@ -1,0 +1,16 @@
+
+<table class="table">
+## for movie in movies
+    <tr>
+        <td class="max">{{movie.title}}</td>
+        <td class="max">{{movie.director}}</td>
+        <td class="max">{{movie.genre}}</td>
+        <td class="max">{{movie.year}}</td>
+        <td class="max">{{movie.rating}}</td>
+        <td><a href="/movie/edit?{{movie.id}}" class="edit button btn btn-success btn-sm">✏️
+            <span class="hidden-xs">Edit</span></a></td>
+        <td><a href="/movie/delete?{{movie.id}}" class="remove button btn btn-danger btn-sm">♻️
+            <span class="hidden-xs">Delete</span></a></td>
+    </tr>
+## endfor
+</table>

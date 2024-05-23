@@ -214,7 +214,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/Movie.cpp
             src/Data/Movie.hpp
             src/Data/MigrationsV6.cpp
-            src/Data/MigrationsV6.hpp)
+            src/Data/MigrationsV6.hpp
+            src/Server/MovieController.cpp
+            src/Server/MovieController.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
