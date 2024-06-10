@@ -32,6 +32,9 @@ std::shared_ptr<CrudController::Response> TodoController::editRecord(
             if (i->key() == record->key()) {
                 continue;
             }
+            if (!i->values()["parent_id"].empty()) {
+                continue;
+            }
             bool selected = i->key() == record->values()["parent_id"];
             if (selected) {
                 data["none_selected"] = "";

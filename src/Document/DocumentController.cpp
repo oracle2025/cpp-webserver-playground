@@ -15,6 +15,9 @@ void DocumentController::initialize(Http::Router& router)
     router.get(prefix + "/", [](const Http::Request& request) {
         return content(BaseTemplate(TEMPLATE_DIR "/document/list.html")());
     });
+    router.get(prefix + "/new", [](const Http::Request& request) {
+        return content(BaseTemplate(TEMPLATE_DIR "/document/new.html")());
+    });
     router.get(prefix + "/view", [](const Http::Request& request) {
         // Add some tag to the content that this template will provide its own
         // container
