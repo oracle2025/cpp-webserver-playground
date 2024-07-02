@@ -1,15 +1,20 @@
 
 #include "SessionData.hpp"
+
+#include "SessionStorage.hpp"
+
 #include <chrono>
 
 namespace Http {
 void SessionData::alert(const SessionData::Alert& alert)
 {
     m_alert = alert;
+    SessionStorage::insert(m_id, *this);
 }
 void SessionData::clearAlert()
 {
     m_alert = {};
+    SessionStorage::insert(m_id, *this);
 }
 bool SessionData::hasAlert() const
 {
@@ -24,10 +29,12 @@ void SessionData::login(Data::User& user)
     m_isLoggedIn = true;
     m_userId = user.id;
     m_userName = user.username;
+    SessionStorage::insert(m_id, *this);
 }
 void SessionData::logout()
 {
     m_isLoggedIn = false;
+    SessionStorage::insert(m_id, *this);
 }
 bool SessionData::isLoggedIn()
 {
@@ -50,6 +57,7 @@ std::time_t SessionData::now()
 void SessionData::touch()
 {
     m_lastUsedAt = now();
+    SessionStorage::insert(m_id, *this);
 }
 string SessionData::createdAt() const
 {
@@ -63,10 +71,13 @@ bool SessionData::isLoggedInConst() const
 {
     return m_isLoggedIn;
 }
-SessionData::SessionData(const string path, const string& userAgent)
-    :
-    m_path(path),
-    m_userAgent(userAgent) {}
+SessionData::SessionData(
+    SessionId  id, const string path, const string& userAgent)
+    : m_path(path)
+    , m_userAgent(userAgent)
+    , m_id(std::move(id))
+{
+}
 string SessionData::path() const
 {
     return m_path;

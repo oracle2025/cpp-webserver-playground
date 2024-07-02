@@ -17,11 +17,19 @@ include(FeatureSummary)
 include(GNUInstallDirs)
 set(TODO_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo)
 add_definitions(-DTODO_DATABASE_DIR="${TODO_DATABASE_DIR}")
+
+set(TIME_RECORDING_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/time_recording)
+add_definitions(-DTIME_RECORDING_DATABASE_DIR="${TIME_RECORDING_DATABASE_DIR}")
+
 # Provide define with CMAKE config dir
 # if build mode is debug, set config dir to the users home folder
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DCONFIG_DIR="$ENV{HOME}/.todo")
     add_definitions(-DTEMPLATE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/html")
+    add_definitions(-DDEBUG_BUILD)
+    if (APPLE)
+        add_definitions(-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer)
+    endif ()
 else ()
     set(TEMPLATE_DIR "${CMAKE_INSTALL_FULL_DATAROOTDIR}/todo")
     add_definitions(-DCONFIG_DIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}/todo")
@@ -217,10 +225,22 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/MigrationsV6.cpp
             src/Data/MigrationsV6.hpp
             src/Server/MovieController.cpp
-            src/Server/MovieController.hpp)
+            src/Server/MovieController.hpp
+            src/TimeRecordingApp/TimeEntryController.cpp
+            src/TimeRecordingApp/TimeEntryController.hpp
+            src/TimeRecordingApp/TimeCorrectionController.cpp
+            src/TimeRecordingApp/TimeCorrectionController.hpp
+            src/TimeRecordingApp/TimeReportController.cpp
+            src/TimeRecordingApp/TimeReportController.hpp
+            src/TimeRecordingApp/TimeEntry.cpp
+            src/TimeRecordingApp/TimeEntry.hpp
+            src/TimeRecordingApp/TimeRecordingApplication.cpp
+            src/TimeRecordingApp/TimeRecordingApplication.hpp
+            src/Http/SessionStorage.cpp
+            src/Http/SessionStorage.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-    target_compile_options(webservers PUBLIC -Wall -Wextra -Werror -Wpedantic
+    target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic
             -Wno-unused-parameter -Wno-unused-variable
             -Wno-unused-but-set-variable -Wno-unused-function
             -Wno-unused-lambda-capture
@@ -278,6 +298,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/ResponseTest.cpp
             tests/CrudServerTest.cpp
             tests/TodoTest.cpp
+            tests/TimeRecordingSchema.cpp
             tests/AlertTest.cpp
             tests/RequestTest.cpp
             tests/PasswordChangeTest.cpp
@@ -285,7 +306,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/ByOwnerTest.cpp
             tests/PocoPageHandlerTest.cpp tests/FakeBrowser.cpp tests/FakeBrowser.hpp
             tests/LambdaTest.cpp
-            tests/MovieTest.cpp)
+            tests/MovieTest.cpp
+            tests/TimeRecordingSchema.cpp
+            tests/SessionTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
@@ -293,6 +316,10 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/SessionImpl.cpp)
     target_link_libraries(test-migration Poco::DataSQLite)
     target_include_directories(test-migration PRIVATE tests)
+
+    add_executable(tests-performance tests/performance/TodoPerformanceTest.cpp tests/doctest.cpp)
+    target_include_directories(tests-performance PRIVATE tests)
+    target_link_libraries(tests-performance webservers)
 
     enable_testing()
     add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
@@ -302,9 +329,12 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
     target_link_libraries(login-server webservers)
 
+    add_executable(time-recording-server src/TimeRecordingApp/TimeRecordingMain.cpp tests/doctest_impl.cpp)
+    target_link_libraries(time-recording-server webservers)
 
 
     install(TARGETS login-server DESTINATION bin)
+    install(TARGETS time-recording-server DESTINATION bin)
 
     configure_file(systemd/todo.service.in systemd/todo.service @ONLY)
 
@@ -313,6 +343,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
         add_backward(tests)
         add_backward(test-migration)
         add_backward(login-server)
+        add_backward(time-recording-server)
+        add_backward(tests-performance)
     endif ()
 endif ()
 

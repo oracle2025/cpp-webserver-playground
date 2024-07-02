@@ -2,6 +2,7 @@
 
 #include "Data/User.hpp"
 #include "Html/Alert.hpp"
+#include "SessionId.hpp"
 
 #include <optional>
 
@@ -13,7 +14,7 @@ class SessionData {
 public:
     using Alert = Html::Alert;
 
-    SessionData(const string path, const string& userAgent);
+    SessionData(SessionId  id, const string path, const string& userAgent);
     SessionData() = default;
 
     void alert(const Alert& alert);
@@ -52,6 +53,7 @@ private:
     void touch();
     string m_path;
     string m_userAgent;
+    SessionId m_id;
 };
 
 } // namespace Http

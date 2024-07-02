@@ -10,7 +10,7 @@ public:
     Date() = delete;
     explicit Date(const std::string&);
     std::string render() const;
-    // less then operator
+    // less than operator
     bool operator<(const Date& rhs) const;
     /*bool operator==(const Date& rhs) const;
     bool operator!=(const Date& rhs) const;

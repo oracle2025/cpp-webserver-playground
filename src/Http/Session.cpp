@@ -4,10 +4,11 @@
 #include "Data/FieldTypes.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
+#include "SessionStorage.hpp"
+
+#include <utility>
 
 namespace Http {
-
-map<SessionId, SessionData> Session::m_sessions;
 
 Session::Session(const Request& request)
     : request(request)
@@ -15,58 +16,59 @@ Session::Session(const Request& request)
 }
 bool Session::isLoggedIn() const
 {
+    SessionStorage storage;
     return request.hasCookie("session-id")
-        && (m_sessions.find(SessionId{request.cookie("session-id")})
-            != m_sessions.end())
-        && m_sessions[SessionId{request.cookie("session-id")}].isLoggedIn();
+        && storage.pop(SessionId{request.cookie("session-id")})
+        && storage.data().isLoggedIn();
 }
 string Session::userId() const
 {
+    SessionStorage storage;
     if (request.hasCookie("session-id")
-        && (m_sessions.find(SessionId{request.cookie("session-id")})
-            != m_sessions.end())) {
-
-        return m_sessions[SessionId{request.cookie("session-id")}].userId();
+        && storage.pop(SessionId{request.cookie("session-id")})) {
+        return storage.data().userId();
     }
     TRACE_THROW("Session::userId() called without session-id cookie");
 }
 void Session::clearSession()
 {
     if (request.hasCookie("session-id")) {
-        m_sessions.erase(SessionId{request.cookie("session-id")});
+        SessionStorage::erase(SessionId{request.cookie("session-id")});
     }
 }
-SessionData& Session::createSession(Response& response)
+SessionData Session::createSession(Response& response)
 {
     auto sessionId = generateRandomSessionId();
-    m_sessions[sessionId] = {request.path(), request.userAgent()};
+    SessionData data{sessionId, request.path(), request.userAgent()};
+    SessionStorage::insert(sessionId, data);
     response.cookie("session-id", sessionId);
-    return m_sessions[sessionId];
+    return data;
 }
-SessionData& Session::current(Response& response)
+SessionData Session::current(Response& response)
 {
+    SessionStorage storage;
     const bool hasExistingSession = response.cookies().count("session-id")
-        && m_sessions.count(SessionId{response.cookies().at("session-id")});
+        && storage.pop(SessionId{response.cookies().at("session-id")});
     if (hasExistingSession) {
-        return m_sessions[SessionId{response.cookies().at("session-id")}];
+        return storage.data();
     }
     if (!request.hasCookie("session-id")) {
         return createSession(response);
     }
-    auto session = m_sessions.find(SessionId{request.cookie("session-id")});
-    if (session == m_sessions.end()) {
-        return createSession(response);
+    if (storage.pop(SessionId{request.cookie("session-id")})) {
+        return storage.data();
     }
-    return session->second;
+    return createSession(response);
 }
 bool Session::hasSession(Response& response) const
 {
     if (response.cookies().count("session-id")
-        && m_sessions.count(SessionId{response.cookies().at("session-id")})) {
+        && SessionStorage::count(
+            SessionId{response.cookies().at("session-id")})) {
         return true;
     }
     if (request.hasCookie("session-id")
-        && m_sessions.count(SessionId{request.cookie("session-id")})) {
+        && SessionStorage::count(SessionId{request.cookie("session-id")})) {
         return true;
     }
     return false;
@@ -89,7 +91,7 @@ void Session::addAlertToSession(const Request& request, Response& response)
     if (!session.hasSession(response)) {
         return;
     }
-    auto& sessionData = session.current(response);
+    auto sessionData = session.current(response);
     if (sessionData.hasAlert()) {
         // if Session has Alert then move it to the response data for rendering
         response.alert(
@@ -104,79 +106,21 @@ void Session::addAlertToSession(const Request& request, Response& response)
         sessionData.alert(response.alert());
     }
 }
-struct SessionDataRecord : public Record {
-    SessionDataRecord(SessionId id, const SessionData& data)
-        : id(id)
-        , data(data)
-    {
-    }
-    string presentableName() const override
-    {
-        return "Session";
-    }
-    string key() const override
-    {
-        return id;
-    };
-    std::vector<KeyStringType> fields() const override
-    {
-        return {
-            "id",
-            "user_id",
-            "is_logged_in",
-            "createdAt",
-            "lastUsedAt",
-            "path",
-            "userAgent"};
-    };
-    std::map<KeyStringType, string> values() const override
-    {
-        return {
-            {"id", id},
-            {"user_id", data.userId()},
-            {"is_logged_in", data.isLoggedInConst() ? "true" : "false"},
-            {"createdAt", data.createdAt()},
-            {"lastUsedAt", data.lastUsedAt()},
-            {"path", data.path()},
-            {"userAgent", data.userAgent()},
-        };
-    };
-    HtmlInputType inputType(const KeyStringType& field) const override
-    {
-        if (field == "id") {
-            return HtmlInputType::TEXT;
-        }
-        if (field == "user_id") {
-            return HtmlInputType::TEXT;
-        }
-        if (field == "is_logged_in") {
-            return HtmlInputType::TEXT;
-        }
-        return HtmlInputType::TEXT;
-    };
-    SessionId id;
-    const SessionData& data;
-};
 vector<shared_ptr<Record>> Session::listAll()
 {
-    vector<shared_ptr<Record>> result;
-    result.reserve(m_sessions.size());
-    for (auto& [id, data] : m_sessions) {
-        result.push_back(make_shared<SessionDataRecord>(id, data));
-    }
-    return result;
+    return SessionStorage::listAll();
 }
 void Session::clearAll()
 {
-    m_sessions.clear();
+    SessionStorage::clearAll();
 }
 string Session::userName() const
 {
+    SessionStorage storage;
     if (request.hasCookie("session-id")
-        && (m_sessions.find(SessionId{request.cookie("session-id")})
-            != m_sessions.end())) {
+        && storage.pop(SessionId{request.cookie("session-id")})) {
 
-        return m_sessions[SessionId{request.cookie("session-id")}].userName();
+        return storage.data().userName();
     }
     TRACE_THROW("Session::userId() called without session-id cookie");
 }

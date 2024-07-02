@@ -20,8 +20,8 @@ public:
     string userId() const;
     string userName() const;
     void clearSession();
-    SessionData& createSession(Response& response);
-    SessionData& current(Response& response);
+    SessionData createSession(Response& response);
+    SessionData current(Response& response);
     bool hasSession(Response& response) const;
     static void addAlertToSession(const Request& request, Response& response);
 
@@ -30,7 +30,6 @@ public:
 
 private:
     const Request& request;
-    static map<SessionId, SessionData> m_sessions;
 };
 
 } // namespace Http
