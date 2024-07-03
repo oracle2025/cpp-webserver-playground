@@ -2,11 +2,12 @@
 
 #include "SessionId.hpp"
 #include "Http/SessionData.hpp"
+#include "SessionStorageSql.hpp"
 #include <map>
 
 namespace Http {
 
-class SessionStorage {
+class SessionStorageMap {
 public:
     bool pop(const SessionId& sessionId);
     static size_t count(const SessionId& sessionId);
@@ -21,6 +22,8 @@ private:
     static std::map<SessionId, SessionData> m_storage;
     SessionData m_current;
 };
+
+using SessionStorage = SessionStorageSql;
 
 } // namespace Http
 

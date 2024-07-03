@@ -2,9 +2,9 @@
 #include "SessionStorage.hpp"
 
 namespace Http {
-std::map<SessionId, SessionData> SessionStorage::m_storage;
+std::map<SessionId, SessionData> SessionStorageMap::m_storage;
 
-bool SessionStorage::pop(const SessionId& sessionId)
+bool SessionStorageMap::pop(const SessionId& sessionId)
 {
     if (m_storage.count(sessionId) > 0) {
         m_current = m_storage[sessionId];
@@ -12,24 +12,24 @@ bool SessionStorage::pop(const SessionId& sessionId)
     }
     return false;
 }
-size_t SessionStorage::count(const SessionId& sessionId)
+size_t SessionStorageMap::count(const SessionId& sessionId)
 {
     return m_storage.count(sessionId);
 }
-SessionData& SessionStorage::data()
+SessionData& SessionStorageMap::data()
 {
     return m_current;
 }
-void SessionStorage::erase(const SessionId& sessionId)
+void SessionStorageMap::erase(const SessionId& sessionId)
 {
     m_storage.erase(sessionId);
 }
-void SessionStorage::insert(
+void SessionStorageMap::insert(
     const SessionId& sessionId, const SessionData& sessionData)
 {
     m_storage[sessionId] = sessionData;
 }
-void SessionStorage::clearAll()
+void SessionStorageMap::clearAll()
 {
     m_storage.clear();
 }
@@ -87,7 +87,7 @@ struct SessionDataRecord : public Record {
     const SessionData& data;
 };
 
-vector<shared_ptr<Record>> SessionStorage::listAll()
+vector<shared_ptr<Record>> SessionStorageMap::listAll()
 {
     vector<shared_ptr<Record>> result;
     result.reserve(m_storage.size());

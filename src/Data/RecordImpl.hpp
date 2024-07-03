@@ -77,12 +77,20 @@ struct RecordImpl : public T, public RecordExtended {
     {
         insertInto(*g_session);
     }
+    void insert(const string& id)
+    {
+        insertInto(id, *g_session);
+    }
     void insertInto(Session& session)
+    {
+        insertInto(String::createRandomUUID(), session);
+    }
+    void insertInto(const string& id, Session& session)
     try {
         using namespace Poco::Data::Keywords;
         using Poco::Data::Statement;
         using String::repeat;
-        T::id = String::createRandomUUID();
+        T::id = id;
         Statement insert(session);
         const string sql = "INSERT INTO "
             + T::table_name() + " (" + orderedColumnNames(T::columns())

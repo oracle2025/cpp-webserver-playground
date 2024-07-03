@@ -237,7 +237,13 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/TimeRecordingApp/TimeRecordingApplication.cpp
             src/TimeRecordingApp/TimeRecordingApplication.hpp
             src/Http/SessionStorage.cpp
-            src/Http/SessionStorage.hpp)
+            src/Http/SessionStorage.hpp
+            src/Data/SessionRow.cpp
+            src/Data/SessionRow.hpp
+            src/Data/MigrationsV7.cpp
+            src/Data/MigrationsV7.hpp
+            src/Http/SessionStorageSql.cpp
+            src/Http/SessionStorageSql.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic

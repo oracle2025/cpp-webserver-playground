@@ -5,6 +5,9 @@
 #include "SessionId.hpp"
 
 #include <optional>
+namespace Data {
+struct SessionRowDefinition;
+} // namespace Data
 
 namespace Http {
 using std::optional;
@@ -14,7 +17,7 @@ class SessionData {
 public:
     using Alert = Html::Alert;
 
-    SessionData(SessionId  id, const string path, const string& userAgent);
+    SessionData(SessionId id, const string path, const string& userAgent);
     SessionData() = default;
 
     void alert(const Alert& alert);
@@ -54,6 +57,7 @@ private:
     string m_path;
     string m_userAgent;
     SessionId m_id;
+    friend struct Data::SessionRowDefinition;
 };
 
 } // namespace Http

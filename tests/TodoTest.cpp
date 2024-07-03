@@ -53,7 +53,7 @@ TEST_CASE("todo")
         t.erase();
         CHECK(t.list().size() == 0);
     }
-    SUBCASE("todoDefintion")
+    SUBCASE("todoDefinition")
     {
         Todo t;
         t.pop(id);
