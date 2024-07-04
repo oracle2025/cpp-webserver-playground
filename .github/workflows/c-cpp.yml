@@ -23,7 +23,7 @@ jobs:
     - name: test
       run: cd build-debug && ninja test
     - name: release-build
-      run: cd build-release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && ninja
+      run: mkdir -p build-release && cd build-release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && ninja
     - name: package
       run: cd build-release && cpack && dpkg -c *.deb
     - uses: actions/upload-artifact@v4
