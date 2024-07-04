@@ -22,10 +22,8 @@ jobs:
       run: cd build-debug && ninja
     - name: test
       run: cd build-debug && ninja test
-    - name: release-build
-      run: mkdir -p build-release && cd build-release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && ninja
-    - name: package
-      run: cd build-release && cpack && dpkg -c *.deb
+    - name: build-release
+      run: ./scripts/create-release.sh
     - uses: actions/upload-artifact@v4
       with:
         name: cpp_webserver_kata-0.1.1-Linux.deb
