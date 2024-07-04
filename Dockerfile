@@ -1,4 +1,4 @@
-FROM debian:12
+FROM debian:12.5
 # FROM debian:11.7
 # docker run -t -v $PWD:/srv -w/srv -it cpp_webserver_kata /bin/bash
 # docker build -t cpp_webserver_kata .
@@ -31,5 +31,6 @@ RUN set -ex \
                ninja-build \
                git \
                ca-certificates \
+               libbackward-cpp-dev \
     && apt-get clean \
     && rm -rf /tmp/* /var/tmp/*

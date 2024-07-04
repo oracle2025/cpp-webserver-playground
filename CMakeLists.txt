@@ -15,11 +15,14 @@ set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake)
 
 include(FeatureSummary)
 include(GNUInstallDirs)
+
 set(TODO_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/todo)
 add_definitions(-DTODO_DATABASE_DIR="${TODO_DATABASE_DIR}")
+install(DIRECTORY DESTINATION ${TODO_DATABASE_DIR})
 
 set(TIME_RECORDING_DATABASE_DIR ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/time_recording)
 add_definitions(-DTIME_RECORDING_DATABASE_DIR="${TIME_RECORDING_DATABASE_DIR}")
+install(DIRECTORY DESTINATION ${TIME_RECORDING_DATABASE_DIR})
 
 # Provide define with CMAKE config dir
 # if build mode is debug, set config dir to the users home folder
@@ -39,7 +42,6 @@ else ()
 endif ()
 
 
-install(DIRECTORY DESTINATION ${TODO_DATABASE_DIR})
 
 set(SERVER_PORT 8080)
 option(SERVER_PORT "Port to listen on" ${SERVER_PORT})
@@ -68,14 +70,20 @@ endif ()
 find_package(spdlog)
 
 include(FetchContent)
-
+# Check for libbackward-cpp-dev
 if (ENABLE_BACKWARD)
     # Also requires one of: libbfd (gnu binutils), libdwarf, libdw (elfutils)
-    FetchContent_Declare(
-            backward
-            GIT_REPOSITORY https://github.com/bombela/backward-cpp
-            GIT_TAG v1.6)
-    FetchContent_MakeAvailable(backward)
+    find_package(Backward HINTS /usr/lib/backward)
+    if (NOT ${Backward_FOUND})
+        FetchContent_Declare(
+                backward
+                GIT_REPOSITORY https://github.com/bombela/backward-cpp
+                GIT_TAG v1.6)
+        FetchContent_MakeAvailable(backward)
+        set(BACKWARD_OBJECT ${BACKWARD_ENABLE})
+    else ()
+        set(BACKWARD_LIBRARY_TARGET Backward::Backward)
+    endif ()
 endif ()
 
 include_directories(SYSTEM ${PROJECT_BINARY_DIR}/include)
@@ -169,7 +177,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Trace/trace.hpp
             src/Trace/Exception.cpp
             src/Trace/Exception.hpp
-            ${BACKWARD_ENABLE}
+            ${BACKWARD_OBJECT}
             src/User/PasswordChangeController.hpp
             src/Http/NullHandler.cpp
             src/Http/NullHandler.hpp
@@ -282,7 +290,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             Poco::NetSSL
             Threads::Threads
             Poco::DataSQLite
-            spdlog::spdlog)
+            spdlog::spdlog
+            ${BACKWARD_LIBRARY_TARGET})
     target_include_directories(
             webservers
             PRIVATE tests

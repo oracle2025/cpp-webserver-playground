@@ -10,24 +10,25 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    container:
+      image: debian:12.5
     steps:
     - uses: actions/checkout@v3
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev ninja-build
+        packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev ninja-build libbackward-cpp-dev
         version: 1.0
     - name: configure
-      run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
-    - name: build
-      run: cd build && ninja
+      run: mkdir build-debug && cd build-debug && cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+    - name: build-debug
+      run: cd build-debug && ninja
     - name: test
-      run: cd build && ninja test
+      run: cd build-debug && ninja test
     - name: release-build
-      run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && ninja
+      run: cd build-release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && ninja
     - name: package
-      run: cd build && cpack
-    - uses: actions/upload-artifact@v2
+      run: cd build-release && cpack && dpkg -c *.deb
+    - uses: actions/upload-artifact@v4
       with:
-        name: deb
-        path: build/*.deb
+        name: cpp_webserver_kata-0.1.1-Linux.deb
+        path: build-release/*.deb
