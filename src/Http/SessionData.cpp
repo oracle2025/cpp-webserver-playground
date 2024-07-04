@@ -13,7 +13,7 @@ void SessionData::alert(const SessionData::Alert& alert)
 }
 void SessionData::clearAlert()
 {
-    m_alert = {};
+    m_alert.reset();
     SessionStorage::insert(m_id, *this);
 }
 bool SessionData::hasAlert() const

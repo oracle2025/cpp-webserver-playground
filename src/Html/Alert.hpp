@@ -17,7 +17,7 @@ public:
 
 private:
     string alert;
-    AlertType type;
+    AlertType type = AlertType::INFO;
 };
 
 } // namespace Html

@@ -411,3 +411,7 @@ message(STATUS "DOCDIR: ${CMAKE_INSTALL_FULL_DOCDIR}")
 
 
 feature_summary(WHAT ALL)
+
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Richard Spindler")
+include(CPack)

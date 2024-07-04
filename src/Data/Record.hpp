@@ -2,7 +2,12 @@
 #include "FieldTypes.hpp"
 
 #include <map>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <regex>
+#pragma GCC diagnostic pop
+
 #include <string>
 #include <vector>
 
