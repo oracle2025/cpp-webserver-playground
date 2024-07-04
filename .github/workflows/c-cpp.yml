@@ -18,11 +18,13 @@ jobs:
         packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev ninja-build
         version: 1.0
     - name: configure
-      run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+      run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
     - name: build
       run: cd build && ninja
     - name: test
       run: cd build && ninja test
+    - name: release-build
+      run: cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && ninja
     - name: package
       run: cd build && cpack
     - uses: actions/upload-artifact@v2

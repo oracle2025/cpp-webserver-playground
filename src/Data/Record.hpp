@@ -3,11 +3,14 @@
 
 #include <map>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#ifndef __clang__
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <regex>
-#pragma GCC diagnostic pop
-
+#ifndef __clang__
+#   pragma GCC diagnostic pop
+#endif
 #include <string>
 #include <vector>
 
