@@ -323,7 +323,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/LambdaTest.cpp
             tests/MovieTest.cpp
             tests/TimeRecordingSchema.cpp
-            tests/SessionTest.cpp)
+            tests/SessionTest.cpp
+            tests/TimeEntryTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 

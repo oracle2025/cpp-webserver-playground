@@ -124,6 +124,24 @@ std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
                       handler, adminHandler, publicHandler, presentation)
                       ->initialize(router)
                       .shared_from_this();
+    server->setPostProcessingHook([](const Request& request,
+                                     const shared_ptr<Response>& response) {
+        using Http::Session;
+        response->appendNavBarAction({"Todos", "/todo/"})
+            .appendNavBarAction({"Documents", "/document/"})
+            .appendNavBarAction({"Shared", "/shared/"})
+            .appendNavBarAction({"Movies", "/movie/"});
+        if (Session(request).isAdmin()) {
+#ifdef ENABLE_USER_LIST
+            response->appendNavBarAction({"Users", "/user/", "right"});
+#endif
+            response->appendNavBarAction({"Sessions", "/sessions", "right"});
+        }
+        return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
+            .appendNavBarAction(
+                {"👤 " + Session(request).userName(), "/profile/", "right"})
+            .shared_from_this();
+    });
     return server;
 }
 

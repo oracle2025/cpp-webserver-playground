@@ -34,19 +34,23 @@ struct LoginController : public std::enable_shared_from_this<LoginController> {
         shared_ptr<RequestHandler> adminHandler,
         shared_ptr<RequestHandler> publicHandler,
         shared_ptr<Html::Presentation> presentation);
-    LoginController &initialize(Http::Router& router);
+    LoginController& initialize(Http::Router& router);
     virtual ~LoginController();
 
     shared_ptr<Response> forwardToSecretHandler(const Request& request);
 
-    [[nodiscard]] shared_ptr<Response> addLinksToResponse(
-        const Request& request, shared_ptr<Response> response) const;
+
+    using PostProcessingHook = std::function<shared_ptr<Response>(
+        const Request& request, shared_ptr<Response> response)>;
+
+    void setPostProcessingHook(PostProcessingHook hook);
 
 private:
     shared_ptr<RequestHandler> m_secretHandler;
     shared_ptr<RequestHandler> m_adminHandler;
     shared_ptr<RequestHandler> m_publicHandler;
     shared_ptr<Html::Presentation> m_presentation;
+    PostProcessingHook m_postProcessingHook;
 
     shared_ptr<Response> loginForm();
 };

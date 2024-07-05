@@ -101,7 +101,7 @@ LoginController& LoginController::initialize(Http::Router& router)
                                         .withHeader()())
                                 ->appendNavBarAction({"Start", "/"})
                                 .shared_from_this();
-            return ptr->addLinksToResponse(request, response);
+            return ptr->m_postProcessingHook(request, response);
         } else {
             return content("Access denied")
                 ->code(Response::UNAUTHORIZED)
@@ -110,6 +110,30 @@ LoginController& LoginController::initialize(Http::Router& router)
     });
     router.get("/css/style.css", [](const Request& request) {
         return content(STYLE_SHEET, "text/css");
+    });
+    router.get("/images/avatars/maulwurf.jpg", [](const Request& request) {
+        return std::make_shared<Http::Response>()
+            ->sendFile("../html/images/avatars/maulwurf.jpg")
+            .mimetype("image/jpeg")
+            .shared_from_this();
+    });
+    router.get("/images/avatars/beagle.jpg", [](const Request& request) {
+        return std::make_shared<Http::Response>()
+            ->sendFile("../html/images/avatars/beagle.jpg")
+            .mimetype("image/jpeg")
+            .shared_from_this();
+    });
+    router.get("/images/avatars/panda.jpg", [](const Request& request) {
+        return std::make_shared<Http::Response>()
+            ->sendFile("../html/images/avatars/panda.jpg")
+            .mimetype("image/jpeg")
+            .shared_from_this();
+    });
+    router.get("/images/avatars/teddy.jpg", [](const Request& request) {
+        return std::make_shared<Http::Response>()
+            ->sendFile("../html/images/avatars/teddy.jpg")
+            .mimetype("image/jpeg")
+            .shared_from_this();
     });
     // T::defaultHandler(getDefaultHandler());
     // T::setPresentation(m_presentation);
@@ -155,32 +179,17 @@ shared_ptr<Response> LoginController::loginForm()
 #endif
         .shared_from_this();
 }
-
-shared_ptr<Response> LoginController::addLinksToResponse(
-    const Request& request, shared_ptr<Response> response) const
+void LoginController::setPostProcessingHook(
+    LoginController::PostProcessingHook hook)
 {
-    using Http::Session;
-    response->appendNavBarAction({"Todos", "/todo/"})
-        .appendNavBarAction({"Documents", "/document/"})
-        .appendNavBarAction({"Shared", "/shared/"})
-        .appendNavBarAction({"Movies", "/movie/"});
-    if (Session(request).isAdmin()) {
-#ifdef ENABLE_USER_LIST
-        response->appendNavBarAction({"Users", "/user/", "right"});
-#endif
-        response->appendNavBarAction({"Sessions", "/sessions", "right"});
-    }
-    return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
-        .appendNavBarAction(
-            {"👤 " + Session(request).userName(), "/profile/", "right"})
-        .shared_from_this();
+    m_postProcessingHook = std::move(hook);
 }
 
 shared_ptr<Response> LoginController::forwardToSecretHandler(
     const Request& request)
 {
     auto response
-        = addLinksToResponse(request, m_secretHandler->handle(request));
+        = m_postProcessingHook(request, m_secretHandler->handle(request));
     Http::Session::addAlertToSession(request, *response);
     return response;
 }
@@ -191,7 +200,7 @@ handler_type LoginController::getDefaultHandler()
             && Http::Session(request).isAdmin()) {
             auto response = m_adminHandler->handle(request);
             if (response) {
-                return addLinksToResponse(request, response);
+                return m_postProcessingHook(request, response);
             } else {
                 return forwardToSecretHandler(request);
             }

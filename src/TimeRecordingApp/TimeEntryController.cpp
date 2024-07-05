@@ -6,12 +6,33 @@
 #include "Http/Session.hpp"
 #include "Submit.hpp"
 #include "TimeEntry.hpp"
+#include "Template/BaseTemplate.hpp"
+
 using Http::redirect;
+using Http::content;
+
+using BaseTemplate = Template::BaseTemplate;
+
 
 struct TimeEntryController::TimeEntryControllerImpl {
     string prefix;
 };
+shared_ptr<Http::Response> TimeEntryController::entryForm(
+    const TimeEntryController::Request& request)
+{
+    using namespace Input;
+    auto entry = make_shared<TimeEntry>(request);
+    auto data = nlohmann::json::object();
 
+    return content(
+        BaseTemplate(TEMPLATE_DIR "/timeentry/new.html").render(data));
+    /*
+    return Http::content(Form(*entry, impl_->prefix + "/", "post")
+                             .appendElement(make_shared<Submit>(
+                                 "Create " + entry->presentableName()))())
+        ->title("Create " + entry->presentableName())
+        .shared_from_this();*/
+}
 std::shared_ptr<Http::Response> TimeEntryController::createEntry(
     const Request& request)
 {
@@ -50,15 +71,5 @@ TimeEntryController::TimeEntryController(const string& prefix)
 {
     impl_->prefix = prefix;
 }
-shared_ptr<Http::Response> TimeEntryController::entryForm(
-    const TimeEntryController::Request& request)
-{
-    using namespace Input;
-    auto entry = make_shared<TimeEntry>(request);
-    return Http::content(Form(*entry, impl_->prefix + "/", "post")
-                       .appendElement(make_shared<Submit>(
-                           "Create " + entry->presentableName()))())
-        ->title("Create " + entry->presentableName())
-        .shared_from_this();
-}
+
 TimeEntryController::~TimeEntryController() = default;
