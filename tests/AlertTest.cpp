@@ -76,7 +76,7 @@ TEST_CASE("Alerts")
         SimpleAlertComponent<SimpleWebServer> w;
         auto r = w.handle({"/alert"});
         auto cookieJar = r->cookies();
-        auto page = Html::Presentation().render(*r);
+        auto page = Html::Presentation("Todo List").render(*r);
         CHECK(page.find("This is an Alert") != string::npos);
     }
 
@@ -87,7 +87,7 @@ TEST_CASE("Alerts")
         auto cookieJar = r->cookies();
         Request request = {r->location(), cookieJar};
         r = w.handle(request);
-        auto page = Html::Presentation().render(*r);
+        auto page = Html::Presentation("Todo List").render(*r);
         CHECK(page.find("This is an Alert") != string::npos);
     }
 
@@ -103,7 +103,7 @@ TEST_CASE("Alerts")
         cookieJar.merge(r->cookies());
         request = {r->location(), cookieJar};
         r = w.handle(request);
-        auto page = Html::Presentation().render(*r);
+        auto page = Html::Presentation("Todo List").render(*r);
         CHECK(page.find("This is an Alert") != string::npos);
     }
 

@@ -118,7 +118,7 @@ std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
 #ifdef ENABLE_SIGNUP
     publicHandler = makeSignupHandler();
 #endif
-    auto presentation = std::make_shared<Presentation>();
+    auto presentation = std::make_shared<Presentation>("Todo List");
 
     auto server = std::make_shared<LoginController>(
                       handler, adminHandler, publicHandler, presentation)
@@ -148,7 +148,7 @@ std::shared_ptr<LoginController> makeLoginController(Http::Router& router)
 int LoginServerApplication::main(const vector<string>& args)
 {
     PocoWebServer httpServer;
-    auto presentation = std::make_shared<Presentation>();
+    auto presentation = std::make_shared<Presentation>("Todo List");
 
     auto loginController = makeLoginController(httpServer.router());
     httpServer.defaultHandler(loginController->getDefaultHandler());

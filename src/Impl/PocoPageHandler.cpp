@@ -91,7 +91,7 @@ void PocoPageHandler::handleRequest(
             response.sendFile(result->filename(), result->mimetype());
         } else {
             auto& responseStream = response.send();
-            responseStream << Html::Presentation::render(*result);
+            responseStream << m_presentation->render(*result);
         }
     } catch (...) {
         std::ostringstream str;

@@ -4,10 +4,9 @@
 namespace Data {
 
 /* Adds Table Session */
-class MigrationsV7 :public MigrationsV6{
+class MigrationsV7 : public MigrationsV6 {
 public:
     void perform() override;
 };
 
 } // namespace Data
-

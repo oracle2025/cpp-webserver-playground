@@ -72,4 +72,9 @@ void PasswordChangeController::initialize(
             ;
         }
     });
+    if (!prefix.empty()) {
+        router.get("/", [prefix](const Request& request) {
+            return redirect(prefix + "/");
+        });
+    }
 }

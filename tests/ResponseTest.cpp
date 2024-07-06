@@ -12,7 +12,7 @@ TEST_CASE("Create Response")
 TEST_CASE("Render Response")
 {
     auto response = Http::content("Hello World");
-    auto presentation = Html::Presentation();
+    auto presentation = Html::Presentation("Todo List");
     auto rendered = presentation.render(*response);
     //lCHECK(rendered == "<html>Hello World</html>");
 }

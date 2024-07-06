@@ -93,5 +93,11 @@ string Presentation::renderHtml(const Response& response)
     data["alerts"] = renderAlert(response.alert());
     data["actions"] = renderActions(response.actions());
     data["content"] = response.content();
-    return Template::BaseTemplate(TEMPLATE_DIR "/index.html").render(data);}
+    data["applicationName"] = m_applicationName;
+    return Template::BaseTemplate(TEMPLATE_DIR "/index.html").render(data);
+}
+Presentation::Presentation(const string& applicationName)
+    : m_applicationName(applicationName)
+{
+}
 } // namespace Html

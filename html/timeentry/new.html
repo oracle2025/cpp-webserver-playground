@@ -1,16 +1,45 @@
-
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">Employee Name</h3>
+        <h3 class="panel-title">{{Username}}</h3>
     </div>
     <div class="panel-body">
         <img src="/images/avatars/teddy.jpg" alt="Employee Avatar" class="avatar">
-        <p id="current-date"></p>
-        <input type="text" class="form-control time-input" placeholder="Enter Time">
+        <h1 id="current-date"></h1>
+
+        <input id="currentDateTime" type="text" class="form-control time-input" placeholder="Enter Time">
+
         <button type="button" class="btn btn-success btn-block">Start Work</button>
         <button type="button" class="btn btn-danger btn-block">End Work</button>
     </div>
 </div>
+
+<form action="/time_entry/" method="post"><input type="hidden" id="id" name="id" value=""><br>
+    <label for="corrected_event_id">Corrected_event_id</label><br> <input class="form-control" type="text"
+                                                                          id="corrected_event_id"
+                                                                          name="corrected_event_id" value=""><br>
+    <input type="hidden" id="creation_date" name="creation_date" value=""><br>
+    <input type="hidden" id="creator_user_id" name="creator_user_id" value=""><br>
+    <label for="deleted_event_id">Deleted_event_id</label><br> <input class="form-control" type="text"
+                                                                      id="deleted_event_id" name="deleted_event_id"
+                                                                      value=""><br>
+    <label for="employee_id">Employee_id</label><br> <input class="form-control" type="text" id="employee_id"
+                                                            name="employee_id" value=""><br>
+    <label for="event_date">Event_date</label><br> <input type="date" id="event_date" name="event_date" value=""><br>
+    <label for="event_time">Event_time</label><br> <input type="time" step="3600" id="event_time" name="event_time"
+                                                          value=""><br>
+    <label for="event_type">Event_type</label><br>
+    <select class="form-control" id="event_type" name="event_type">
+        <option value="start">start</option>
+        <option value="stop">stop</option>
+        <option value="correction">correction</option>
+        <option value="deletion">deletion</option>
+    </select>
+    <br>
+    <button class="btn btn-block btn-lg btn-success" type="submit" id="Create time_events" name="Create time_events">
+        Create time_events
+    </button>
+    <br>
+</form>
 
 
         

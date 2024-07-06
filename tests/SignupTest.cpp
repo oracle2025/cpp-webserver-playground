@@ -54,7 +54,7 @@ TEST_CASE("Signup")
         signupHandler->finish_init();
 
         SimpleWebServer w;
-        auto presentation = std::make_shared<Html::Presentation>();
+        auto presentation = std::make_shared<Html::Presentation>("Todo List");
         auto login_controller = std::make_shared<LoginController>(
             handler, nullptr, signupHandler, presentation)->initialize(w.router()).shared_from_this();
         w.defaultHandler(login_controller->getDefaultHandler());

@@ -30,6 +30,9 @@ LoginController::LoginController(
     , m_adminHandler(std::move(adminHandler))
     , m_publicHandler(std::move(publicHandler))
     , m_presentation(std::move(presentation))
+    , m_postProcessingHook([](const Request&, shared_ptr<Response> response) {
+        return response;
+    })
 {
 }
 LoginController& LoginController::initialize(Http::Router& router)

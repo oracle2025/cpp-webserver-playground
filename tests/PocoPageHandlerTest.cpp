@@ -1,12 +1,11 @@
 #include "Data/Migrations.hpp"
+#include "FakeBrowser.hpp"
 #include "Impl/SimpleWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "PocoPageHandler.hpp"
 #include "doctest.h"
-#include "FakeBrowser.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
-
 
 class HelloHandler : public RequestHandler {
 public:
@@ -57,10 +56,12 @@ TEST_CASE("Login Logout Cookies Test")
     using std::make_shared;
     auto handler = make_shared<SimpleWebServer>();
     auto login_controller = make_shared<LoginController>(
-        make_shared<HelloHandler>("Secret"),
-        make_shared<HelloHandler>("Admin"),
-        make_shared<HelloHandler>("Public"),
-        nullptr)->initialize(handler->router()).shared_from_this();
+                                make_shared<HelloHandler>("Secret"),
+                                make_shared<HelloHandler>("Admin"),
+                                make_shared<HelloHandler>("Public"),
+                                nullptr)
+                                ->initialize(handler->router())
+                                .shared_from_this();
     handler->defaultHandler(login_controller->getDefaultHandler());
     handler->setPresentation(nullptr);
     handler->finish_init();
@@ -109,18 +110,21 @@ TEST_CASE("Render Alert after Redirect")
     private:
     };
     auto handler = make_shared<SimpleWebServer>();
+    auto presentation = make_shared<Html::Presentation>("Todo List");
     auto login_controller = make_shared<LoginController>(
-        make_shared<AlertAndRedirectHandler>(),
-        nullptr,
-        make_shared<HelloHandler>("Public"),
-        nullptr)->initialize(handler->router()).shared_from_this();
+                                make_shared<AlertAndRedirectHandler>(),
+                                nullptr,
+                                make_shared<HelloHandler>("Public"),
+                                presentation)
+                                ->initialize(handler->router())
+                                .shared_from_this();
     handler->defaultHandler(login_controller->getDefaultHandler());
-    handler->setPresentation(nullptr);
+    handler->setPresentation(presentation);
     handler->finish_init();
 
     PocoPageHandler pageHandler(
         [handler](const Request& request) { return handler->handle(request); },
-        nullptr);
+        presentation);
 
     FakeBrowser browser(pageHandler);
     browser.location("http://localhost:8080/login");
@@ -138,5 +142,4 @@ TEST_CASE("Render Alert after Redirect")
     browser.location("http://localhost:8080/alert");
 
     CHECK(browser.pageContents().find("Hello from Alert") != string::npos);
-
 }

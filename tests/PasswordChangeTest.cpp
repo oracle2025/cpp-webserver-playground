@@ -107,11 +107,12 @@ TEST_CASE("Change Password with Fake Browser")
               ->initialize(handler.router())
               .shared_from_this();
     handler.defaultHandler(login_controller->getDefaultHandler());
-    handler.setPresentation(nullptr);
+    auto presentation =std::make_shared<Html::Presentation>("Todo List");
+    handler.setPresentation(presentation);
     handler.finish_init();
     PocoPageHandler pageHandler(
         [&handler](const Request& request) { return handler.handle(request); },
-        nullptr);
+        presentation);
     FakeBrowser browser(pageHandler);
     browser.location("http://localhost:8080/login");
     CHECK(browser.form().get() != nullptr);
