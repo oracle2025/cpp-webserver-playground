@@ -253,7 +253,9 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Http/SessionStorageSql.cpp
             src/Http/SessionStorageSql.hpp
             src/Data/MigrationsV8.cpp
-            src/Data/MigrationsV8.hpp)
+            src/Data/MigrationsV8.hpp
+            src/String/currentDateTime.cpp
+            src/String/currentDateTime.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic

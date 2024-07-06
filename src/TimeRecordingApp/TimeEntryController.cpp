@@ -5,6 +5,7 @@
 #include "Http/Router.hpp"
 #include "Http/Session.hpp"
 #include "String/capitalize.hpp"
+#include "String/currentDateTime.hpp"
 #include "Submit.hpp"
 #include "Template/BaseTemplate.hpp"
 #include "TimeEntry.hpp"
@@ -41,16 +42,26 @@ std::shared_ptr<Http::Response> TimeEntryController::createEntry(
 {
     using Http::Session;
     const auto prefix = impl_->prefix;
-
     auto entry = std::make_shared<TimeEntry>(request);
-    for (const auto& field : entry->fields()) {
-        if (request.hasParameter(field)) {
-            entry->setImpl(field, request.parameter(field));
-        }
-        if (field == "user_id") {
-            entry->setImpl("user_id", Session(request).userId());
-        }
+    const auto user_id = Session(request).userId();
+    if(!request.hasParameter("event_time")){
+        return redirect(prefix + "/")
+            ->alert("Please enter a time", Html::AlertType::DANGER)
+            .shared_from_this();
     }
+    if(!request.hasParameter("event_type")){
+        return redirect(prefix + "/")
+            ->alert("Please enter an event type", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    entry->set("employee_id", user_id);
+    entry->set("event_date", String::currentDate());
+    entry->set("event_time", request.parameter("event_time"));
+    entry->set("event_type", request.parameter("event_type"));
+    entry->set("corrected_event_id", "");
+    entry->set("deleted_event_id", "");
+    entry->set("creation_date", String::localDateTime());
+    entry->set("creator_user_id", user_id);
     entry->insert();
     return redirect(prefix + "/")
         ->alert(entry->presentableName() + " created", Html::AlertType::SUCCESS)
