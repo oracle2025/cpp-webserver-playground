@@ -1,7 +1,10 @@
 
 #include "currentDateTime.hpp"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdisabled-optimization"
 #include "date/date.h"
+#pragma GCC diagnostic pop
 
 #include <ctime>
 #include <iomanip>
