@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 using std::string;
 struct KeyStringType : public string {
