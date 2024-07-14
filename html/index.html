@@ -143,8 +143,18 @@
         return `${dayName}, ${day}. ${monthName}`;
     }
 
+    class CountdownTimer {
+        static countdown = 0;
+    }
     function updateDateTime() {
-        document.getElementById('currentDateTime').value = getFormattedTime();
+        //Create a static var countdown, so that if the element looses focus it is still not updated for two intervals
+        //Only update time if the element does not have focus
+        if (document.activeElement !== document.getElementById('currentDateTime') && CountdownTimer.countdown === 0) {
+            document.getElementById('currentDateTime').value = getFormattedTime();
+        } else {
+            CountdownTimer.countdown = 3;
+        }
+        CountdownTimer.countdown--;
     }
 
     setInterval(updateDateTime, 1000);

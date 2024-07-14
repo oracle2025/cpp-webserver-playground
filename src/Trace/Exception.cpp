@@ -13,9 +13,15 @@ Exception::Exception(
 {
     using path = std::filesystem::path;
     stacktrace.load_here(32);
-    stacktrace.skip_n_firsts(2);
+    // Skipping 4 first frames because they will always show this constructor
+    stacktrace.skip_n_firsts(4);
     _message
         = path(filename).filename().string() + ":" + std::to_string(line) + " : " + message;
+}
+void Exception::printStackTrace(std::ostream& out) const
+{
+    backward::Printer p;
+    p.print(stacktrace, out);
 }
 
 void backtrace(const std::exception_ptr& ex, std::ostream& out, int level)
@@ -28,6 +34,7 @@ void backtrace(const std::exception_ptr& ex, std::ostream& out, int level)
             std::rethrow_if_nested(e);
         } catch (const Trace::Exception& e) {
             out << level << ": " << e.what() << std::endl;
+            e.printStackTrace(out);
             std::rethrow_if_nested(e);
         } catch (const std::exception& e) {
             out << level << ": " << e.what() << std::endl;

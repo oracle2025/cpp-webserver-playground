@@ -3,40 +3,14 @@
 
 #include <map>
 
-#ifndef __clang__
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-#include <regex>
-#ifndef __clang__
-#   pragma GCC diagnostic pop
-#endif
+
 #include <string>
 #include <vector>
 
 using std::string;
 struct KeyStringType : public string {
-    KeyStringType(const string& s)
-        : string(s)
-    {
-        // throw if invalid char
-        // allowed: a-z, A-Z, 0-9, _
-        if (s.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST"
-                                "UVWXYZ0123456789_")
-            != string::npos) {
-            throw std::invalid_argument(
-                "Invalid character in KeyStringType: " + s);
-        }
-    }
-    KeyStringType(const char* s)
-        : string(s)
-    {
-        std::regex r("[a-zA-Z0-9_]+");
-        if (!std::regex_match(s, r)) {
-            throw std::invalid_argument(
-                "Invalid character in KeyStringType: " + string(s));
-        }
-    }
+    KeyStringType(const string& s);
+    KeyStringType(const char* s);
 };
 class Record {
 public:

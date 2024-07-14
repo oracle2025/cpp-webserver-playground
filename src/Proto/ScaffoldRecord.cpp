@@ -4,13 +4,14 @@
 #include "String/createRandomUUID.hpp"
 #include "String/split.hpp"
 #include "doctest.h"
+#include "Trace/trace.hpp"
 
 #include <sstream>
 
 namespace Data {
 ScaffoldRecord::ScaffoldRecord(const Http::Request&)
 {
-    throw std::runtime_error("Not implemented");
+    TRACE_THROW("Not implemented");
 }
 ScaffoldRecord::ScaffoldRecord(
     string name, FieldsType fields)

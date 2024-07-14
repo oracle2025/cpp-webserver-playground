@@ -11,6 +11,7 @@
 #include "TimeCorrectionController.hpp"
 #include "TimeEntryController.hpp"
 #include "User/PasswordChangeController.hpp"
+#include "String/capitalize.hpp"
 
 int TimeRecordingApplication::main(const std::vector<std::string>& args)
 {
@@ -53,7 +54,7 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
                                          const shared_ptr<Response>& response) {
         using Http::Session;
         response->appendNavBarAction({"Übersicht", "/list/"});
-        response->appendNavBarAction({"Auswertung", "/report/"});
+        //response->appendNavBarAction({"Auswertung", "/report/"});
         if (Session(request).isAdmin()) {
 #ifdef ENABLE_USER_LIST
             response->appendNavBarAction({"Users", "/user/", "right"});
@@ -62,7 +63,7 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
         }
         return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction(
-                {"👤 " + Session(request).userName(), "/profile/", "right"})
+                {"👤 " + String::capitalize(Session(request).userName()), "/profile/", "right"})
             .shared_from_this();
     });
 

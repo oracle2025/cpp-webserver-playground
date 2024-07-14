@@ -5,12 +5,13 @@
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
-
+#include <locale>
 extern Poco::Data::Session* g_session;
 
 using Poco::Data::Session;
 int main(int argc, char** argv)
 {
+    std::locale::global(std::locale("de_DE.UTF-8"));
     try {
         Poco::Data::SQLite::Connector::registerConnector();
 #ifdef DEBUG_BUILD

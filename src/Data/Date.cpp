@@ -1,7 +1,7 @@
 #include "Date.hpp"
 
-#include "date/date.h"
 #include "doctest.h"
+#include "Trace/trace.hpp"
 
 #include <chrono>
 #include <iomanip>
@@ -18,7 +18,7 @@ string to_date_and_back_again(const string& input)
     in >> parse("%d.%m.%Y", tm);
 
     if (in.fail() || in.bad() || in.eof()) {
-        throw std::runtime_error("Invalid date");
+        TRACE_THROW("Invalid date");
     }
 
     std::ostringstream str;
@@ -43,7 +43,7 @@ Date::Date(const std::string& initializer)
     in >> parse("%d.%m.%Y", tm);
 
     if (in.fail() || in.bad() || in.eof()) {
-        throw std::runtime_error("Invalid date");
+        TRACE_THROW("Invalid date");
     }
 
     m_date = tm;

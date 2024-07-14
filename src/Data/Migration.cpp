@@ -1,5 +1,6 @@
 
 #include "Migration.hpp"
+#include "Trace/trace.hpp"
 
 #include "doctest.h"
 
@@ -29,7 +30,7 @@ bool Migration::hasVersion()
     if (count == 0) {
         return false;
     } else if (count > 1) {
-        throw std::runtime_error("Too many migrations rows");
+        TRACE_THROW("Too many migrations rows");
     }
     return true;
 }

@@ -4,6 +4,7 @@
 #include "String/createRandomUUID.hpp"
 #include "String/repeat.hpp"
 #include "Trace/trace.hpp"
+#include "spdlog/spdlog.h"
 
 #include <Poco/Data/Session.h>
 
@@ -92,11 +93,11 @@ struct RecordImpl : public T, public RecordExtended {
         using String::repeat;
         T::id = id;
         Statement insert(session);
-        const string sql = "INSERT INTO "
-            + T::table_name() + " (" + orderedColumnNames(T::columns())
-            + ")VALUES(" + "?, " + repeat("?", ", ", T::columns().size()) + ")";
-        insert << sql,
-            use(T::data), now;
+        const string sql = "INSERT INTO " + T::table_name() + " ("
+            + orderedColumnNames(T::columns()) + ")VALUES(" + "?, "
+            + repeat("?", ", ", T::columns().size()) + ")";
+        spdlog::debug("SQL: {}", sql);
+        insert << sql, use(T::data), now;
     } catch (...) {
         TRACE_RETHROW("Could not insert");
     }

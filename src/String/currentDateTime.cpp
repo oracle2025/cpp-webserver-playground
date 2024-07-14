@@ -6,6 +6,8 @@
 #include "date/date.h"
 #pragma GCC diagnostic pop
 
+#include "Trace/trace.hpp"
+
 #include <ctime>
 #include <iomanip>
 
@@ -39,6 +41,22 @@ std::string currentDate()
     auto now = floor<seconds>(system_clock::now());
     std::ostringstream str;
     str << format("%F", now);
+    return str.str();
+}
+std::string convertDate(const std::string& date, const std::string& format_str)
+{
+    using namespace date;
+    using namespace std::chrono;
+    std::istringstream in(date);
+    sys_days tm;
+    in >> parse("%Y-%m-%d", tm);
+
+    if (in.fail() || in.bad() || in.eof()) {
+        TRACE_THROW("Invalid date");
+    }
+
+    std::ostringstream str;
+    str << format(format_str, tm);
     return str.str();
 }
 

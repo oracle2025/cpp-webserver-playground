@@ -1,7 +1,6 @@
 #include "Data/RecordImpl.hpp"
 #include "Trace/trace.hpp"
 #include "UserV2.hpp"
-#include "backward.hpp"
 #include "doctest.h"
 
 namespace Data {

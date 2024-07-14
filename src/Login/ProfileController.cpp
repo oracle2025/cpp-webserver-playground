@@ -34,7 +34,7 @@ ProfileController& ProfileController::initialize(Http::Router& router)
                     + String::escape(user->values()["username"]))
                 .shared_from_this();
         } else {
-            throw std::runtime_error("Logged in User not found");
+            TRACE_THROW("Logged in User not found");
         }
     });
     router.post(prefix + "/update", [prefix](const Request& request) {
@@ -51,7 +51,7 @@ ProfileController& ProfileController::initialize(Http::Router& router)
                 ->alert("Profile updated", Html::AlertType::SUCCESS)
                 .shared_from_this();
         } else {
-            throw std::runtime_error("Logged in User not found");
+            TRACE_THROW("Logged in User not found");
         }
     });
 

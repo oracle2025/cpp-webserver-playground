@@ -54,7 +54,7 @@ void makeHome(Http::Router& router)
     router.get("/", [](const Request& request) {
         auto user = std::make_shared<User>();
         if (!user->pop(Http::Session(request).userId())) {
-            throw std::runtime_error("Logged in User not found");
+            TRACE_THROW("Logged in User not found");
         }
         if (user->values()["start_page"] != "/") {
             return redirect(user->values()["start_page"]);

@@ -255,7 +255,11 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/MigrationsV8.cpp
             src/Data/MigrationsV8.hpp
             src/String/currentDateTime.cpp
-            src/String/currentDateTime.hpp)
+            src/String/currentDateTime.hpp
+            src/String/timeDifference.cpp
+            src/String/timeDifference.hpp
+            src/Time/Time.cpp
+            src/Time/Time.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic
@@ -328,14 +332,11 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/MovieTest.cpp
             tests/TimeRecordingSchema.cpp
             tests/SessionTest.cpp
-            tests/TimeEntryTest.cpp)
+            tests/TimeEntryTest.cpp
+            tests/TimeConvertTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 
-    add_executable(test-migration src/Data/Migration.cpp tests/doctest.cpp
-            src/Data/SessionImpl.cpp)
-    target_link_libraries(test-migration Poco::DataSQLite)
-    target_include_directories(test-migration PRIVATE tests)
 
     add_executable(tests-performance tests/performance/TodoPerformanceTest.cpp tests/doctest.cpp)
     target_include_directories(tests-performance PRIVATE tests)
@@ -343,7 +344,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
 
     enable_testing()
     add_test(NAME tests COMMAND $<TARGET_FILE:tests>)
-    add_test(NAME test-migration COMMAND $<TARGET_FILE:test-migration>)
 
 
     add_executable(login-server src/Login/LoginMain.cpp tests/doctest_impl.cpp)
@@ -361,7 +361,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
     if (ENABLE_BACKWARD)
         add_backward(webservers)
         add_backward(tests)
-        add_backward(test-migration)
         add_backward(login-server)
         add_backward(time-recording-server)
         add_backward(tests-performance)

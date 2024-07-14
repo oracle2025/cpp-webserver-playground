@@ -76,6 +76,17 @@ struct TimeEntryDefinition {
         [[nodiscard]] string description() const;
         static vector<KeyStringType> presentableFields();
         static string presentableName();
+        [[nodiscard]] bool isEmptyFor(const string& user_id) const;
+        [[nodiscard]] std::vector<int> yearsFor(const string& user_id) const;
+        [[nodiscard]] std::vector<int> monthsFor(const string& user_id, int year) const;
+        vector<shared_ptr<Record>> overviewAsPointers(const string& user_id, int year, int month);
+        struct IsOpenResult {
+            bool isOpen;
+            string start_time;
+        };
+        IsOpenResult isOpen(const string& user_id, const string& date);
+
+        void closeOpenDays(const string& user_id);
 };
 
 using TimeEntry = RecordImpl<TimeEntryDefinition>;

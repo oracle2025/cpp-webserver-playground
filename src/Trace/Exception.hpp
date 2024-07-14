@@ -20,6 +20,8 @@ public:
     {
         return _message.c_str();
     }
+
+    void printStackTrace(std::ostream& out = std::cerr) const;
 };
 
 } // namespace Trace

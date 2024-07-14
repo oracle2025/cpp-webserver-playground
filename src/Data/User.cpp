@@ -2,7 +2,6 @@
 
 #include "RecordImpl.hpp"
 #include "Trace/trace.hpp"
-#include "backward.hpp"
 #include "doctest.h"
 
 namespace Data {

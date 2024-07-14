@@ -27,9 +27,18 @@ shared_ptr<Http::Response> TimeEntryController::entryForm(
     auto data = nlohmann::json::object();
 
     data["Username"] = String::capitalize(Session(request).userName());
+    string start_time;
+    auto enable_start_button
+        = enableStartButton(Session(request).userId(), start_time);
+    data["enable_start_button"] = enable_start_button;
+    if (!enable_start_button) {
+        data["start_time"] = start_time;
+    }
 
     return content(
-        BaseTemplate(TEMPLATE_DIR "/timeentry/new.html").render(data));
+               BaseTemplate(TEMPLATE_DIR "/timeentry/new.html").render(data))
+        ->title("Time Tracking")
+        .shared_from_this();
 
     /* return Http::content(Form(*entry, impl_->prefix + "/", "post")
                               .appendElement(make_shared<Submit>(
@@ -44,12 +53,12 @@ std::shared_ptr<Http::Response> TimeEntryController::createEntry(
     const auto prefix = impl_->prefix;
     auto entry = std::make_shared<TimeEntry>(request);
     const auto user_id = Session(request).userId();
-    if(!request.hasParameter("event_time")){
+    if (!request.hasParameter("event_time")) {
         return redirect(prefix + "/")
             ->alert("Please enter a time", Html::AlertType::DANGER)
             .shared_from_this();
     }
-    if(!request.hasParameter("event_type")){
+    if (!request.hasParameter("event_type")) {
         return redirect(prefix + "/")
             ->alert("Please enter an event type", Html::AlertType::DANGER)
             .shared_from_this();
@@ -78,12 +87,61 @@ TimeEntryController& TimeEntryController::initialize(Http::Router& router)
     router.post(prefix + "/", [ptr](const Request& request) {
         return ptr->createEntry(request);
     });
+    router.get(prefix + "/generateTestData", [ptr, prefix](const Request& request) {
+        ptr->generateTwoYearsOfTestData(Http::Session(request).userId());
+        return redirect(prefix + "/")
+            ->alert("Test data generated", Html::AlertType::SUCCESS)
+            .shared_from_this();
+    });
     return *this;
 }
 TimeEntryController::TimeEntryController(const string& prefix)
     : impl_(new TimeEntryControllerImpl)
 {
     impl_->prefix = prefix;
+}
+bool TimeEntryController::enableStartButton(
+    const string& userId, string& start_time)
+{
+    auto todays_date = String::currentDate();
+    auto result = TimeEntry().isOpen(userId, todays_date);
+    start_time = result.start_time;
+    return !result.isOpen;
+}
+static void insert_for_day(
+    TimeEntry& t,
+    const std::string& day,
+    const std::string& start,
+    const std::string& stop)
+{
+    t.set("event_date", day);
+    t.set("event_time", start);
+    t.set("event_type", "start");
+    t.insert();
+    t.set("event_date", day);
+    t.set("event_time", stop);
+    t.set("event_type", "stop");
+    t.insert();
+}
+void TimeEntryController::generateTwoYearsOfTestData(const string& userId)
+{
+    for (std::string year : {"2022", "2023"}) {
+        for (auto month : {"01", "02", "03", "04", "05", "06", "07", "08",
+                            "09", "10", "11", "12"}) {
+            for (auto day : {"01", "02", "03", "04", "05", "06", "07", "08",
+                             "09", "10", "11", "12", "13", "14", "15", "16",
+                             "17", "18", "19", "20", "21", "22", "23", "24",
+                             "25", "26"}) {
+                auto date = year + "-" + month + "-" + day;
+                auto start = "08:00";
+                auto stop = "16:00";
+                TimeEntry t;
+                t.set("employee_id", userId);
+                insert_for_day(t, date, start, stop);
+            }
+        }
+
+    }
 }
 
 TimeEntryController::~TimeEntryController() = default;

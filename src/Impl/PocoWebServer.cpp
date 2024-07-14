@@ -47,7 +47,7 @@ void PocoWebServer::finish_init()
                 = {{Poco::Net::HTTPRequest::HTTP_GET, Http::Method::GET},
                    {Poco::Net::HTTPRequest::HTTP_POST, Http::Method::POST}};
             if (methods.find(method) == methods.end()) {
-                throw std::runtime_error("Unknown HTTP method");
+                TRACE_THROW("Unknown HTTP method");
             }
             return methods.at(method);
         }
