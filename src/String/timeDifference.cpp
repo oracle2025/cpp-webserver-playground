@@ -1,6 +1,7 @@
 #include "timeDifference.hpp"
 
 #include <sstream>
+#include <cstring>
 
 namespace String {
 void parseTime(const std::string& timeStr, struct tm& timeStruct)
