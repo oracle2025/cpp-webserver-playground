@@ -20,7 +20,7 @@ static void insert_for_day(
     t.set("event_type", "stop");
     t.insert();
 }
-void insert_for_start(
+static void insert_for_start(
     TimeEntry& t, const std::string& day, const std::string& start)
 {
     t.set("event_date", day);
@@ -28,7 +28,7 @@ void insert_for_start(
     t.set("event_type", "start");
     t.insert();
 }
-void insert_for_stop(
+static void insert_for_stop(
     TimeEntry& t, const std::string& day, const std::string& stop)
 {
     t.set("event_date", day);

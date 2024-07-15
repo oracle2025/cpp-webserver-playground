@@ -199,7 +199,7 @@ FROM (SELECT employee_id,
                            event_date,
                            ROW_NUMBER() Over (Partition by employee_id order by event_date) EventID
                     FROM time_events
-                    where event_type = 'stop' AND employee_id = ?AND strftime('%Y-%m', event_date) = ?) tOff
+                    where event_type = 'stop' AND employee_id = ? AND strftime('%Y-%m', event_date) = ?) tOff
                    on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
     using valueType = Poco::Tuple<
         string,

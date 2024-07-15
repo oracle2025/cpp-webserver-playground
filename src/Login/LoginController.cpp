@@ -116,25 +116,25 @@ LoginController& LoginController::initialize(Http::Router& router)
     });
     router.get("/images/avatars/maulwurf.jpg", [](const Request& request) {
         return std::make_shared<Http::Response>()
-            ->sendFile("../html/images/avatars/maulwurf.jpg")
+            ->sendFile(TEMPLATE_DIR "/images/avatars/maulwurf.jpg")
             .mimetype("image/jpeg")
             .shared_from_this();
     });
     router.get("/images/avatars/beagle.jpg", [](const Request& request) {
         return std::make_shared<Http::Response>()
-            ->sendFile("../html/images/avatars/beagle.jpg")
+            ->sendFile(TEMPLATE_DIR "/images/avatars/beagle.jpg")
             .mimetype("image/jpeg")
             .shared_from_this();
     });
     router.get("/images/avatars/panda.jpg", [](const Request& request) {
         return std::make_shared<Http::Response>()
-            ->sendFile("../html/images/avatars/panda.jpg")
+            ->sendFile(TEMPLATE_DIR "/images/avatars/panda.jpg")
             .mimetype("image/jpeg")
             .shared_from_this();
     });
     router.get("/images/avatars/teddy.jpg", [](const Request& request) {
         return std::make_shared<Http::Response>()
-            ->sendFile("../html/images/avatars/teddy.jpg")
+            ->sendFile(TEMPLATE_DIR "/images/avatars/teddy.jpg")
             .mimetype("image/jpeg")
             .shared_from_this();
     });

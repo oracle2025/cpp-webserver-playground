@@ -1,0 +1,22 @@
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+## for year in years
+        <li {% if year.selected %} class="active"{% endif %}><a href="?year={{year.year}}">{{year.year}}</a></li>
+## endfor
+    </ul>
+</nav>
+
+<div>
+    <ul class="nav nav-pills mb-4" id="monthTabs" role="tablist">
+## for month in months
+        <li role="presentation" {% if month.selected %} class="active"{% endif %}>
+            <a href="?year={{selected_year}}&month={{month.month_number}}">
+                {{month.month}}
+            </a>
+        </li>
+## endfor
+    </ul>
+</div>
+<br>
+
+<p>Noch keine Einträge</p>

@@ -39,6 +39,8 @@ else ()
     add_definitions(-DTEMPLATE_DIR="${TEMPLATE_DIR}")
     install(DIRECTORY html/ DESTINATION ${TEMPLATE_DIR}
             FILES_MATCHING PATTERN "*.html")
+    install(DIRECTORY html/ DESTINATION ${TEMPLATE_DIR}
+            FILES_MATCHING PATTERN "*.jpg")
 endif ()
 
 
@@ -337,7 +339,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/TimeRecordingSchema.cpp
             tests/SessionTest.cpp
             tests/TimeEntryTest.cpp
-            tests/TimeConvertTest.cpp)
+            tests/TimeConvertTest.cpp
+            tests/TimeCorrectionControllerTest.cpp)
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 

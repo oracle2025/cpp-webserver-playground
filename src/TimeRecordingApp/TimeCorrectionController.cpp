@@ -137,8 +137,13 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     // start_time: 10:00
     // end_time: 12:33
     // total_hours: 2:33
+    auto data = nlohmann::json::object();
+    data["years"] = years_with_selection;
+    data["selected_year"] = selected_year;
+    data["months"] = months_with_selection;
     if (result.empty()) {
-        return content("Noch keine Einträge")
+        return content(
+                   BaseTemplate(TEMPLATE_DIR "/timeentry/list_empty.html").render(data))
             ->title("Übersicht")
             .shared_from_this();
     }
@@ -166,10 +171,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         }
         rows.push_back(row);
     }
-    auto data = nlohmann::json::object();
-    data["years"] = years_with_selection;
-    data["selected_year"] = selected_year;
-    data["months"] = months_with_selection;
+
     data["rows"] = rows;
     data["total_hours"] = total_hours.toString();
     return content(
