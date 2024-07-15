@@ -33,5 +33,6 @@ RUN set -ex \
                git \
                ca-certificates \
                libbackward-cpp-dev \
+    && apt-get remove libfmt8 \
     && apt-get clean \
     && rm -rf /tmp/* /var/tmp/*
