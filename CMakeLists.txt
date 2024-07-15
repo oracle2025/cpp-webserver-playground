@@ -47,6 +47,10 @@ set(SERVER_PORT 8080)
 option(SERVER_PORT "Port to listen on" ${SERVER_PORT})
 add_definitions(-DSERVER_PORT=${SERVER_PORT})
 
+set(SERVER_PORT_TIME_RECORDING 8081)
+option(SERVER_PORT_TIME_RECORDING "Port to listen on" ${SERVER_PORT_TIME_RECORDING})
+add_definitions(-DSERVER_PORT_TIME_RECORDING=${SERVER_PORT_TIME_RECORDING})
+
 option(ENABLE_SIGNUP "Enable signup" OFF)
 if (ENABLE_SIGNUP)
     add_definitions(-DENABLE_SIGNUP)

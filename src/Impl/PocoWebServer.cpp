@@ -16,7 +16,7 @@ void PocoWebServer::finish_init()
     using HTTPRequestHandlerFactory = Poco::Net::HTTPRequestHandlerFactory;
     using HTTPRequestHandler = Poco::Net::HTTPRequestHandler;
     using HTTPServerRequest = Poco::Net::HTTPServerRequest;
-    ServerSocket socket(SocketAddress("localhost", SERVER_PORT));
+    ServerSocket socket(SocketAddress("localhost", m_serverPort));
     auto pParams = new HTTPServerParams();
     class HandlerFactory : public HTTPRequestHandlerFactory {
     public:
@@ -81,4 +81,8 @@ void PocoWebServer::setPresentation(shared_ptr<Presentation> presentation)
 Router& PocoWebServer::router()
 {
     return m_router;
+}
+void PocoWebServer::setServerPort(int port)
+{
+    m_serverPort = port;
 }

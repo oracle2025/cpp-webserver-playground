@@ -31,6 +31,8 @@ class PocoWebServer  {
 public:
     using HTTPServer = Poco::Net::HTTPServer;
 
+    void setServerPort(int port) ;
+
     void finish_init() ;
 
     void start();
@@ -45,4 +47,5 @@ private:
     shared_ptr<HTTPServer> server;
     shared_ptr<Presentation> m_presentation;
     handler_type m_defaultHandler;
+    int m_serverPort = SERVER_PORT;
 };

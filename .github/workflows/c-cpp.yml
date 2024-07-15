@@ -17,7 +17,7 @@ jobs:
         packages: libpoco-dev libelf-dev libdwarf-dev libspdlog-dev ninja-build libbackward-cpp-dev
         version: 1.0
     - name: configure
-      run: mkdir build-debug && cd build-debug && cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+      run: mkdir build-debug && cd build-debug && cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_USER_LIST=On -DENABLE_SIGNUP=On ..
     - name: build-debug
       run: cd build-debug && ninja
     - name: test

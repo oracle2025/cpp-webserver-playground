@@ -8,14 +8,16 @@
 #include "Login/ProfileController.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
+#include "String/capitalize.hpp"
 #include "TimeCorrectionController.hpp"
 #include "TimeEntryController.hpp"
 #include "User/PasswordChangeController.hpp"
-#include "String/capitalize.hpp"
+#include "Server/CrudController.hpp"
 
 int TimeRecordingApplication::main(const std::vector<std::string>& args)
 {
     PocoWebServer httpServer;
+    httpServer.setServerPort(SERVER_PORT_TIME_RECORDING);
     auto presentation = std::make_shared<Presentation>("Time Tracking");
 
     auto privateHandler = std::make_shared<SimpleWebServer>();
@@ -37,6 +39,19 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
     privateHandler->defaultHandler(Http::NotFoundHandler);
     privateHandler->finish_init();
 
+    shared_ptr<SimpleWebServer> adminHandler = nullptr;
+#ifdef ENABLE_USER_LIST
+    adminHandler = make_shared<SimpleWebServer>();
+    auto userCrud = std::make_shared<CrudController>(
+                        "/user",
+                        [](const Request& request) {
+                            return std::make_shared<Data::User>(request);
+                        })
+                        ->initialize(adminHandler->router())
+                        .shared_from_this();
+    adminHandler->defaultHandler(Http::NullHandler);
+    adminHandler->finish_init();
+#endif
     shared_ptr<SimpleWebServer> publicHandler = nullptr;
 #ifdef ENABLE_SIGNUP
     publicHandler = std::make_shared<SimpleWebServer>();
@@ -46,7 +61,7 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
 #endif
 
     auto controller = std::make_shared<LoginController>(
-                          privateHandler, nullptr, publicHandler, presentation)
+                          privateHandler, adminHandler, publicHandler, presentation)
                           ->initialize(httpServer.router())
                           .shared_from_this();
 
@@ -54,7 +69,7 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
                                          const shared_ptr<Response>& response) {
         using Http::Session;
         response->appendNavBarAction({"Übersicht", "/list/"});
-        //response->appendNavBarAction({"Auswertung", "/report/"});
+        // response->appendNavBarAction({"Auswertung", "/report/"});
         if (Session(request).isAdmin()) {
 #ifdef ENABLE_USER_LIST
             response->appendNavBarAction({"Users", "/user/", "right"});
@@ -63,7 +78,9 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
         }
         return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction(
-                {"👤 " + String::capitalize(Session(request).userName()), "/profile/", "right"})
+                {"👤 " + String::capitalize(Session(request).userName()),
+                 "/profile/",
+                 "right"})
             .shared_from_this();
     });
 
