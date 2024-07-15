@@ -1,4 +1,4 @@
-FROM debian:12.5
+FROM debian:12.6
 # FROM debian:11.7
 # docker run -t -v $PWD:/srv -w/srv -it cpp_webserver_kata /bin/bash
 # docker build -t cpp_webserver_kata .
@@ -21,6 +21,7 @@ FROM debian:12.5
 
 RUN set -ex \
     && apt-get update \
+    && apt-get upgrade \
     && apt-get install -y --no-install-recommends \
                build-essential \
                cmake \
