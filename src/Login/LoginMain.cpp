@@ -13,9 +13,12 @@ int main(int argc, char** argv)
 {
     try {
         Poco::Data::SQLite::Connector::registerConnector();
-        Session session("SQLite", "todo.sqlite");
+#ifdef DEBUG_BUILD
+        const auto connectionString = "todo.sqlite";
+#else
         const auto connectionString = TODO_DATABASE_DIR "/todo.sqlite";
-        // Session session("SQLite", connectionString);
+#endif
+        Session session("SQLite", connectionString);
         g_session = &session;
         Data::MigrationsLatest migration;
         migration.perform();
