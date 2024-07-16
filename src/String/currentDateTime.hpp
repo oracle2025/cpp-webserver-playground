@@ -12,4 +12,7 @@ std::string localDateTime();
 
 std::string convertDate(const std::string& date, const std::string& format);
 
+std::string convertDateToDayMonth(const std::string& date);
+std::string convertDateToWeekday(const std::string& date);
+
 } // namespace String

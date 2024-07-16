@@ -10,6 +10,7 @@
 
 #include <ctime>
 #include <iomanip>
+#include <map>
 
 namespace String {
 
@@ -57,6 +58,58 @@ std::string convertDate(const std::string& date, const std::string& format_str)
 
     std::ostringstream str;
     str << format(format_str, tm);
+    return str.str();
+}
+std::tm convertDateToTm(const std::string& date)
+{
+    using namespace date;
+    using namespace std::chrono;
+    std::istringstream in(date);
+    sys_days tm;
+    in >> parse("%Y-%m-%d", tm);
+
+    if (in.fail() || in.bad() || in.eof()) {
+        TRACE_THROW("Invalid date");
+    }
+
+    // convert sys_days to tm
+    time_t time = system_clock::to_time_t(tm);
+    std::tm t = *std::localtime(&time);
+    return t;
+}
+std::string convertDateToDayMonth(const std::string& date)
+{
+    static const std::map<int, std::string> month_names
+        = {{1, "Januar"},
+           {2, "Februar"},
+           {3, "März"},
+           {4, "April"},
+           {5, "Mai"},
+           {6, "Juni"},
+           {7, "Juli"},
+           {8, "August"},
+           {9, "September"},
+           {10, "Oktober"},
+           {11, "November"},
+           {12, "Dezember"}};
+    std::ostringstream str;
+    std::tm t = convertDateToTm(date);
+    str << t.tm_mday << ". " << month_names.at(t.tm_mon + 1);
+    return str.str();
+}
+std::string convertDateToWeekday(const std::string& date)
+{
+    static const std::map<int, std::string> week_days
+        = {{0, "Montag"},
+           {1, "Dienstag"},
+           {2, "Mittwoch"},
+           {3, "Donnerstag"},
+           {4, "Freitag"},
+           {5, "Samstag"},
+           {6, "Sonntag"}};
+    std::ostringstream str;
+    std::tm t = convertDateToTm(date);
+    str << week_days.at(t.tm_wday);
     return str.str();
 }
 

@@ -172,11 +172,6 @@ struct OverViewRow : public Record {
     string m_day, m_date, m_start_time, m_end_time;
 };
 
-string convert_date_to_weekday(const string& input)
-{
-    return String::convertDate(input, "%A");
-}
-
 vector<shared_ptr<Record>> TimeEntryDefinition::overviewAsPointers(
     const string& user_id, int year, int month)
 try {
@@ -234,8 +229,8 @@ FROM (SELECT employee_id,
     records.reserve(result.size());
     for (const auto& row : result) {
         records.push_back(make_shared<OverViewRow>(
-            convert_date_to_weekday(row.get<1>()),
-            String::convertDate(row.get<1>(), "%d. %B"),
+            String::convertDateToWeekday(row.get<1>()),
+            String::convertDateToDayMonth(row.get<1>()),
             row.get<2>(),
             row.get<4>()));
     }
