@@ -33,9 +33,16 @@ TimeCorrectionController& TimeCorrectionController::initialize(
 {
     const auto prefix = impl_->prefix;
     auto ptr = shared_from_this();
+    using Http::redirect;
 
     router.get(prefix + "/", [ptr](const Request& request) {
         return ptr->listEntries(request);
+    });
+    router.get(prefix + "/enable_debug", [prefix](const Request& request) {
+        spdlog::set_level(spdlog::level::debug);
+        return redirect(prefix + "/")
+            ->alert("Log Level Debug enabled", Html::AlertType::SUCCESS)
+            .shared_from_this();
     });
     return *this;
 }
@@ -49,6 +56,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     // Select Months
     const auto user_id = Session(request).userId();
 
+    spdlog::debug("User ID: {}", user_id);
     if (record->isEmptyFor(user_id)) {
         return content("Noch keine Einträge")
             ->title("Übersicht")
@@ -82,6 +90,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         selected_year = years.back();
         months = record->monthsFor(user_id, selected_year);
     }
+    spdlog::debug("Selected Year: {}", selected_year);
 
     int selected_month = 0;
     if (request.hasParameter("month")
@@ -94,6 +103,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     } else {
         selected_month = months.back();
     }
+    spdlog::debug("Selected Month: {}", selected_month);
 
     nlohmann::json::array_t years_with_selection;
     for (auto year : years) {
@@ -142,8 +152,8 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     data["selected_year"] = selected_year;
     data["months"] = months_with_selection;
     if (result.empty()) {
-        return content(
-                   BaseTemplate(TEMPLATE_DIR "/timeentry/list_empty.html").render(data))
+        return content(BaseTemplate(TEMPLATE_DIR "/timeentry/list_empty.html")
+                           .render(data))
             ->title("Übersicht")
             .shared_from_this();
     }

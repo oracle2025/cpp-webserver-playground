@@ -81,8 +81,11 @@ try {
     const string sql = "SELECT COUNT(*) FROM time_events WHERE employee_id = ?";
     int count = 0;
     Statement select(*g_session);
-    string user = user_id;
-    select << sql, into(count), use(user), now;
+    select << sql, into(count), bind(user_id);
+    select.execute();
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("COUNT: {}", count);
+    spdlog::debug("EMPLOYEE: {}", user_id);
     return count == 0;
 } catch (...) {
     TRACE_RETHROW("Could not count");
@@ -99,6 +102,9 @@ try {
     std::vector<int> result;
     Statement select(*g_session);
     select << sql, into(result), bind(user_id), now;
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("EMPLOYEE: {}", user_id);
+    spdlog::debug("RESULT: {}", result.size());
     return result;
 } catch (...) {
     TRACE_RETHROW("Could not list");
@@ -118,6 +124,10 @@ try {
     std::vector<int> result;
     Statement select(*g_session);
     select << sql, into(result), bind(user_id), bind(year), now;
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("EMPLOYEE: {}", user_id);
+    spdlog::debug("YEAR: {}", year);
+    spdlog::debug("RESULT: {}", result.size());
     return result;
 } catch (...) {
     TRACE_RETHROW("Could not list");

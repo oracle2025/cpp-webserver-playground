@@ -5,7 +5,7 @@
 #include "TimeRecordingApp/TimeCorrectionController.hpp"
 #include "doctest.h"
 #include "TimeRecordingApp/TimeEntry.hpp"
-
+#include "spdlog/spdlog.h"
 
 #include <Poco/Data/SQLite/Connector.h>
 static void insert_for_start(
@@ -19,6 +19,7 @@ static void insert_for_start(
 
 TEST_CASE("TimeCorrectionController")
 {
+    spdlog::set_level(spdlog::level::debug);
     using Http::Session;
     Poco::Data::SQLite::Connector::registerConnector();
     Poco::Data::Session session("SQLite", ":memory:");
