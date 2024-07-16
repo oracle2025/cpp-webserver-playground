@@ -67,7 +67,7 @@ TEST_CASE("TimeCorrectionController")
             = w.handle({"/login", {}, params, "", Http::Method::POST});
         auto cookieJar = response->cookies();
         auto actual = w.handle({"/list/", cookieJar, {}})->content();
-        CHECK(actual.find("18. March") != string::npos);
+        CHECK(actual.find("18. März") != string::npos);
         CHECK(actual.find("23:55") != string::npos);
     }
     SUBCASE("List Test Data") {}

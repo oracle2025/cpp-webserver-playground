@@ -94,7 +94,7 @@ TEST_CASE("TimeEntry")
         insert_for_day(t, "2024-07-12", "07:00", "13:00");
         auto result = t.overviewAsPointers("user_id_123", 2024, 7);
         CHECK_EQ(result.size(), 7);
-        CHECK_EQ(result[0]->values()["date"], "08. July");
+        CHECK_EQ(result[0]->values()["date"], "8. Juli");
         CHECK_EQ(result[0]->values()["start_time"], "08:00");
         CHECK_EQ(result[0]->values()["end_time"], "16:00");
     }
@@ -107,12 +107,12 @@ TEST_CASE("TimeEntry")
         insert_for_stop(t, "2024-07-13", "23:18");
         auto result = t.overviewAsPointers("user_id_123", 2024, 7);
         CHECK_EQ(result.size(), 2);
-        CHECK_EQ(result[0]->values()["date"], "10. July");
+        CHECK_EQ(result[0]->values()["date"], "10. Juli");
         CHECK_EQ(result[0]->values()["start_time"], "23:55");
         CHECK_EQ(result[0]->values()["end_time"], "23:59");
-
     }
-    SUBCASE("isOpen") {
+    SUBCASE("isOpen")
+    {
         TimeEntry t;
         t.set("employee_id", "user_id_123");
         insert_for_start(t, "2024-07-10", "23:55");
@@ -121,19 +121,20 @@ TEST_CASE("TimeEntry")
         CHECK(t.isOpen("user_id_123", "2024-07-10").isOpen);
         CHECK_FALSE(t.isOpen("user_id_123", "2024-07-13").isOpen);
     }
-    SUBCASE("Automatically close open days") {
+    SUBCASE("Automatically close open days")
+    {
         TimeEntry t;
         t.set("employee_id", "user_id_123");
         insert_for_start(t, "2024-07-10", "23:55");
         insert_for_start(t, "2024-07-13", "23:17");
         insert_for_stop(t, "2024-07-13", "23:18");
-        //t.closeOpenDays("user_id_123");
+        // t.closeOpenDays("user_id_123");
         auto result = t.overviewAsPointers("user_id_123", 2024, 7);
         CHECK_EQ(result.size(), 2);
-        CHECK_EQ(result[0]->values()["date"], "10. July");
+        CHECK_EQ(result[0]->values()["date"], "10. Juli");
         CHECK_EQ(result[0]->values()["start_time"], "23:55");
         CHECK_EQ(result[0]->values()["end_time"], "23:59");
-        CHECK_EQ(result[1]->values()["date"], "13. July");
+        CHECK_EQ(result[1]->values()["date"], "13. Juli");
         CHECK_EQ(result[1]->values()["start_time"], "23:17");
         CHECK_EQ(result[1]->values()["end_time"], "23:18");
     }
@@ -144,7 +145,9 @@ TEST_CASE("TimeEntry")
         insert_for_start(t, String::currentDate(), "23:55");
         auto result = t.overviewAsPointers("user_id_123", 2024, 7);
         CHECK_EQ(result.size(), 1);
-        CHECK_EQ(result[0]->values()["date"], String::convertDate(String::currentDate(), "%d. %B"));
+        CHECK_EQ(
+            result[0]->values()["date"],
+            String::convertDateToDayMonth(String::currentDate()));
         CHECK_EQ(result[0]->values()["start_time"], "23:55");
         CHECK_EQ(result[0]->values()["end_time"], "");
     }
