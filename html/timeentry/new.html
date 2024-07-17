@@ -11,6 +11,9 @@
             <input name="event_time" id="currentDateTime" type="text" class="form-control time-input"
                    placeholder="Enter Time">
 
+            <input type="hidden" name="current_date" value="{{current_date}}">
+            <input type="hidden" name="current_date_pretty" value="{{current_date_pretty}}">
+
             <button type="submit" name="event_type" value="start" class="btn btn-success btn-block"{% if not enable_start_button %} disabled{% endif %}>Start Work</button>
             <button type="submit" name="event_type" value="stop" class="btn btn-danger btn-block"{% if enable_start_button %} disabled{% endif %}>End Work</button>
         </form>

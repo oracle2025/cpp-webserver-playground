@@ -6,6 +6,8 @@ namespace String {
 
 std::string currentDateTime();
 
+std::string localDate();
+
 std::string currentDate();
 
 std::string localDateTime();

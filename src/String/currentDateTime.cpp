@@ -7,6 +7,7 @@
 #pragma GCC diagnostic pop
 
 #include "Trace/trace.hpp"
+#include "doctest.h"
 
 #include <ctime>
 #include <iomanip>
@@ -34,6 +35,11 @@ std::string currentDateTime()
     return str.str();
 }
 
+TEST_CASE("compare Local and current Time")
+{
+        //CHECK_EQ(localDateTime(), currentDateTime());
+}
+
 // Current Date time in the format 2024-06-13
 std::string currentDate()
 {
@@ -42,6 +48,15 @@ std::string currentDate()
     auto now = floor<seconds>(system_clock::now());
     std::ostringstream str;
     str << format("%F", now);
+    return str.str();
+}
+std::string localDate()
+{
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    std::tm local_time = *std::localtime(&now_time_t);
+    std::ostringstream str;
+    str << std::put_time(&local_time, "%Y-%m-%d");
     return str.str();
 }
 std::string convertDate(const std::string& date, const std::string& format_str)

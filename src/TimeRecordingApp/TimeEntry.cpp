@@ -4,6 +4,13 @@
 #include "Data/Date.hpp"
 #include "String/currentDateTime.hpp"
 
+/*
+ * TODO: Architecture Decision add id field to stop entries that matches start entry
+ * start_event_id
+ *
+ * This way the link becomes explicit rather then implicit
+ */
+
 string TimeEntryDefinition::table_name() const
 {
     return "time_events";
@@ -252,8 +259,11 @@ event_date;)";
     string max_time;
     string event_type_;
     Statement select(*g_session);
-    select << sql, into(max_time), into(event_type_), bind(user_id), bind(date),
-        now;
+    select << sql, into(max_time), into(event_type_), bind(user_id), bind(date);
+    spdlog::debug("SQL EXEC: {}", select.execute());
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("MAX_TIME: {}", max_time);
+    spdlog::debug("event_type: {}", event_type_);
     return {event_type_ == "start", max_time};
 }
 void TimeEntryDefinition::closeOpenDays(const string& user_id)
@@ -281,6 +291,8 @@ event_type = 'start';)";
     select << sql, into(result), bind(user_id), now;
     for (const auto& row : result) {
         if (row.get<1>() == "start" && row.get<2>() != String::currentDate()) {
+            spdlog::debug("Closing day: {}", row.get<2>());
+            spdlog::debug("currentDate day: {}", String::currentDate());
             TimeEntry ted;
             ted.set("employee_id", user_id);
             ted.set("event_date", row.get<2>());
@@ -289,4 +301,28 @@ event_type = 'start';)";
             ted.insert();
         }
     }
+}
+bool TimeEntryDefinition::checkTimestampExists(
+    const string& employee_id_,
+    const string& event_date_,
+    const string& event_time_)
+{
+    using namespace Poco::Data::Keywords;
+    using Poco::Data::Statement;
+    const auto sql
+        = R"(SELECT COUNT(*) FROM time_events WHERE employee_id = ? AND event_date = ? AND event_time = ?;)";
+    int count = 0;
+    Statement select(*g_session);
+    select << sql, into(count), bind(employee_id_), bind(event_date_),
+        bind(event_time_);
+    select.execute();
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("COUNT: {}", count);
+    spdlog::debug("EMPLOYEE: {}", employee_id_);
+    spdlog::debug("DATE: {}", event_date_);
+    spdlog::debug("TIME: {}", event_time_);
+    if (count > 0) {
+        return true;
+    }
+    return false;
 }

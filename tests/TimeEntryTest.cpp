@@ -1,5 +1,6 @@
 #include "Data/Migrations.hpp"
 #include "String/currentDateTime.hpp"
+#include "Time/Time.hpp"
 #include "TimeRecordingApp/TimeEntry.hpp"
 #include "doctest.h"
 
@@ -150,5 +151,21 @@ TEST_CASE("TimeEntry")
             String::convertDateToDayMonth(String::currentDate()));
         CHECK_EQ(result[0]->values()["start_time"], "23:55");
         CHECK_EQ(result[0]->values()["end_time"], "");
+    }
+    SUBCASE("Check negative difference between timestamps")
+    {
+        using std::tuple;
+        using Time::Time;
+        using t = tuple<string, string, long>;
+        const auto test_data = {
+            t{"9:00", "10:00", 60},
+            t{"10:00", "9:00", -60},
+            t{"9:00", "10:30", 90},
+        };
+        for (const auto& [start, end, expected] : test_data) {
+            auto difference
+                = Time::parseTime(end).difference(Time::parseTime(start));
+            CHECK_EQ(difference.toMinutes(), expected);
+        }
     }
 }
