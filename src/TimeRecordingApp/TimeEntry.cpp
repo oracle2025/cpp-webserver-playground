@@ -270,12 +270,26 @@ void TimeEntryDefinition::closeOpenDays(const string& user_id)
 {
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
+    /*
+     * Does the following statement really do what I think it does?
+     *
+     * Does it really select the row where event_time is the maximum,
+     * and shows the event_type that is associated with it.
+     *
+     * does MAX(event_time) really select the maximum time?
+     *
+     * In the below query, I would expect that the event_type matches with the row
+     * that is selected by MAX(event_time)
+     *
+     * One problem in sorting is if a time
+     * is entered as "8:00" instead of "08:00", note the leading zero
+     */
     const auto sql = R"(SELECT
 max_time, event_type, event_date
 FROM
 (
     SELECT
-        MAX(event_time) AS max_time, event_type, event_date
+        MAX(time(event_time)) AS max_time, event_type, event_date
     FROM
         time_events
     WHERE
@@ -285,6 +299,7 @@ FROM
 ) AS max_time_events
 WHERE
 event_type = 'start';)";
+    spdlog::debug("SQL: {}", sql);
     using valueType = Poco::Tuple<string, string, string>;
     std::vector<valueType> result;
     Poco::Data::Statement select(*g_session);
@@ -292,6 +307,7 @@ event_type = 'start';)";
     for (const auto& row : result) {
         if (row.get<1>() == "start" && row.get<2>() != String::currentDate()) {
             spdlog::debug("Closing day: {}", row.get<2>());
+            spdlog::debug("Closing time: {}", row.get<0>());
             spdlog::debug("currentDate day: {}", String::currentDate());
             TimeEntry ted;
             ted.set("employee_id", user_id);
