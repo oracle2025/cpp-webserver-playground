@@ -91,6 +91,7 @@ struct SessionRowDefinition {
 
         [[nodiscard]] Http::SessionData toSessionData() const;
         void fromSessionData(const Http::SessionData& sessionData);
+        void validate(){}
 };
 
 using SessionRow = RecordImpl<SessionRowDefinition>;

@@ -70,6 +70,7 @@ struct SharedTodoDefinition {
     string description() const;
     static vector<KeyStringType> presentableFields();
     static string presentableName();
+    void validate() {}
 };
 
 using SharedTodo = RecordImpl<SharedTodoDefinition>;

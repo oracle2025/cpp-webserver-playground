@@ -1,10 +1,10 @@
 #pragma once
 
-#include "RecordImpl.hpp"
 #include "Data/PasswordSalting.hpp"
+#include "RecordImpl.hpp"
 
-#include <Poco/Tuple.h>
 #include <Poco/Data/LOB.h>
+#include <Poco/Tuple.h>
 
 #include <string>
 
@@ -14,14 +14,15 @@ namespace Data {
 
 class UserDefinition {
 public:
-    using RecordType = Poco::Tuple<string, string, Poco::Data::CLOB, string, string>;
+    using RecordType
+        = Poco::Tuple<string, string, Poco::Data::CLOB, string, string>;
     RecordType data;
     string& id;
     string& username;
     Poco::Data::CLOB& password;
     string& salt;
     string& start_page;
-    //Poco::Data::BLOB password_hash;
+    // Poco::Data::BLOB password_hash;
     UserDefinition();
     vector<ColumnType> columns() const;
     string get(const KeyStringType& key) const;
@@ -41,6 +42,7 @@ public:
     UserDefinition(const RecordType& d);
     UserDefinition(const UserDefinition& u);
     vector<KeyStringType> presentableFields() const;
+    void validate(){};
 };
 
 using User = RecordImpl<UserDefinition>;

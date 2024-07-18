@@ -26,6 +26,7 @@ struct MovieDefinition {
         static std::string table_name();
         static std::vector<KeyStringType> presentableFields();
         static std::string presentableName();
+        void validate() {}
 };
 
 using Movie = RecordImpl<MovieDefinition>;

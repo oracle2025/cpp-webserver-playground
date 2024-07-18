@@ -2,11 +2,20 @@
 #include "TimeEntry.hpp"
 
 #include "Data/Date.hpp"
+#include "Data/ValidationError.hpp"
 #include "String/currentDateTime.hpp"
-
+#ifndef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+#include <regex>
+#ifndef __clang__
+#pragma GCC diagnostic pop
+#endif
+#include "doctest.h"
 /*
- * TODO: Architecture Decision add id field to stop entries that matches start entry
- * start_event_id
+ * TODO: Architecture Decision add id field to stop entries that matches start
+ * entry start_event_id
  *
  * This way the link becomes explicit rather then implicit
  */
@@ -199,7 +208,7 @@ closed
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
     const auto sql
-        = R"(SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime
+        = R"(SELECT tOn.employee_id, tOn.event_date,  tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime
 FROM (SELECT employee_id,
              event_time,
              event_date,
@@ -278,8 +287,8 @@ void TimeEntryDefinition::closeOpenDays(const string& user_id)
      *
      * does MAX(event_time) really select the maximum time?
      *
-     * In the below query, I would expect that the event_type matches with the row
-     * that is selected by MAX(event_time)
+     * In the below query, I would expect that the event_type matches with the
+     * row that is selected by MAX(event_time)
      *
      * One problem in sorting is if a time
      * is entered as "8:00" instead of "08:00", note the leading zero
@@ -341,4 +350,33 @@ bool TimeEntryDefinition::checkTimestampExists(
         return true;
     }
     return false;
+}
+
+const auto regex_valid_time_str = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$";
+
+void TimeEntryDefinition::validate()
+{
+    std::regex r(regex_valid_time_str);
+    if (!std::regex_match(event_time, r)) {
+        throw Data::ValidationError(
+            "Keine gültige Zeit: " + string(event_time));
+    }
+}
+
+TEST_CASE("Valid Time Regex")
+{
+    std::regex r(regex_valid_time_str);
+    CHECK(std::regex_match("08:00", r));
+    CHECK(std::regex_match("23:59", r));
+    CHECK(std::regex_match("00:00", r));
+    CHECK(std::regex_match("12:00", r));
+    CHECK(std::regex_match("01:00", r));
+    CHECK(std::regex_match("09:00", r));
+    CHECK(std::regex_match("19:00", r));
+    CHECK(std::regex_match("20:00", r));
+    CHECK(std::regex_match("21:00", r));
+    CHECK(std::regex_match("22:00", r));
+    CHECK(std::regex_match("23:00", r));
+    CHECK(std::regex_match("00:59", r));
+    CHECK(std::regex_match("00:01", r));
 }

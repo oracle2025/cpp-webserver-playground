@@ -78,6 +78,7 @@ struct Person {
     {
         return {"name"};
     }
+    void validate() {}
 };
 
 TEST_CASE("PersonRecord")

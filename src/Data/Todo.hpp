@@ -75,6 +75,9 @@ struct TodoDefinition {
     string description() const;
     static vector<KeyStringType> presentableFields();
     static string presentableName();
+    void validate()
+    {
+    }
 };
 
 using Todo = RecordImpl<TodoDefinition>;

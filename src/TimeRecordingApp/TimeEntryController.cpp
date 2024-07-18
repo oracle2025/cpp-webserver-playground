@@ -1,5 +1,6 @@
 #include "TimeEntryController.hpp"
 
+#include "Data/ValidationError.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
@@ -114,8 +115,13 @@ std::shared_ptr<Http::Response> TimeEntryController::createEntry(
             }
         }
     }
-
-    entry->insert();
+    try {
+        entry->insert();
+    } catch (const Data::ValidationError& ex) {
+        return redirect(prefix + "/")
+            ->alert(ex.what(), Html::AlertType::DANGER)
+            .shared_from_this();
+    }
     return redirect(prefix + "/")
         ->alert(entry->presentableName() + " created", Html::AlertType::SUCCESS)
         .shared_from_this();

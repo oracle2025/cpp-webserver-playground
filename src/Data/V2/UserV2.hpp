@@ -42,6 +42,7 @@ public:
     UserDefinitionV2(const RecordType& d);
     UserDefinitionV2(const UserDefinitionV2& u);
     vector<KeyStringType> presentableFields() const;
+    void validate(){}
 };
 
 using UserV2 = RecordImpl<UserDefinitionV2>;

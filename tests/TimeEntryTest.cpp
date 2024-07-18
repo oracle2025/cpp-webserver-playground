@@ -55,11 +55,13 @@ TEST_CASE("TimeEntry")
         TimeEntry t1;
         t1.set("employee_id", "user_id_123");
         t1.set("event_date", "2021-01-01");
+        t1.set("event_time", "12:00");
         t1.set("event_type", "start");
         t1.insert();
         TimeEntry t2;
         t2.set("employee_id", "user_id_123");
         t2.set("event_date", "2022-01-02");
+        t2.set("event_time", "12:00");
         t2.set("event_type", "start");
         t2.insert();
         const auto yearsFor = t1.yearsFor("user_id_123");
@@ -71,11 +73,13 @@ TEST_CASE("TimeEntry")
         TimeEntry t1;
         t1.set("employee_id", "user_id_123");
         t1.set("event_date", "2021-01-01");
+        t1.set("event_time", "12:00");
         t1.set("event_type", "start");
         t1.insert();
         TimeEntry t2;
         t2.set("employee_id", "user_id_123");
         t2.set("event_date", "2021-02-02");
+        t2.set("event_time", "12:00");
         t2.set("event_type", "start");
         t2.insert();
         const auto monthsFor = t1.monthsFor("user_id_123", 2021);

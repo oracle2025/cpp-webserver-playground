@@ -93,6 +93,7 @@ struct TimeEntryDefinition {
         const string& employee_id,
         const string& event_date,
         const string& event_time);
+    void validate();
 };
 
 using TimeEntry = RecordImpl<TimeEntryDefinition>;

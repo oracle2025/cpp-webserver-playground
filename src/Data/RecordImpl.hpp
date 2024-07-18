@@ -29,7 +29,7 @@ template<typename T>
 struct RecordImpl : public T, public RecordExtended {
     using Session = Poco::Data::Session;
     RecordImpl() = default;
-    explicit RecordImpl(const Http::Request& request){};
+    explicit RecordImpl(const Http::Request& request) { };
     RecordImpl(const RecordImpl<T>&) = default;
     explicit RecordImpl(const typename T::RecordType& data)
         : T(data)
@@ -87,19 +87,22 @@ struct RecordImpl : public T, public RecordExtended {
         insertInto(String::createRandomUUID(), session);
     }
     void insertInto(const string& id, Session& session)
-    try {
-        using namespace Poco::Data::Keywords;
-        using Poco::Data::Statement;
-        using String::repeat;
-        T::id = id;
-        Statement insert(session);
-        const string sql = "INSERT INTO " + T::table_name() + " ("
-            + orderedColumnNames(T::columns()) + ")VALUES(" + "?, "
-            + repeat("?", ", ", T::columns().size()) + ")";
-        spdlog::debug("SQL: {}", sql);
-        insert << sql, use(T::data), now;
-    } catch (...) {
-        TRACE_RETHROW("Could not insert");
+    {
+        T::validate();
+        try {
+            using namespace Poco::Data::Keywords;
+            using Poco::Data::Statement;
+            using String::repeat;
+            T::id = id;
+            Statement insert(session);
+            const string sql = "INSERT INTO " + T::table_name() + " ("
+                + orderedColumnNames(T::columns()) + ")VALUES(" + "?, "
+                + repeat("?", ", ", T::columns().size()) + ")";
+            spdlog::debug("SQL: {}", sql);
+            insert << sql, use(T::data), now;
+        } catch (...) {
+            TRACE_RETHROW("Could not insert");
+        }
     }
     bool pop(const string& _id) override
     {
