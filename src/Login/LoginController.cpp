@@ -94,9 +94,10 @@ LoginController& LoginController::initialize(Http::Router& router)
         if (Session(request).isAdmin()) {
             auto response = content(Html::List(
                                         Session::listAll(),
-                                        {"id",
-                                         "user_id",
-                                         "is_logged_in",
+                                        {
+                                         "userId",
+                                         "userName",
+                                         "isLoggedIn",
                                          "createdAt",
                                          "lastUsedAt",
                                          "path",

@@ -15,6 +15,15 @@
 
 namespace String {
 
+std::string localTime()
+{
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    std::tm local_time = *std::localtime(&now_time_t);
+    std::ostringstream str;
+    str << std::put_time(&local_time, "%H:%M");
+    return str.str();
+}
 std::string localDateTime()
 {
     auto now = std::chrono::system_clock::now();

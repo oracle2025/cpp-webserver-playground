@@ -40,6 +40,7 @@ shared_ptr<Http::Response> TimeEntryController::entryForm(
     data["current_date"] = current;
     data["current_date_pretty"] = String::convertDateToWeekday(current) + ", "
         + String::convertDateToDayMonth(current);
+    data["currentLocalTime"] = String::localTime();
 
     return content(
                BaseTemplate(TEMPLATE_DIR "/timeentry/new.html").render(data))

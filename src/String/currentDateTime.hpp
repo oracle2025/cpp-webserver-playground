@@ -8,6 +8,8 @@ std::string currentDateTime();
 
 std::string localDate();
 
+std::string localTime();
+
 std::string currentDate();
 
 std::string localDateTime();
