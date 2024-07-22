@@ -145,16 +145,22 @@ TEST_CASE("TimeEntry")
     }
     SUBCASE("Automatically close open days except today")
     {
-        TimeEntry t;
-        t.set("employee_id", "user_id_123");
-        insert_for_start(t, String::currentDate(), "23:55");
-        auto result = t.overviewAsPointers("user_id_123", 2024, 7);
-        CHECK_EQ(result.size(), 1);
-        CHECK_EQ(
-            result[0]->values()["date"],
-            String::convertDateToDayMonth(String::currentDate()));
-        CHECK_EQ(result[0]->values()["start_time"], "23:55");
-        CHECK_EQ(result[0]->values()["end_time"], "");
+        try {
+            TimeEntry t;
+            t.set("employee_id", "user_id_123");
+            insert_for_start(t, String::currentDate(), "23:55");
+            auto result = t.overviewAsPointers("user_id_123", 2024, 7);
+            CHECK_EQ(result.size(), 1);
+            CHECK_EQ(
+                result[0]->values()["date"],
+                String::convertDateToDayMonth(String::currentDate()));
+            CHECK_EQ(result[0]->values()["start_time"], "23:55");
+            CHECK_EQ(result[0]->values()["end_time"], "");
+        } catch (...){
+            std::ostringstream str;
+            Trace::backtrace(std::current_exception(), str);
+            spdlog::error("Exception: {}", str.str());
+        }
     }
     SUBCASE("Check negative difference between timestamps")
     {

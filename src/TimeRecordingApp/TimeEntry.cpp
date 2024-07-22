@@ -314,7 +314,9 @@ event_type = 'start';)";
     Poco::Data::Statement select(*g_session);
     select << sql, into(result), bind(user_id), now;
     for (const auto& row : result) {
-        if (row.get<1>() == "start" && row.get<2>() != String::currentDate()) {
+        const auto event_type = row.get<1>();
+        const auto event_date = row.get<2>();
+        if (event_type == "start" && event_date != String::currentDate()) {
             spdlog::debug("Closing day: {}", row.get<2>());
             spdlog::debug("Closing time: {}", row.get<0>());
             spdlog::debug("currentDate day: {}", String::currentDate());
