@@ -42,11 +42,11 @@ static std::tm convertDateToTm(const std::string& date)
 }
 TEST_CASE("Convert Date To Weekday")
 {
-    //CHECK_EQ(String::convertDateToWeekday("2024-07-21"), "Montag");
-    CHECK_EQ(convertDateToTm("2024-07-21").tm_year, 2024);
-    CHECK_EQ(convertDateToTm("2024-07-01").tm_year, 2024);
-    CHECK_EQ(convertDateToTm("2024-07-02").tm_year, 2024);
-    CHECK_EQ(convertDateToTm("2024-07-03").tm_year, 2024);
-    CHECK_EQ(convertDateToTm("2024-07-04").tm_year, 2024);
-    CHECK_EQ(convertDateToTm("2024-07-05").tm_year, 2024);
+    CHECK_EQ(String::convertDateToWeekday("2024-07-15"), "Montag");
+    CHECK_EQ(String::convertDateToWeekday("2024-07-16"), "Dienstag");
+    CHECK_EQ(String::convertDateToWeekday("2024-07-17"), "Mittwoch");
+    CHECK_EQ(String::convertDateToWeekday("2024-07-18"), "Donnerstag");
+    CHECK_EQ(String::convertDateToWeekday("2024-07-19"), "Freitag");
+    CHECK_EQ(String::convertDateToWeekday("2024-07-20"), "Samstag");
+    CHECK_EQ(String::convertDateToWeekday("2024-07-21"), "Sonntag");
 }

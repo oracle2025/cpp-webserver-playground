@@ -189,7 +189,7 @@ struct OverViewRow : public Record {
 };
 
 vector<shared_ptr<Record>> TimeEntryDefinition::overviewAsPointers(
-    const string& user_id, int year, int month)
+    const string& user_id, int year, int month, const string& current_date)
 try {
     // Check the database for old and open time entries
     // And close them for 23:59
@@ -204,7 +204,7 @@ date_column;
      if the minimum is type start and the maximum is type stop, then the day is
 closed
      */
-    closeOpenDays(user_id);
+    closeOpenDays(user_id, current_date);
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
     const auto sql
@@ -275,7 +275,8 @@ event_date;)";
     spdlog::debug("event_type: {}", event_type_);
     return {event_type_ == "start", max_time};
 }
-void TimeEntryDefinition::closeOpenDays(const string& user_id)
+void TimeEntryDefinition::closeOpenDays(
+    const string& user_id, const string& current_date)
 {
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
@@ -314,12 +315,12 @@ event_type = 'start';)";
     Poco::Data::Statement select(*g_session);
     select << sql, into(result), bind(user_id), now;
     for (const auto& row : result) {
-        const auto event_type = row.get<1>();
-        const auto event_date = row.get<2>();
-        if (event_type == "start" && event_date != String::currentDate()) {
+        const auto event_type_ = row.get<1>();
+        const auto event_date_ = row.get<2>();
+        if (event_type_ == "start" && event_date_ != current_date) {
             spdlog::debug("Closing day: {}", row.get<2>());
             spdlog::debug("Closing time: {}", row.get<0>());
-            spdlog::debug("currentDate day: {}", String::currentDate());
+            spdlog::debug("currentDate day: {}", current_date);
             TimeEntry ted;
             ted.set("employee_id", user_id);
             ted.set("event_date", row.get<2>());

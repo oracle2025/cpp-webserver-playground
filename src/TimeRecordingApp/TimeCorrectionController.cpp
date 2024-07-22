@@ -6,6 +6,7 @@
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
 #include "Http/Session.hpp"
+#include "String/currentDateTime.hpp"
 #include "String/timeDifference.hpp"
 #include "Template/BaseTemplate.hpp"
 #include "Time/Time.hpp"
@@ -134,7 +135,8 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     }
 
     auto result
-        = record->overviewAsPointers(user_id, selected_year, selected_month);
+        = record->overviewAsPointers(
+        user_id, selected_year, selected_month, String::currentDate());
     // result should also provide
     // getHours
     // getTime("start")

@@ -124,16 +124,16 @@ std::string convertDateToDayMonth(const std::string& date)
 std::string convertDateToWeekday(const std::string& date)
 {
     static const std::map<int, std::string> week_days
-        = {{1, "Montag"},
-           {2, "Dienstag"},
-           {3, "Mittwoch"},
-           {4, "Donnerstag"},
-           {5, "Freitag"},
-           {6, "Samstag"},
-           {7, "Sonntag"}};
+        = {{2, "Montag"},
+           {3, "Dienstag"},
+           {4, "Mittwoch"},
+           {5, "Donnerstag"},
+           {6, "Freitag"},
+           {7, "Samstag"},
+           {1, "Sonntag"}};
     std::ostringstream str;
     std::tm t = convertDateToTm(date);
-    str << week_days.at(t.tm_wday);
+    str << week_days.at(t.tm_wday + 1);
     return str.str();
 }
 

@@ -81,14 +81,14 @@ struct TimeEntryDefinition {
     [[nodiscard]] std::vector<int> monthsFor(
         const string& user_id, int year) const;
     vector<shared_ptr<Record>> overviewAsPointers(
-        const string& user_id, int year, int month);
+        const string& user_id, int year, int month, const string& current_date);
     struct IsOpenResult {
         bool isOpen;
         string start_time;
     };
     IsOpenResult isOpen(const string& user_id, const string& date);
 
-    void closeOpenDays(const string& user_id);
+    void closeOpenDays(const string& user_id, const string& current_date);
     bool checkTimestampExists(
         const string& employee_id,
         const string& event_date,

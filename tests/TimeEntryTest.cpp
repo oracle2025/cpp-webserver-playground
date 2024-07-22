@@ -97,7 +97,8 @@ TEST_CASE("TimeEntry")
         insert_for_day(t, "2024-07-11", "11:00", "13:00");
         insert_for_day(t, "2024-07-11", "18:00", "19:30");
         insert_for_day(t, "2024-07-12", "07:00", "13:00");
-        auto result = t.overviewAsPointers("user_id_123", 2024, 7);
+        auto result = t.overviewAsPointers(
+            "user_id_123", 2024, 7, String::currentDate());
         CHECK_EQ(result.size(), 7);
         CHECK_EQ(result[0]->values()["date"], "8. Juli");
         CHECK_EQ(result[0]->values()["start_time"], "08:00");
@@ -110,7 +111,8 @@ TEST_CASE("TimeEntry")
         insert_for_start(t, "2024-07-10", "23:55");
         insert_for_start(t, "2024-07-13", "23:17");
         insert_for_stop(t, "2024-07-13", "23:18");
-        auto result = t.overviewAsPointers("user_id_123", 2024, 7);
+        auto result = t.overviewAsPointers(
+            "user_id_123", 2024, 7, String::currentDate());
         CHECK_EQ(result.size(), 2);
         CHECK_EQ(result[0]->values()["date"], "10. Juli");
         CHECK_EQ(result[0]->values()["start_time"], "23:55");
@@ -134,7 +136,8 @@ TEST_CASE("TimeEntry")
         insert_for_start(t, "2024-07-13", "23:17");
         insert_for_stop(t, "2024-07-13", "23:18");
         // t.closeOpenDays("user_id_123");
-        auto result = t.overviewAsPointers("user_id_123", 2024, 7);
+        auto result = t.overviewAsPointers(
+            "user_id_123", 2024, 7, String::currentDate());
         CHECK_EQ(result.size(), 2);
         CHECK_EQ(result[0]->values()["date"], "10. Juli");
         CHECK_EQ(result[0]->values()["start_time"], "23:55");
@@ -145,21 +148,30 @@ TEST_CASE("TimeEntry")
     }
     SUBCASE("Automatically close open days except today")
     {
-        try {
+        for (auto& todays_date :
+             {"2024-07-15",
+              "2024-07-16",
+              "2024-07-17",
+              "2024-07-18",
+              "2024-07-19",
+              "2024-07-20",
+              "2024-07-21"}) {
+            Poco::Data::SQLite::Connector::registerConnector();
+            Poco::Data::Session session("SQLite", ":memory:");
+            g_session = &session;
+            Data::MigrationsLatest m;
+            m.perform();
             TimeEntry t;
             t.set("employee_id", "user_id_123");
-            insert_for_start(t, String::currentDate(), "23:55");
-            auto result = t.overviewAsPointers("user_id_123", 2024, 7);
+            insert_for_start(t, todays_date, "23:55");
+            auto result
+                = t.overviewAsPointers("user_id_123", 2024, 7, todays_date);
             CHECK_EQ(result.size(), 1);
             CHECK_EQ(
                 result[0]->values()["date"],
-                String::convertDateToDayMonth(String::currentDate()));
+                String::convertDateToDayMonth(todays_date));
             CHECK_EQ(result[0]->values()["start_time"], "23:55");
             CHECK_EQ(result[0]->values()["end_time"], "");
-        } catch (...){
-            std::ostringstream str;
-            Trace::backtrace(std::current_exception(), str);
-            spdlog::error("Exception: {}", str.str());
         }
     }
     SUBCASE("Check negative difference between timestamps")
