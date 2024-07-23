@@ -2,13 +2,14 @@
 #include "Data/RecordImpl.hpp"
 
 #include <Poco/Tuple.h>
+#include <Poco/Data/Date.h>
 
 struct TimeEntryDefinition {
     using string = std::string;
     using RecordType = Poco::Tuple<
         string,
         string,
-        string,
+        Poco::Data::Date,
         string,
         string,
         string,
@@ -18,7 +19,7 @@ struct TimeEntryDefinition {
     RecordType data;
     string& id;
     string& employee_id;
-    string& event_date;
+    Poco::Data::Date& event_date;
     string& event_time;
     string& event_type;
     string& corrected_event_id;
@@ -39,7 +40,7 @@ struct TimeEntryDefinition {
     {
     }
     TimeEntryDefinition()
-        : data{"", "", "", "", "", "", "", "", ""}
+        : data{"", "", {}, "", "", "", "", "", ""}
         , id(data.get<0>())
         , employee_id(data.get<1>())
         , event_date(data.get<2>())

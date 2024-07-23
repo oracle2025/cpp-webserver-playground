@@ -46,6 +46,10 @@ string UserDefinitionV2::table_name() const
 {
     return "Users";
 }
+string UserDefinitionV2::presentableName() const
+{
+    return "Users";
+}
 UserDefinitionV2::UserDefinitionV2(const UserDefinitionV2::RecordType& d)
     : data{d}
     , id(data.get<0>())

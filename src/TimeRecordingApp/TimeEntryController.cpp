@@ -8,8 +8,10 @@
 #include "String/capitalize.hpp"
 #include "String/currentDateTime.hpp"
 #include "Template/BaseTemplate.hpp"
+#include "Text.hpp"
 #include "Time/Time.hpp"
 #include "TimeEntry.hpp"
+#include "Input/Submit.hpp"
 
 using Http::content;
 using Http::redirect;
@@ -42,16 +44,21 @@ shared_ptr<Http::Response> TimeEntryController::entryForm(
         + String::convertDateToDayMonth(current);
     data["currentLocalTime"] = String::localTime();
 
+    auto form = std::make_shared<Input::Form>(
+                    vector<Input::ElementPtr>{
+                        std::make_shared<Input::Text>("event_time"),
+                        std::make_shared<Input::Text>("event_type"),
+                    },
+                    impl_->prefix + "/",
+                    "post")
+                    ->appendElement(make_shared<Input::Submit>("Create"))
+                    .shared_from_this();
+
     return content(
                BaseTemplate(TEMPLATE_DIR "/timeentry/new.html").render(data))
-        ->title("Time Tracking")
+        ->form(form)
+        .title("Time Tracking")
         .shared_from_this();
-
-    /* return Http::content(Form(*entry, impl_->prefix + "/", "post")
-                              .appendElement(make_shared<Submit>(
-                                  "Create " + entry->presentableName()))())
-         ->title("Create " + entry->presentableName())
-         .shared_from_this();*/
 }
 std::shared_ptr<Http::Response> TimeEntryController::createEntry(
     const Request& request)

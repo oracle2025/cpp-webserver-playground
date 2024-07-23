@@ -49,7 +49,7 @@ struct RecordImpl : public T, public RecordExtended {
     }
     string presentableName() const override
     {
-        return T::table_name();
+        return T::presentableName();
     }
     void setImpl(const KeyStringType& key, const string& value) override
     {

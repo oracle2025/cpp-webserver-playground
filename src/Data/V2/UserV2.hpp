@@ -28,6 +28,7 @@ public:
     string get(const KeyStringType& key) const;
     void setPassword(const string& password);
     string table_name() const;
+    string presentableName() const;
     template<class T>
     static bool isValidUser(
         const string& username, const string& password, T& user)

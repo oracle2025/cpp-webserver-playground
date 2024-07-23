@@ -342,7 +342,10 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/SessionTest.cpp
             tests/TimeEntryTest.cpp
             tests/TimeConvertTest.cpp
-            tests/TimeCorrectionControllerTest.cpp)
+            tests/TimeCorrectionControllerTest.cpp
+            tests/PocoDateTimeTest.cpp
+            tests/TimeEntryControllerTest.cpp
+    )
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)
 

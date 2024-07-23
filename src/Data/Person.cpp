@@ -41,6 +41,10 @@ struct Person {
     {
         return "Persons";
     }
+    string presentableName() const
+    {
+        return "Person";
+    }
     vector<ColumnType> columns() const
     {
         return {
@@ -78,7 +82,9 @@ struct Person {
     {
         return {"name"};
     }
-    void validate() {}
+    void validate()
+    {
+    }
 };
 
 TEST_CASE("PersonRecord")

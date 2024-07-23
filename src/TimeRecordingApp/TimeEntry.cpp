@@ -4,6 +4,8 @@
 #include "Data/Date.hpp"
 #include "Data/ValidationError.hpp"
 #include "String/currentDateTime.hpp"
+
+#include <Poco/DateTime.h>
 #ifndef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -42,7 +44,10 @@ void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
     if (key == "employee_id") {
         employee_id = value;
     } else if (key == "event_date") {
-        event_date = value;
+        int timeZoneDifferential;
+        auto dt = Poco::DateTimeParser::parse(
+            "%Y-%m-%d", value, timeZoneDifferential);
+        event_date = dt;
     } else if (key == "event_time") {
         event_time = value;
     } else if (key == "event_type") {
@@ -62,7 +67,12 @@ string TimeEntryDefinition::get(const KeyStringType& key) const
     if (key == "employee_id") {
         return employee_id;
     } else if (key == "event_date") {
-        return event_date;
+        string result;
+        result = Poco::DateTimeFormatter::format(
+            Poco::DateTime(
+                event_date.year(), event_date.month(), event_date.day()),
+            "%Y-%m-%d");
+        return result;
     } else if (key == "event_time") {
         return event_time;
     } else if (key == "event_type") {
@@ -80,12 +90,17 @@ string TimeEntryDefinition::get(const KeyStringType& key) const
 }
 string TimeEntryDefinition::description() const
 {
-    return event_date + " " + event_time + " " + event_type + " " + employee_id;
+    return Poco::DateTimeFormatter::format(
+               Poco::DateTime(
+                   event_date.year(), event_date.month(), event_date.day()),
+               "%Y-%m-%d")
+        + " " + event_time + " " + event_type + " " + employee_id;
 }
 vector<KeyStringType> TimeEntryDefinition::presentableFields()
 {
     return {"event_date", "event_time", "event_type"};
 }
+// Note: never called because of definition in RecordImpl
 string TimeEntryDefinition::presentableName()
 {
     return "Time Entry";
@@ -223,11 +238,11 @@ FROM (SELECT employee_id,
                     where event_type = 'stop' AND employee_id = ? AND strftime('%Y-%m', event_date) = ?) tOff
                    on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
     using valueType = Poco::Tuple<
-        string,
-        string,
-        string,
-        string,
-        string,
+        string,// employee_id
+        string,// event_date
+        string,// start_time
+        string,// event_date
+        string,// end_time
         string,
         string,
         string,
