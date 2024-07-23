@@ -37,6 +37,13 @@ static void insert_for_stop(
     t.set("event_type", "stop");
     t.insert();
 }
+/*
+ * What can go wrong:
+ *
+ * stop event before start event
+ * start event before existing start-stop interval (or in the middle)
+ * start stop event on different date than todays date?
+ */
 
 TEST_CASE("TimeEntry")
 {

@@ -1,6 +1,8 @@
 #include "String/createRandomUUID.hpp"
 #include "date/date.h"
 #include "doctest.h"
+#include "Data/Migrations.hpp"
+#include "TimeRecordingApp/TimeEntry.hpp"
 
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
@@ -14,23 +16,7 @@ std::string current_date_time()
     str << format("%F %T", now);
     return str.str();
 }
-void createTimeEventsTable(Poco::Data::Session& session)
-{
-    using namespace Poco::Data::Keywords;
 
-    const auto createTimeEvents = R"(CREATE TABLE time_events (
-id VARCHAR,
-employee_id VARCHAR NOT NULL,
-event_date DATE NOT NULL,
-event_time TIME NOT NULL,
-event_type VARCHAR CHECK( event_type IN ('start', 'stop', 'correction', 'deletion') ) NOT NULL DEFAULT 'start',
-corrected_event_id VARCHAR,  -- References the event_id of the entry it corrects (if event_type = 'correction')
-deleted_event_id VARCHAR,    -- References the event_id of the entry it deletes (if event_type = 'deletion')
-creation_date DATETIME NOT NULL,
-creator_user_id VARCHAR NOT NULL);
-)";
-    session << createTimeEvents, now;
-}
 std::string createTimeEvent(
     Poco::Data::Session& session,
     const std::string& employee_id,
@@ -120,37 +106,16 @@ std::string createTimeEvent(
     const std::string& deleted_event_id,
     const std::string& creator_user_id)
 {
-    using namespace Poco::Data::Keywords;
-    auto id = String::createRandomUUID();
-    const auto sql = R"(INSERT INTO time_events (
-        id, employee_id, event_date, event_time, event_type,
-        corrected_event_id, deleted_event_id, creation_date, creator_user_id) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?); )";
-    using string = std::string;
-    using valueType = Poco::Tuple<
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string,
-        string>;
-    valueType data
-        = {id,
-           employee_id,
-           event_date,
-           event_time,
-           event_type,
-           corrected_event_id,
-           deleted_event_id,
-           current_date_time(),
-           creator_user_id};
-    Poco::Data::Statement insert(session);
-
-    insert << sql, use(data), now;
-    return id;
+    TimeEntry t;
+    t.set("employee_id", employee_id);
+    t.set("event_time", event_time);
+    t.set("event_date", event_date);
+    t.set("event_type", event_type);
+    t.set("corrected_event_id", corrected_event_id);
+    t.set("deleted_event_id", deleted_event_id);
+    t.set("creator_user_id", creator_user_id);
+    t.insert();
+    return t.key();
 }
 
 using string = std::string;
@@ -164,32 +129,7 @@ using valueType = Poco::Tuple<
     string,
     string,
     string>;
-std::vector<valueType> selectIntoPairs(Poco::Data::Session& session)
-{
-    using namespace Poco::Data::Keywords;
 
-    const auto sql
-        = R"(SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime
-FROM (SELECT employee_id,
-             event_time,
-             event_date,
-             ROW_NUMBER() Over (Partition by employee_id order by event_time) EventID
-      FROM time_events
-      where event_type = 'start') tOn
-         LEFT JOIN (SELECT employee_id,
-                           event_time,
-                           event_date,
-                           ROW_NUMBER() Over (Partition by employee_id order by event_time) EventID
-                    FROM time_events
-                    where event_type = 'stop') tOff
-                   on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
-
-    std::vector<valueType> result;
-
-    Poco::Data::Statement select(session);
-    select << sql, into(result), now;
-    return result;
-}
 /*
  * Corrections must have the same event_date as the event it corrects
  *
@@ -219,20 +159,22 @@ TEST_CASE("Time Recording Schema")
     using namespace Poco::Data::Keywords;
     Poco::Data::SQLite::Connector::registerConnector();
     Poco::Data::Session session("SQLite", ":memory:");
-    createTimeEventsTable(session);
+    g_session = &session;
+    Data::MigrationsLatest m;
+    m.perform();
 
     SUBCASE("A Day with multiple Start and multiple Stop Events")
     {
 
         // https://stackoverflow.com/questions/69806206/sql-time-series-events-into-pairs
         createTimeEvent(
-            session, "1", "2024-06-13", "08:15:00", "start", "", "", "2");
+            session, "1", "2024-06-13", "08:15", "start", "", "", "2");
         createTimeEvent(
-            session, "1", "2024-06-13", "12:10:00", "stop", "", "", "2");
+            session, "1", "2024-06-13", "12:10", "stop", "", "", "2");
         createTimeEvent(
-            session, "1", "2024-06-13", "14:15:00", "start", "", "", "2");
+            session, "1", "2024-06-13", "14:15", "start", "", "", "2");
         createTimeEvent(
-            session, "1", "2024-06-13", "18:15:00", "stop", "", "", "2");
+            session, "1", "2024-06-13", "18:15", "stop", "", "", "2");
 
         const auto sql
             = R"(SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime
@@ -256,15 +198,15 @@ on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
         CHECK(values.size() == 2);
         CHECK(values[0].get<0>() == "1");
         CHECK(values[0].get<1>() == "2024-06-13");
-        CHECK(values[0].get<2>() == "08:15:00");
+        CHECK(values[0].get<2>() == "08:15");
         CHECK(values[0].get<3>() == "2024-06-13");
-        CHECK(values[0].get<4>() == "12:10:00");
+        CHECK(values[0].get<4>() == "12:10");
 
         CHECK(values[1].get<0>() == "1");
         CHECK(values[1].get<1>() == "2024-06-13");
-        CHECK(values[1].get<2>() == "14:15:00");
+        CHECK(values[1].get<2>() == "14:15");
         CHECK(values[1].get<3>() == "2024-06-13");
-        CHECK(values[1].get<4>() == "18:15:00");
+        CHECK(values[1].get<4>() == "18:15");
     }
     SUBCASE("Select Time Events into Start Stop Pairs")
     {
@@ -281,28 +223,25 @@ on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
     }
     SUBCASE("Check for Stop Event before Start Event")
     {
-        createStartEvent(session, "1", "2024-06-13", "08:15:00", "2");
-        createStopEvent(session, "1", "2024-06-13", "08:10:00", "2");
+        createStartEvent(session, "1", "2024-06-13", "08:15", "2");
+        createStopEvent(session, "1", "2024-06-13", "08:10", "2");
     }
 
     SUBCASE("Select Time Events into Pairs with missing Stop Events")
     {
-        createStartEvent(session, "1", "2024-06-13", "08:15:00", "2");
-        createStopEvent(session, "1", "2024-06-13", "12:10:00", "2");
-        createStartEvent(session, "1", "2024-06-14", "14:15:00", "2");
-        auto values = selectIntoPairs(session);
+        createStartEvent(session, "1", "2024-06-13", "08:15", "2");
+        createStopEvent(session, "1", "2024-06-13", "12:10", "2");
+        createStartEvent(session, "1", "2024-06-14", "14:15", "2");
+        TimeEntry t;
+        auto values = t.overviewAsPointers("1",2024,6,"2024-06-14");
         CHECK(values.size() == 2);
-        CHECK(values[0].get<0>() == "1");
-        CHECK(values[0].get<1>() == "2024-06-13");
-        CHECK(values[0].get<2>() == "08:15:00");
-        CHECK(values[0].get<3>() == "2024-06-13");
-        CHECK(values[0].get<4>() == "12:10:00");
+        CHECK(values[0]->values()["date"] == "13. Juni");
+        CHECK(values[0]->values()["start_time"] == "08:15");
+        CHECK(values[0]->values()["end_time"] == "12:10");
 
-        CHECK(values[1].get<0>() == "1");
-        CHECK(values[1].get<1>() == "2024-06-14");
-        CHECK(values[1].get<2>() == "14:15:00");
-        CHECK(values[1].get<3>() == ""); // Empty result can trigger a warning
-        CHECK(values[1].get<4>() == "");
+        CHECK(values[1]->values()["date"] == "14. Juni");
+        CHECK(values[1]->values()["start_time"] == "14:15");
+        CHECK(values[1]->values()["end_time"] == "");
     }
     SUBCASE("Select Time Events with Corrections applied recursively")
     {
@@ -313,14 +252,14 @@ on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
         const auto testTimeEvents
             = R"(INSERT INTO time_events (employee_id, event_date, event_time, event_type, corrected_event_id, deleted_event_id, creation_date, creator_user_id, id)
 VALUES
-    ('001', '2024-06-13', '08:00:00', 'start', NULL, NULL, '2024-06-13 08:30:00', '001', '001'),
-    ('001', '2024-06-13', '17:00:00', 'stop', NULL, NULL, '2024-06-13 17:30:00', '002', '002'),
-    ('002', '2024-06-13', '09:00:00', 'start', NULL, NULL, '2024-06-13 09:15:00', '001', '003'),
-    ('002', '2024-06-13', '18:00:00', 'stop', NULL, NULL, '2024-06-13 18:30:00', '002', '004'),
-    ('001', '2024-06-14', '08:30:00', 'start', NULL, NULL, '2024-06-14 08:45:00', '001', '005'),
-    ('001', '2024-06-14', '17:30:00', 'stop', NULL, NULL, '2024-06-14 18:00:00', '002', '006'),
-    ('001', '2024-06-13', '08:15:00', 'correction', '001', NULL, '2024-06-13 08:45:00', '002', '007'),
-    ('001', '2024-06-14', '08:45:00', 'deletion', NULL, '005', '2024-06-14 09:00:00', '002', '008');
+    ('001', '2024-06-13', '08:00', 'start', NULL, NULL, '2024-06-13 08:30:00', '001', '001'),
+    ('001', '2024-06-13', '17:00', 'stop', NULL, NULL, '2024-06-13 17:30:00', '002', '002'),
+    ('002', '2024-06-13', '09:00', 'start', NULL, NULL, '2024-06-13 09:15:00', '001', '003'),
+    ('002', '2024-06-13', '18:00', 'stop', NULL, NULL, '2024-06-13 18:30:00', '002', '004'),
+    ('001', '2024-06-14', '08:30', 'start', NULL, NULL, '2024-06-14 08:45:00', '001', '005'),
+    ('001', '2024-06-14', '17:30', 'stop', NULL, NULL, '2024-06-14 18:00:00', '002', '006'),
+    ('001', '2024-06-13', '08:15', 'correction', '001', NULL, '2024-06-13 08:45:00', '002', '007'),
+    ('001', '2024-06-14', '08:45', 'deletion', NULL, '005', '2024-06-14 09:00:00', '002', '008');
 )";
 
         session << testTimeEvents, now;
@@ -353,19 +292,19 @@ WHERE nr = 1 AND FinalEventType != 'correction' AND FinalEventType != 'deletion'
         CHECK(values[0].get<4>() == "start");
         CHECK(values[0].get<5>() == "correction");
         CHECK(values[0].get<6>() == "2024-06-13");
-        CHECK(values[0].get<7>() == "08:15:00");
+        CHECK(values[0].get<7>() == "08:15");
         CHECK(values[0].get<8>() == "2");
     }
 
     SUBCASE("Check for Multiple Corrections on the Same UUID")
     {
         auto id = createTimeEvent(
-            session, "1", "2024-06-13", "08:00:00", "start", "", "", "1");
+            session, "1", "2024-06-13", "08:00", "start", "", "", "1");
 
         createTimeEvent(
-            session, "1", "2024-06-13", "08:15:00", "correction", id, "", "2");
+            session, "1", "2024-06-13", "08:15", "correction", id, "", "2");
         createTimeEvent(
-            session, "1", "2024-06-13", "08:15:00", "correction", id, "", "2");
+            session, "1", "2024-06-13", "08:15", "correction", id, "", "2");
 
         const auto sql = R"(SELECT a.*
 FROM time_events a
@@ -389,7 +328,7 @@ ORDER BY a.corrected_event_id;)";
             session,
             "1",
             "2024-06-15",
-            "09:00:00",
+            "09:00",
             "correction",
             "100",
             "",
