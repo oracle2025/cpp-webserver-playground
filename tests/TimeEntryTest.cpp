@@ -95,21 +95,29 @@ TEST_CASE("TimeEntry")
     }
     SUBCASE("Enter Data for one week")
     {
-        TimeEntry t;
-        t.set("employee_id", "user_id_123");
-        insert_for_day(t, "2024-07-08", "08:00", "16:00");
-        insert_for_day(t, "2024-07-09", "08:00", "15:00");
-        insert_for_day(t, "2024-07-10", "10:00", "16:30");
-        insert_for_day(t, "2024-07-11", "09:00", "10:20");
-        insert_for_day(t, "2024-07-11", "11:00", "13:00");
-        insert_for_day(t, "2024-07-11", "18:00", "19:30");
-        insert_for_day(t, "2024-07-12", "07:00", "13:00");
-        auto result = t.overviewAsPointers(
-            "user_id_123", 2024, 7, String::currentDate());
-        CHECK_EQ(result.size(), 7);
-        CHECK_EQ(result[0]->values()["date"], "8. Juli");
-        CHECK_EQ(result[0]->values()["start_time"], "08:00");
-        CHECK_EQ(result[0]->values()["end_time"], "16:00");
+        try {
+
+            TimeEntry t;
+            t.set("employee_id", "user_id_123");
+            insert_for_day(t, "2024-07-08", "08:00", "16:00");
+            insert_for_day(t, "2024-07-09", "08:00", "15:00");
+            insert_for_day(t, "2024-07-10", "10:00", "16:30");
+            insert_for_day(t, "2024-07-11", "09:00", "10:20");
+            insert_for_day(t, "2024-07-11", "11:00", "13:00");
+            insert_for_day(t, "2024-07-11", "18:00", "19:30");
+            insert_for_day(t, "2024-07-12", "07:00", "13:00");
+            auto result = t.overviewAsPointers(
+                "user_id_123", 2024, 7, String::currentDate());
+            CHECK_EQ(result.size(), 7);
+            CHECK_EQ(result[0]->values()["date"], "8. Juli");
+            CHECK_EQ(result[0]->values()["start_time"], "08:00");
+            CHECK_EQ(result[0]->values()["end_time"], "16:00");
+        } catch (...) {
+            std::ostringstream str;
+            Trace::backtrace(std::current_exception(), str);
+            spdlog::error("Exception: {}", str.str());
+            FAIL("Exception thrown");
+        }
     }
     SUBCASE("Bug with Day Matching")
     {
