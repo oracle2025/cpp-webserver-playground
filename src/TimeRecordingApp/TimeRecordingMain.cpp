@@ -12,6 +12,10 @@ extern Poco::Data::Session* g_session;
 using Poco::Data::Session;
 int main(int argc, char** argv)
 {
+    /*
+     * https://github.com/bakwc/JamSpell/issues/37
+     *  On MacOS: collate_byname failed to construct for en_US.utf-8 #37
+     */
     //std::locale::global(std::locale("de_DE.UTF-8"));
     try {
         Poco::Data::SQLite::Connector::registerConnector();

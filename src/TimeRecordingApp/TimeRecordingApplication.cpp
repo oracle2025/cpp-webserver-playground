@@ -6,13 +6,13 @@
 #include "Impl/PocoWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "Login/ProfileController.hpp"
+#include "Server/CrudController.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
 #include "String/capitalize.hpp"
 #include "TimeCorrectionController.hpp"
 #include "TimeEntryController.hpp"
 #include "User/PasswordChangeController.hpp"
-#include "Server/CrudController.hpp"
 
 int TimeRecordingApplication::main(const std::vector<std::string>& args)
 {
@@ -60,10 +60,11 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
     publicHandler->finish_init();
 #endif
 
-    auto controller = std::make_shared<LoginController>(
-                          privateHandler, adminHandler, publicHandler, presentation)
-                          ->initialize(httpServer.router())
-                          .shared_from_this();
+    auto controller
+        = std::make_shared<LoginController>(
+              privateHandler, adminHandler, publicHandler, presentation)
+              ->initialize(httpServer.router())
+              .shared_from_this();
 
     controller->setPostProcessingHook([](const Request& request,
                                          const shared_ptr<Response>& response) {
@@ -75,6 +76,11 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
             response->appendNavBarAction({"Users", "/user/", "right"});
 #endif
             response->appendNavBarAction({"Sessions", "/sessions", "right"});
+            response->appendNavBarAction(
+                {"Role",
+                 "/role",
+                 "right",
+                 {{"Admin","/role/?admin"}, {"Team Member","/role/?teammember"}, {"Book Keeper","/role/?bookkeeper"}}});
         }
         return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction(

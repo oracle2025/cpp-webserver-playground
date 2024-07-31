@@ -169,11 +169,15 @@ struct OverViewRow : public Record {
         const string& day,
         const string& date,
         const string& start_time,
-        const string& end_time)
+        const string& end_time,
+        const string& start_id = {},
+        const string& end_id = {})
         : m_day{day}
         , m_date{date}
         , m_start_time{start_time}
         , m_end_time{end_time}
+        , m_start_id{start_id}
+        , m_end_id{end_id}
     {
     }
     string presentableName() const override
@@ -186,7 +190,7 @@ struct OverViewRow : public Record {
     };
     std::vector<KeyStringType> fields() const override
     {
-        return {"day", "date", "start_time", "end_time"};
+        return {"day", "date", "start_time", "end_time", "start_id", "end_id"};
     };
     std::map<KeyStringType, string> values() const override
     {
@@ -194,13 +198,16 @@ struct OverViewRow : public Record {
             {"day", m_day},
             {"date", m_date},
             {"start_time", m_start_time},
-            {"end_time", m_end_time}};
+            {"end_time", m_end_time},
+            {"start_id", m_start_id},
+            {"end_id", m_end_id},
+        };
     };
     HtmlInputType inputType(const KeyStringType& field) const override
     {
         return HtmlInputType::TEXT;
     };
-    string m_day, m_date, m_start_time, m_end_time;
+    string m_day, m_date, m_start_time, m_end_time, m_start_id, m_end_id;
 };
 
 vector<shared_ptr<Record>> TimeEntryDefinition::overviewAsPointers(
@@ -317,8 +324,8 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                    on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);
 )";
     /**
-     * A Debug view, should have the results of the subqueries, the raw queries with expanded binds
-     * to copy into sql console!
+     * A Debug view, should have the results of the subqueries, the raw queries
+     * with expanded binds to copy into sql console!
      *
      * And maybe the working "old" query as comparison
      *
@@ -327,7 +334,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
      *
      */
     const auto sql_with_corrections_optimized = R"(
-SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime
+SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime, tOn.id StartId, tOff.id EndId
 FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                                c1.id,
                                c1.employee_id,
@@ -361,6 +368,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
              FinalTime      as event_time,
              FinalDate      as event_date,
              FinalEventType as event_type,
+             FinalID        as id,
              ROW_NUMBER()      Over (Partition by employee_id order by FinalDate, TIME(FinalTime)) EventID
       FROM cteNumbered
       WHERE nr = 1
@@ -398,6 +406,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                            FinalTime      as event_time,
                            FinalDate      as event_date,
                            FinalEventType as event_type,
+                           FinalID        as id,
                            ROW_NUMBER()      Over (Partition by employee_id order by FinalDate, TIME(FinalTime)) EventID
                     FROM cteNumbered
                     WHERE nr = 1
@@ -410,8 +419,8 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
         string, // start_time
         string, // event_date
         string, // end_time
-        string,
-        string,
+        string, // start_id
+        string, // end_id
         string,
         string>;
     std::vector<valueType> result;
@@ -429,11 +438,19 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
     std::vector<shared_ptr<Record>> records;
     records.reserve(result.size());
     for (const auto& row : result) {
+        const auto eventDate = row.get<1>();
+        const auto startTime = row.get<2>();
+        const auto endTime = row.get<4>();
+        const auto startId = row.get<5>();
+        const auto endId = row.get<6>();
+
         records.push_back(make_shared<OverViewRow>(
-            String::convertDateToWeekday(row.get<1>()),
-            String::convertDateToDayMonth(row.get<1>()),
-            row.get<2>(),
-            row.get<4>()));
+            String::convertDateToWeekday(eventDate),
+            String::convertDateToDayMonth(eventDate),
+            startTime,
+            endTime,
+            startId,
+            endId));
     }
     return records;
 } catch (...) {

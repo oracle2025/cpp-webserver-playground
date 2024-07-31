@@ -19,6 +19,14 @@ public:
     bool isAdmin() const;
     string userId() const;
     string userName() const;
+    /**
+     * * admin
+     * * teammember
+     * * bookkeeper
+     *
+     * @return
+     */
+    string role() const;
     void clearSession();
     SessionData createSession(Response& response);
     SessionData current(Response& response);

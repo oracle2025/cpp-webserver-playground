@@ -68,17 +68,51 @@ string Presentation::renderNavBarActions(const vector<ActionLink>& actions)
     ostringstream result;
     result << R"(<ul class="nav navbar-nav">)" << "\n";
     for (const auto& action : actions) {
-        if (action.liClass != "right") {
+        if (action.liClass == "right") {
+            continue;
+        }
+        if (action.dropDowns.empty()) {
             result << R"(<li class=")" << action.liClass << R"("><a href=")"
                    << action.url << R"(">)" << action.title << R"(</a></li>)";
+        } else {
+            result << R"(
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Role <span class="caret"></span></a>
+    <ul class="dropdown-menu">
+)";
+            for (const auto& dropDown : action.dropDowns) {
+                result << R"(<li><a href=")" << dropDown.url << R"(">)"
+                       << dropDown.title << R"(</a></li>)";
+            }
+            result << R"(
+    </ul>
+</li>
+)";
         }
     }
     result << R"(</ul>)" << "\n";
     result << R"(<ul class="nav navbar-nav navbar-right">)" << "\n";
     for (const auto& action : actions) {
-        if (action.liClass == "right") {
+        if (action.liClass != "right") {
+            continue;
+        }
+        if (action.dropDowns.empty()) {
             result << R"(<li class=")" << action.liClass << R"("><a href=")"
                    << action.url << R"(">)" << action.title << R"(</a></li>)";
+        } else {
+            result << R"(
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Role <span class="caret"></span></a>
+    <ul class="dropdown-menu">
+)";
+            for (const auto& dropDown : action.dropDowns) {
+                result << R"(<li><a href=")" << dropDown.url << R"(">)"
+                       << dropDown.title << R"(</a></li>)";
+            }
+            result << R"(
+    </ul>
+</li>
+)";
         }
     }
     result << R"(</ul>)" << "\n";

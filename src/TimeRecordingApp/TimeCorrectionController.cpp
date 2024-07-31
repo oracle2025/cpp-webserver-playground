@@ -11,6 +11,7 @@
 #include "Template/BaseTemplate.hpp"
 #include "Time/Time.hpp"
 #include "TimeEntry.hpp"
+#include "String/escape.hpp"
 
 using Http::content;
 using Http::Request;
@@ -38,6 +39,9 @@ TimeCorrectionController& TimeCorrectionController::initialize(
 
     router.get(prefix + "/", [ptr](const Request& request) {
         return ptr->listEntries(request);
+    });
+    router.get(prefix + "/edit", [ptr](const Request& request) {
+        return ptr->editEntry(request);
     });
     router.get(prefix + "/enable_debug", [prefix](const Request& request) {
         spdlog::set_level(spdlog::level::debug);
@@ -181,13 +185,28 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
                 Time::parseTime(start_time));
             total_hours.add(difference);
         }
+        row["start_id"] = values.at("start_id");
+        row["end_id"] = values.at("end_id");
         rows.push_back(row);
     }
 
     data["rows"] = rows;
     data["total_hours"] = total_hours.toString();
+    data["enable_edit"] = Session(request).userName() == "richard";
     return content(
                BaseTemplate(TEMPLATE_DIR "/timeentry/list.html").render(data))
         ->title("Übersicht")
+        .shared_from_this();
+}
+std::shared_ptr<Response> TimeCorrectionController::editEntry(
+    const Request& request)
+{
+    auto data = nlohmann::json::object();
+    const auto query = request.query();
+    data["id"] = "";
+    data["query"] = String::escape(query);
+    return content(
+        BaseTemplate(TEMPLATE_DIR "/timeentry/edit.html").render(data))
+        ->title("Eintrag bearbeiten")
         .shared_from_this();
 }

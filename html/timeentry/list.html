@@ -27,6 +27,7 @@
                 <th>Datum</th>
                 <th>Zeiten</th>
                 <th>Stunden</th>
+                {% if enable_edit %}<th></th>{% endif %}
             </tr>
         </thead>
         <tbody>
@@ -36,11 +37,13 @@
                 <td>{{row.date}}</td>
                 <td>{{row.start_time}} - {{row.end_time}}</td>
                 <td>{{row.hours}}</td>
+                {% if enable_edit %}<td><a href="/list/edit?{{row.start_id}}-{{row.end_id}}" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Bearbeiten</span></a></td>{% endif %}
             </tr>
 ## endfor
             <tr>
                 <th colspan="3">Summe</th>
                 <th>{{total_hours}}</th>
+                {% if enable_edit %}<th></th>{% endif %}
             </tr>
         </tbody>
     </table>
