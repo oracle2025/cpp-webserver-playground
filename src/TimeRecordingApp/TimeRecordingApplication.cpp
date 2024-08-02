@@ -14,12 +14,9 @@
 #include "TimeEntryController.hpp"
 #include "User/PasswordChangeController.hpp"
 
-int TimeRecordingApplication::main(const std::vector<std::string>& args)
+std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
+    Router& router, std::shared_ptr<Html::Presentation> presentation)
 {
-    PocoWebServer httpServer;
-    httpServer.setServerPort(SERVER_PORT_TIME_RECORDING);
-    auto presentation = std::make_shared<Presentation>("Time Tracking");
-
     auto privateHandler = std::make_shared<SimpleWebServer>();
     auto& privateRouter = privateHandler->router();
     auto timeEntryController
@@ -63,7 +60,7 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
     auto controller
         = std::make_shared<LoginController>(
               privateHandler, adminHandler, publicHandler, presentation)
-              ->initialize(httpServer.router())
+              ->initialize(router)
               .shared_from_this();
 
     controller->setPostProcessingHook([](const Request& request,
@@ -80,7 +77,9 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
                 {"Role",
                  "/role",
                  "right",
-                 {{"Admin","/role/?admin"}, {"Team Member","/role/?teammember"}, {"Book Keeper","/role/?bookkeeper"}}});
+                 {{"Admin", "/role/?admin"},
+                  {"Team Member", "/role/?teammember"},
+                  {"Book Keeper", "/role/?bookkeeper"}}});
         }
         return response->appendNavBarAction({"🚪 Logout", "/logout", "right"})
             .appendNavBarAction(
@@ -89,6 +88,16 @@ int TimeRecordingApplication::main(const std::vector<std::string>& args)
                  "right"})
             .shared_from_this();
     });
+
+    return controller;
+}
+
+int TimeRecordingApplication::main(const std::vector<std::string>& args)
+{
+    PocoWebServer httpServer;
+    httpServer.setServerPort(SERVER_PORT_TIME_RECORDING);
+    auto presentation = std::make_shared<Presentation>("Time Tracking");
+    auto controller = makeLoginController(httpServer.router(), presentation);
 
     httpServer.defaultHandler(controller->getDefaultHandler());
     httpServer.setPresentation(presentation);
