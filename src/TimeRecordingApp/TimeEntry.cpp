@@ -1,8 +1,9 @@
 
 #include "TimeEntry.hpp"
 
-#include "Data/Date.hpp"
 #include "Data/ValidationError.hpp"
+#include "DateTime/Date.hpp"
+#include "DateTime/Time.hpp"
 #include "String/currentDateTime.hpp"
 
 #include <Poco/DateTime.h>
@@ -21,6 +22,8 @@
  *
  * This way the link becomes explicit rather then implicit
  */
+
+const auto regex_valid_time_str = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$";
 
 string TimeEntryDefinition::table_name() const
 {
@@ -49,7 +52,14 @@ void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
             "%Y-%m-%d", value, timeZoneDifferential);
         event_date = dt;
     } else if (key == "event_time") {
-        event_time = value;
+        std::regex r(regex_valid_time_str);
+        if (!std::regex_match(value, r)) {
+            throw Data::ValidationError("Keine gültige Zeit: " + string(value));
+        }
+        int timeZoneDifferential;
+        auto dt
+            = Poco::DateTimeParser::parse("%H:%M", value, timeZoneDifferential);
+        event_time = Poco::Data::Time{dt.hour(), dt.minute(), 0};
     } else if (key == "event_type") {
         event_type = value;
     } else if (key == "corrected_event_id") {
@@ -67,14 +77,9 @@ string TimeEntryDefinition::get(const KeyStringType& key) const
     if (key == "employee_id") {
         return employee_id;
     } else if (key == "event_date") {
-        string result;
-        result = Poco::DateTimeFormatter::format(
-            Poco::DateTime(
-                event_date.year(), event_date.month(), event_date.day()),
-            "%Y-%m-%d");
-        return result;
+        return DateTime::Date(event_date).formatAsDate();
     } else if (key == "event_time") {
-        return event_time;
+        return DateTime::Time(event_time).formatAsTime();
     } else if (key == "event_type") {
         return event_type;
     } else if (key == "corrected_event_id") {
@@ -90,11 +95,8 @@ string TimeEntryDefinition::get(const KeyStringType& key) const
 }
 string TimeEntryDefinition::description() const
 {
-    return Poco::DateTimeFormatter::format(
-               Poco::DateTime(
-                   event_date.year(), event_date.month(), event_date.day()),
-               "%Y-%m-%d")
-        + " " + event_time + " " + event_type + " " + employee_id;
+    return get("event_date") + " " + get("event_time") + " " + event_type + " "
+        + employee_id;
 }
 vector<KeyStringType> TimeEntryDefinition::presentableFields()
 {
@@ -168,8 +170,9 @@ struct OverViewRow : public Record {
     OverViewRow(
         const string& day,
         const string& date,
-        const string& start_time,
-        const string& end_time,
+        const Poco::Data::Time& start_time,
+        const std::optional<Poco::Data::Time>& end_time,
+        const Poco::Data::Date& full_date,
         const string& start_id = {},
         const string& end_id = {})
         : m_day{day}
@@ -178,6 +181,7 @@ struct OverViewRow : public Record {
         , m_end_time{end_time}
         , m_start_id{start_id}
         , m_end_id{end_id}
+        , m_full_date{full_date}
     {
     }
     string presentableName() const override
@@ -194,11 +198,14 @@ struct OverViewRow : public Record {
     };
     std::map<KeyStringType, string> values() const override
     {
+        using DateTime::Time;
         return {
             {"day", m_day},
             {"date", m_date},
-            {"start_time", m_start_time},
-            {"end_time", m_end_time},
+            {"start_time", Time(m_start_time).formatAsTime()},
+            {"end_time",
+             m_end_time.has_value() ? Time(m_end_time.value()).formatAsTime()
+                                    : ""},
             {"start_id", m_start_id},
             {"end_id", m_end_id},
         };
@@ -207,7 +214,11 @@ struct OverViewRow : public Record {
     {
         return HtmlInputType::TEXT;
     };
-    string m_day, m_date, m_start_time, m_end_time, m_start_id, m_end_id;
+    string m_day, m_date;
+    Poco::Data::Time m_start_time;
+    std::optional<Poco::Data::Time> m_end_time;
+    string m_start_id, m_end_id;
+    Poco::Data::Date m_full_date;
 };
 
 vector<shared_ptr<Record>> TimeEntryDefinition::overviewAsPointers(
@@ -415,9 +426,9 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
 )";
     using valueType = Poco::Tuple<
         string, // employee_id
-        string, // event_date
-        string, // start_time
-        string, // event_date
+        Poco::Data::Date, // event_date
+        Poco::Data::Time, // start_time
+        Poco::Data::Date, // event_date
         string, // end_time
         string, // start_id
         string, // end_id
@@ -444,11 +455,20 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
         const auto startId = row.get<5>();
         const auto endId = row.get<6>();
 
+        Poco::Data::Time endTimeData;
+        if (!endTime.empty()) {
+            int timeZoneDifferential;
+            auto dt = Poco::DateTimeParser::parse(
+                "%H:%M:%S", endTime, timeZoneDifferential);
+            endTimeData = Poco::Data::Time{dt.hour(), dt.minute(), 0};
+        }
+
         records.push_back(make_shared<OverViewRow>(
             String::convertDateToWeekday(eventDate),
             String::convertDateToDayMonth(eventDate),
             startTime,
-            endTime,
+            endTime.empty() ? std::nullopt : std::make_optional(endTimeData),
+            eventDate,
             startId,
             endId));
     }
@@ -462,20 +482,33 @@ TimeEntryDefinition::IsOpenResult TimeEntryDefinition::isOpen(
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
     const auto sql = R"(SELECT
-MAX(event_time) AS max_time, event_type
+MAX(time(event_time)) AS max_time, event_type, event_date
 FROM
 time_events WHERE employee_id = ? AND event_date = ?
 GROUP BY
 event_date;)";
-    string max_time;
+    Poco::Data::Time max_time;
+    Poco::Data::Date event_date;
     string event_type_;
     Statement select(*g_session);
-    select << sql, into(max_time), into(event_type_), bind(user_id), bind(date);
+    select << sql, into(max_time), into(event_type_), into(event_date),
+        bind(user_id), bind(date);
     spdlog::debug("SQL EXEC: {}", select.execute());
+
+    const std::string event_time = DateTime::Time(max_time).formatAsTime();
+    /*Poco::DateTimeFormatter::format(
+    Poco::DateTime(
+        event_date.year(),
+        event_date.month(),
+        event_date.day(),
+        max_time.hour(),
+        max_time.minute()),
+    "%H:%M");*/
+
     spdlog::debug("SQL: {}", select.toString());
-    spdlog::debug("MAX_TIME: {}", max_time);
+    spdlog::debug("MAX_TIME: {}", event_time);
     spdlog::debug("event_type: {}", event_type_);
-    return {event_type_ == "start", max_time};
+    return {event_type_ == "start", event_time};
 }
 void TimeEntryDefinition::closeOpenDays(
     const string& user_id, const string& current_date)
@@ -557,15 +590,8 @@ bool TimeEntryDefinition::checkTimestampExists(
     return false;
 }
 
-const auto regex_valid_time_str = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$";
-
 void TimeEntryDefinition::validate()
 {
-    std::regex r(regex_valid_time_str);
-    if (!std::regex_match(event_time, r)) {
-        throw Data::ValidationError(
-            "Keine gültige Zeit: " + string(event_time));
-    }
 }
 
 TEST_CASE("Valid Time Regex")

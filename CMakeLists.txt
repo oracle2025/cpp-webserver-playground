@@ -207,8 +207,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Input/TimeElement.cpp
             src/Proto/ScaffoldRecord.cpp
             src/Proto/ScaffoldRecord.hpp
-            src/Data/Date.cpp
-            src/Data/Date.hpp
+            src/DateTime/Date.cpp
+            src/DateTime/Date.hpp
             src/String/split.hpp
             src/String/split.cpp
             src/String/capitalize.hpp
@@ -264,10 +264,11 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/String/currentDateTime.hpp
             src/String/timeDifference.cpp
             src/String/timeDifference.hpp
-            src/Time/Time.cpp
-            src/Time/Time.hpp
+            src/DateTime/Time.cpp
+            src/DateTime/Time.hpp
             src/Data/ValidationError.cpp
-            src/Data/ValidationError.hpp)
+            src/Data/ValidationError.hpp
+            src/Impl/check_memory_usage.cpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic
@@ -345,6 +346,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/TimeCorrectionControllerTest.cpp
             tests/PocoDateTimeTest.cpp
             tests/TimeEntryControllerTest.cpp
+            tests/TimeRecordingApplicationTest.cpp
     )
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)

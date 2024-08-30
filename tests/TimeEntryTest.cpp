@@ -1,6 +1,6 @@
 #include "Data/Migrations.hpp"
 #include "String/currentDateTime.hpp"
-#include "Time/Time.hpp"
+#include "DateTime/Time.hpp"
 #include "TimeRecordingApp/TimeEntry.hpp"
 #include "doctest.h"
 
@@ -192,8 +192,9 @@ TEST_CASE("TimeEntry")
     SUBCASE("Check negative difference between timestamps")
     {
         using std::tuple;
-        using Time::Time;
+        using std::tuple;
         using t = tuple<string, string, long>;
+        using DateTime::Time;
         const auto test_data = {
             t{"9:00", "10:00", 60},
             t{"10:00", "9:00", -60},

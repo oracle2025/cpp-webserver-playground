@@ -137,4 +137,19 @@ std::string convertDateToWeekday(const std::string& date)
     return str.str();
 }
 
+std::string convertDateToDayMonth(const Poco::Data::Date& date)
+{
+    return convertDateToDayMonth(Poco::DateTimeFormatter::format(
+            Poco::DateTime(
+                date.year(), date.month(), date.day()),
+            "%Y-%m-%d"));
+}
+std::string convertDateToWeekday(const Poco::Data::Date& date)
+{
+    return convertDateToWeekday(Poco::DateTimeFormatter::format(
+        Poco::DateTime(
+            date.year(), date.month(), date.day()),
+        "%Y-%m-%d"));
+}
+
 } // namespace String

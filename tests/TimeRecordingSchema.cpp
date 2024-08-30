@@ -198,15 +198,15 @@ on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);)";
         CHECK(values.size() == 2);
         CHECK(values[0].get<0>() == "1");
         CHECK(values[0].get<1>() == "2024-06-13");
-        CHECK(values[0].get<2>() == "08:15");
+        CHECK(values[0].get<2>() == "08:15:00");
         CHECK(values[0].get<3>() == "2024-06-13");
-        CHECK(values[0].get<4>() == "12:10");
+        CHECK(values[0].get<4>() == "12:10:00");
 
         CHECK(values[1].get<0>() == "1");
         CHECK(values[1].get<1>() == "2024-06-13");
-        CHECK(values[1].get<2>() == "14:15");
+        CHECK(values[1].get<2>() == "14:15:00");
         CHECK(values[1].get<3>() == "2024-06-13");
-        CHECK(values[1].get<4>() == "18:15");
+        CHECK(values[1].get<4>() == "18:15:00");
     }
     SUBCASE("Select Time Events into Start Stop Pairs")
     {

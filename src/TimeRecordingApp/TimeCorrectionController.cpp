@@ -7,13 +7,14 @@
 #include "Http/Router.hpp"
 #include "Http/Session.hpp"
 #include "String/currentDateTime.hpp"
+#include "String/escape.hpp"
 #include "String/timeDifference.hpp"
 #include "Template/BaseTemplate.hpp"
-#include "Time/Time.hpp"
+#include "DateTime/Time.hpp"
 #include "TimeEntry.hpp"
-#include "String/escape.hpp"
 
 using Http::content;
+using Http::redirect;
 using Http::Request;
 using Http::Response;
 using Http::Router;
@@ -42,6 +43,9 @@ TimeCorrectionController& TimeCorrectionController::initialize(
     });
     router.get(prefix + "/edit", [ptr](const Request& request) {
         return ptr->editEntry(request);
+    });
+    router.post(prefix + "/update", [ptr](const Request& request) {
+        return ptr->updateEntry(request);
     });
     router.get(prefix + "/enable_debug", [prefix](const Request& request) {
         spdlog::set_level(spdlog::level::debug);
@@ -138,8 +142,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         months_with_selection.push_back(month_with_selection);
     }
 
-    auto result
-        = record->overviewAsPointers(
+    auto result = record->overviewAsPointers(
         user_id, selected_year, selected_month, String::currentDate());
     // result should also provide
     // getHours
@@ -165,7 +168,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     }
     auto columns = result[0]->fields();
     auto rows = nlohmann::json::array();
-    using Time::Time;
+    using DateTime::Time;
     auto total_hours = Time(0, 0);
     for (const auto& entry : result) {
         auto row = nlohmann::json::object();
@@ -191,8 +194,9 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
     }
 
     data["rows"] = rows;
-    data["total_hours"] = total_hours.toString();
-    data["enable_edit"] = Session(request).userName() == "richard";
+    data["total_hours"] = total_hours.formatAsTotalHours();
+    data["enable_edit"] = Session(request).userName() == "richard"
+        || Session(request).userName() == "admin";
     return content(
                BaseTemplate(TEMPLATE_DIR "/timeentry/list.html").render(data))
         ->title("Übersicht")
@@ -201,12 +205,133 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
 std::shared_ptr<Response> TimeCorrectionController::editEntry(
     const Request& request)
 {
+    /*
+     * TODO: Testcases
+     *
+     * Need to provide time with leading zero! otherwise will not show
+     */
+    const auto prefix = impl_->prefix;
     auto data = nlohmann::json::object();
     const auto query = request.query();
+    auto id_start = query.substr(0, 36);
+    auto id_end = query.substr(37, 72);
+
+    auto entry_start = make_shared<TimeEntry>(request);
+    auto entry_end = make_shared<TimeEntry>(request);
+    if (!entry_start->pop(id_start)) {
+        return redirect(prefix + "/")
+            ->alert("Invalid Start ID", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (!entry_end->pop(id_end)) {
+        return redirect(prefix + "/")
+            ->alert("Invalid End ID", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (entry_start->get("employee_id") != entry_end->get("employee_id")) {
+        return redirect(prefix + "/")
+            ->alert("Different User IDs", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (entry_start->get("event_date") != entry_end->get("event_date")) {
+        return redirect(prefix + "/")
+            ->alert("Different Dates", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+
+    // If entry_start->date() != entry_end->date() -> error
+
     data["id"] = "";
     data["query"] = String::escape(query);
+    data["id_start"] = String::escape(id_start);
+    data["id_end"] = String::escape(id_end);
+    data["day"] = String::convertDateToWeekday(
+        entry_start->get("event_date")); // entry_start->Weekday()
+    data["date"] = String::convertDateToDayMonth(
+        entry_start->get("event_date")); // entry_start->DayAndMonth()
+    data["start_time"] = entry_start->get("event_time");
+    data["end_time"] = entry_end->get("event_time");
     return content(
-        BaseTemplate(TEMPLATE_DIR "/timeentry/edit.html").render(data))
+               BaseTemplate(TEMPLATE_DIR "/timeentry/edit.html").render(data))
         ->title("Eintrag bearbeiten")
+        .shared_from_this();
+}
+std::shared_ptr<Response> TimeCorrectionController::updateEntry(
+    const Request& request)
+{
+    /*
+     * Form parameters:
+     * id_start
+     * id_end
+     * start_time
+     * end_time
+     */
+    const auto expected_parameters
+        = {"id_start", "id_end", "start_time", "end_time"};
+    const auto prefix = impl_->prefix;
+    for (const auto& parameter : expected_parameters) {
+        if (!request.hasParameter(parameter)) {
+            return redirect(prefix + "/")
+                ->alert(
+                    string{"Missing parameter: "} + parameter,
+                    Html::AlertType::DANGER)
+                .shared_from_this();
+        }
+    }
+    const auto id_start = request.parameter("id_start");
+    const auto id_end = request.parameter("id_end");
+    auto entry_start = make_shared<TimeEntry>(request);
+    auto entry_end = make_shared<TimeEntry>(request);
+    if (!entry_start->pop(id_start)) {
+        return redirect(prefix + "/")
+            ->alert("Invalid Start ID", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (!entry_end->pop(id_end)) {
+        return redirect(prefix + "/")
+            ->alert("Invalid End ID", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (entry_start->get("employee_id") != entry_end->get("employee_id")) {
+        return redirect(prefix + "/")
+            ->alert("Different User IDs", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (entry_start->get("event_date") != entry_end->get("event_date")) {
+        return redirect(prefix + "/")
+            ->alert("Different Dates", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    /*
+     * Where is the start_time parameter parsed and verified?
+     */
+    auto start_time = request.parameter("start_time");
+    auto end_time = request.parameter("end_time");
+    // Parse Times and check if end_time > start_time
+    using DateTime::Time;
+    auto difference
+        = Time::parseTime(end_time).difference(Time::parseTime(start_time));
+    if (difference.toMinutes() < 0) {
+        return redirect(prefix + "/")
+            ->alert(
+                "Fehler: Stop kann nicht vor Start sein",
+                Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    // Also check for Overlaps with existing entries from the same day
+    entry_start->set("event_time", start_time);
+    entry_end->set("event_time", end_time);
+    entry_start->update();
+    entry_end->update();
+    // Apply month and year to list
+    // get month as int from event_date
+    const auto month
+        = String::convertDateToTm(entry_start->get("event_date")).tm_mon + 1;
+    const auto year
+        = String::convertDateToTm(entry_start->get("event_date")).tm_year;
+    return redirect(
+               prefix + "/?year=" + std::to_string(year)
+               + "&month=" + std::to_string(month))
+        ->alert("Updated", Html::AlertType::SUCCESS)
         .shared_from_this();
 }

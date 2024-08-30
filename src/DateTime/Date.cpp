@@ -1,7 +1,10 @@
 #include "Date.hpp"
 
-#include "doctest.h"
 #include "Trace/trace.hpp"
+#include "doctest.h"
+#include "String/currentDateTime.hpp"
+
+#include <Poco/Data/Date.h>
 
 #include <chrono>
 #include <iomanip>
@@ -33,33 +36,27 @@ TEST_CASE("Parsing Dates")
     CHECK_THROWS(to_date_and_back_again("09.13.2014"));
 }
 
-namespace Data {
-Date::Date(const std::string& initializer)
+namespace DateTime {
+Date::Date(const Poco::Data::Date& data)
+    : m_year(data.year())
+    , m_month(data.month())
+    , m_day(data.day())
 {
-    using namespace date;
-    using namespace std::chrono;
-    std::istringstream in(initializer);
-    sys_days tm;
-    in >> parse("%d.%m.%Y", tm);
-
-    if (in.fail() || in.bad() || in.eof()) {
-        TRACE_THROW("Invalid date");
-    }
-
-    m_date = tm;
 }
-std::string Date::render() const
+
+std::string Date::formatAsDate() const
 {
     std::ostringstream str;
-    str << date::format("%d.%m.%Y", m_date);
+    str << std::setfill('0') << std::setw(2) << m_year << "-"
+        << std::setfill('0') << std::setw(2) << m_month << "-" << m_day;
     return str.str();
 }
-date::sys_days Date::get() const
+std::string Date::formatAsDayMonth() const
 {
-    return m_date;
+    return String::convertDateToDayMonth(formatAsDate());
 }
-bool Date::operator<(const Date& rhs) const
+std::string Date::formatAsWeekday() const
 {
-    return m_date < rhs.m_date;
+    return {};
 }
-} // namespace Data
+} // namespace DateTime

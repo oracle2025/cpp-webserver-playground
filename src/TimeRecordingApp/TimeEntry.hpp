@@ -10,7 +10,7 @@ struct TimeEntryDefinition {
         string,
         string,
         Poco::Data::Date,
-        string,
+        Poco::Data::Time,
         string,
         string,
         string,
@@ -20,7 +20,7 @@ struct TimeEntryDefinition {
     string& id;
     string& employee_id;
     Poco::Data::Date& event_date;
-    string& event_time;
+    Poco::Data::Time& event_time;
     string& event_type;
     string& corrected_event_id;
     string& deleted_event_id;
@@ -40,7 +40,7 @@ struct TimeEntryDefinition {
     {
     }
     TimeEntryDefinition()
-        : data{"", "", {}, "", "", "", "", "", ""}
+        : data{"", "", {}, {}, "", "", "", "", ""}
         , id(data.get<0>())
         , employee_id(data.get<1>())
         , event_date(data.get<2>())

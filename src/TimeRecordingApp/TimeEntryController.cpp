@@ -5,13 +5,13 @@
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
 #include "Http/Session.hpp"
+#include "Input/Submit.hpp"
 #include "String/capitalize.hpp"
 #include "String/currentDateTime.hpp"
 #include "Template/BaseTemplate.hpp"
 #include "Text.hpp"
-#include "Time/Time.hpp"
+#include "DateTime/Time.hpp"
 #include "TimeEntry.hpp"
-#include "Input/Submit.hpp"
 
 using Http::content;
 using Http::redirect;
@@ -66,64 +66,64 @@ std::shared_ptr<Http::Response> TimeEntryController::createEntry(
     using Http::Session;
     const auto prefix = impl_->prefix;
     auto entry = std::make_shared<TimeEntry>(request);
-    const auto user_id = Session(request).userId();
-    if (!request.hasParameter("event_time")) {
-        return redirect(prefix + "/")
-            ->alert("Please enter a time", Html::AlertType::DANGER)
-            .shared_from_this();
-    }
-    if (!request.hasParameter("event_type")) {
-        return redirect(prefix + "/")
-            ->alert("Please enter an event type", Html::AlertType::DANGER)
-            .shared_from_this();
-    }
-    entry->set("employee_id", user_id);
-    const auto event_date
-        = String::currentDate(); // TODO: provide as hidden parameter
-    entry->set("event_date", event_date);
-    auto event_time = request.parameter("event_time");
-    entry->set("event_time", event_time);
-    entry->set("event_type", request.parameter("event_type"));
-    entry->set("corrected_event_id", "");
-    entry->set("deleted_event_id", "");
-    entry->set("creation_date", String::localDateTime());
-    entry->set("creator_user_id", user_id);
-    /* Check:
-     * Can't have an event that has exactly the same date and time:
-     * UNIQUE(employee_id, event_date, event_time)
-     */
-    if (entry->checkTimestampExists(user_id, event_date, event_time)) {
-        return redirect(prefix + "/")
-            ->alert(
-                "Fehler: Zeitpunkt wurde bereits erfasst",
-                Html::AlertType::DANGER)
-            .shared_from_this();
-    }
-    /*
-     * Check:
-     * That the stop event cannot be before the last start event!
-     * SELECT MAX(event_time) AS max_time FROM time_entry WHERE employee_id = ?
-     * AND event_date = ? AND event_type = 'start';
-     *
-     */
-    {
-        using Time::Time;
-        auto result = entry->isOpen(user_id, event_date);
-        if (result.isOpen) {
-            auto difference
-                = Time::parseTime(event_time)
-                      .difference(Time::parseTime(result.start_time));
+    try {
+        const auto user_id = Session(request).userId();
+        if (!request.hasParameter("event_time")) {
+            return redirect(prefix + "/")
+                ->alert("Please enter a time", Html::AlertType::DANGER)
+                .shared_from_this();
+        }
+        if (!request.hasParameter("event_type")) {
+            return redirect(prefix + "/")
+                ->alert("Please enter an event type", Html::AlertType::DANGER)
+                .shared_from_this();
+        }
+        entry->set("employee_id", user_id);
+        const auto event_date
+            = String::currentDate(); // TODO: provide as hidden parameter
+        entry->set("event_date", event_date);
+        auto event_time = request.parameter("event_time");
+        entry->set("event_time", event_time);
+        entry->set("event_type", request.parameter("event_type"));
+        entry->set("corrected_event_id", "");
+        entry->set("deleted_event_id", "");
+        entry->set("creation_date", String::localDateTime());
+        entry->set("creator_user_id", user_id);
+        /* Check:
+         * Can't have an event that has exactly the same date and time:
+         * UNIQUE(employee_id, event_date, event_time)
+         */
+        if (entry->checkTimestampExists(user_id, event_date, event_time)) {
+            return redirect(prefix + "/")
+                ->alert(
+                    "Fehler: Zeitpunkt wurde bereits erfasst",
+                    Html::AlertType::DANGER)
+                .shared_from_this();
+        }
+        /*
+         * Check:
+         * That the stop event cannot be before the last start event!
+         * SELECT MAX(event_time) AS max_time FROM time_entry WHERE employee_id
+         * = ? AND event_date = ? AND event_type = 'start';
+         *
+         */
+        {
+            using DateTime::Time;
+            auto result = entry->isOpen(user_id, event_date);
+            if (result.isOpen) {
+                auto difference
+                    = Time::parseTime(event_time)
+                          .difference(Time::parseTime(result.start_time));
 
-            if (difference.toMinutes() < 0) {
-                return redirect(prefix + "/")
-                    ->alert(
-                        "Fehler: Stop kann nicht vor Start sein",
-                        Html::AlertType::DANGER)
-                    .shared_from_this();
+                if (difference.toMinutes() < 0) {
+                    return redirect(prefix + "/")
+                        ->alert(
+                            "Fehler: Stop kann nicht vor Start sein",
+                            Html::AlertType::DANGER)
+                        .shared_from_this();
+                }
             }
         }
-    }
-    try {
         entry->insert();
     } catch (const Data::ValidationError& ex) {
         return redirect(prefix + "/")

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "PocoPageHandler.hpp"
+
 #include <string>
+#include <regex>
 
 struct FakeHTTPServerParams : public Poco::Net::HTTPServerParams {
     ~FakeHTTPServerParams() override = default;
@@ -141,6 +143,40 @@ struct FakeBrowser {
     string location() const
     {
         return m_location;
+    }
+    static std::vector<std::tuple<std::string, std::string>> extractLinks(
+        const std::string& html)
+    {
+        std::vector<std::tuple<std::string, std::string>> links;
+
+        const std::regex linkRegex(
+            "<a\\s+(?:[^>]*?\\s+)?href=\"([^\"]*)\".*?>(.*?)<\\/a>",
+            std::regex::icase);
+        std::smatch match;
+
+        std::string::const_iterator searchStart(html.cbegin());
+        while (std::regex_search(searchStart, html.cend(), match, linkRegex)) {
+            std::string url = match[1].str();
+            std::string linkText = match[2].str();
+
+            links.emplace_back(linkText, url);
+
+            searchStart = match.suffix().first;
+        }
+
+        return links;
+    }
+    bool follow_link(const string& link_text)
+    {
+        auto links = extractLinks(m_pageContents);
+        for (auto& link : links) {
+            if (std::get<0>(link) == link_text) {
+                Poco::URI uri(std::get<1>(link));
+                location(std::get<1>(link));
+                return true;
+            }
+        }
+        return false;
     }
     Input::FormPtr form()
     {
