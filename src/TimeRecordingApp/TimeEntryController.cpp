@@ -11,6 +11,7 @@
 #include "Template/BaseTemplate.hpp"
 #include "Text.hpp"
 #include "DateTime/Time.hpp"
+#include "DateTime/Date.hpp"
 #include "TimeEntry.hpp"
 
 using Http::content;
@@ -37,11 +38,12 @@ shared_ptr<Http::Response> TimeEntryController::entryForm(
     if (!enable_start_button) {
         data["start_time"] = start_time;
     }
+    using DateTime::Date;
 
-    const auto current = String::currentDate();
-    data["current_date"] = current;
-    data["current_date_pretty"] = String::convertDateToWeekday(current) + ", "
-        + String::convertDateToDayMonth(current);
+    const auto current = Date::currentDate();
+    data["current_date"] = current.formatAsDate();
+    data["current_date_pretty"] = current.formatAsWeekday() + ", "
+        + current.formatAsDayMonth();
     data["currentLocalTime"] = String::localTime();
 
     auto form = std::make_shared<Input::Form>(

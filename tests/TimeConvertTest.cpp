@@ -1,6 +1,6 @@
 #include "DateTime/Date.hpp"
+#include "DateTime/Time.hpp"
 #include "String/currentDateTime.hpp"
-#include "String/timeDifference.hpp"
 #include "doctest.h"
 
 TEST_CASE("Calculate time difference")
@@ -11,17 +11,16 @@ TEST_CASE("Calculate time difference")
     time1 = "11:00";
     time2 = "12:30";
 
-
+    using DateTime::Time;
     // Print the difference
-    auto result = String::timeDifference(time1, time2);
-
+    auto result = Time::parseTime(time2)
+                      .difference(Time::parseTime(time1))
+                      .formatAsTotalHours();
     CHECK_EQ(result, "1 h 30 min");
 }
 
 TEST_CASE("Calculate Hours Minutes")
 {
-
-
 }
 static std::tm convertDateToTm(const std::string& date)
 {

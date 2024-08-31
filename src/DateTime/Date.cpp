@@ -1,8 +1,8 @@
 #include "Date.hpp"
 
+#include "String/currentDateTime.hpp"
 #include "Trace/trace.hpp"
 #include "doctest.h"
-#include "String/currentDateTime.hpp"
 
 #include <Poco/Data/Date.h>
 
@@ -43,12 +43,40 @@ Date::Date(const Poco::Data::Date& data)
     , m_day(data.day())
 {
 }
+Date::Date(long year, long month, long day)
+    : m_year(year)
+    , m_month(month)
+    , m_day(day)
+{
+}
+Date Date::currentDate()
+{
+    using namespace date;
+    using namespace std::chrono;
+    auto now = floor<seconds>(system_clock::now());
+    std::ostringstream str;
+    str << format("%F", now);
+    std::istringstream in(str.str());
+    sys_days tm;
+    in >> parse("%Y-%m-%d", tm);
+
+    if (in.fail() || in.bad() || in.eof()) {
+        TRACE_THROW("Invalid date");
+    }
+
+    // convert sys_days to tm
+    time_t time = system_clock::to_time_t(tm);
+    std::tm t = *std::localtime(&time);
+
+    return Date{t.tm_year + 1900, t.tm_mon + 1, t.tm_mday};
+}
 
 std::string Date::formatAsDate() const
 {
     std::ostringstream str;
     str << std::setfill('0') << std::setw(2) << m_year << "-"
-        << std::setfill('0') << std::setw(2) << m_month << "-" << m_day;
+        << std::setfill('0') << std::setw(2) << m_month << "-"
+        << std::setfill('0') << std::setw(2) << m_day;
     return str.str();
 }
 std::string Date::formatAsDayMonth() const
@@ -57,6 +85,18 @@ std::string Date::formatAsDayMonth() const
 }
 std::string Date::formatAsWeekday() const
 {
-    return {};
+    return String::convertDateToWeekday(formatAsDate());
+}
+long Date::year() const
+{
+    return m_year;
+}
+long Date::month() const
+{
+    return m_month;
+}
+long Date::day() const
+{
+    return m_day;
 }
 } // namespace DateTime

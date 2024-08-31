@@ -262,8 +262,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/MigrationsV8.hpp
             src/String/currentDateTime.cpp
             src/String/currentDateTime.hpp
-            src/String/timeDifference.cpp
-            src/String/timeDifference.hpp
             src/DateTime/Time.cpp
             src/DateTime/Time.hpp
             src/Data/ValidationError.cpp

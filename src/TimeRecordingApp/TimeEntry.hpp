@@ -90,6 +90,7 @@ struct TimeEntryDefinition {
     IsOpenResult isOpen(const string& user_id, const string& date);
 
     void closeOpenDays(const string& user_id, const string& current_date);
+    Poco::Data::Date getEventDate() const;
     bool checkTimestampExists(
         const string& employee_id,
         const string& event_date,

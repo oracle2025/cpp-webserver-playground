@@ -1,16 +1,15 @@
 
 #include "TimeCorrectionController.hpp"
 
+#include "DateTime/Date.hpp"
+#include "DateTime/Time.hpp"
 #include "Html/List.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
 #include "Http/Session.hpp"
-#include "String/currentDateTime.hpp"
 #include "String/escape.hpp"
-#include "String/timeDifference.hpp"
 #include "Template/BaseTemplate.hpp"
-#include "DateTime/Time.hpp"
 #include "TimeEntry.hpp"
 
 using Http::content;
@@ -141,9 +140,12 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         }
         months_with_selection.push_back(month_with_selection);
     }
-
+    using DateTime::Date;
     auto result = record->overviewAsPointers(
-        user_id, selected_year, selected_month, String::currentDate());
+        user_id,
+        selected_year,
+        selected_month,
+        Date::currentDate().formatAsDate());
     // result should also provide
     // getHours
     // getTime("start")
@@ -181,7 +183,8 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         if (start_time.empty() || end_time.empty()) {
             row["hours"] = "";
         } else {
-            row["hours"] = String::timeDifference(start_time, end_time);
+            row["hours"] = Time::parseTime(end_time).difference(
+                Time::parseTime(start_time)).formatAsTotalHours();
         }
         if (!end_time.empty()) {
             auto difference = Time::parseTime(end_time).difference(
@@ -238,17 +241,13 @@ std::shared_ptr<Response> TimeCorrectionController::editEntry(
             ->alert("Different Dates", Html::AlertType::DANGER)
             .shared_from_this();
     }
-
-    // If entry_start->date() != entry_end->date() -> error
-
+    using DateTime::Date;
     data["id"] = "";
     data["query"] = String::escape(query);
     data["id_start"] = String::escape(id_start);
     data["id_end"] = String::escape(id_end);
-    data["day"] = String::convertDateToWeekday(
-        entry_start->get("event_date")); // entry_start->Weekday()
-    data["date"] = String::convertDateToDayMonth(
-        entry_start->get("event_date")); // entry_start->DayAndMonth()
+    data["day"] = Date(entry_start->getEventDate()).formatAsWeekday();
+    data["date"] = Date(entry_start->getEventDate()).formatAsDayMonth();
     data["start_time"] = entry_start->get("event_time");
     data["end_time"] = entry_end->get("event_time");
     return content(
@@ -325,10 +324,8 @@ std::shared_ptr<Response> TimeCorrectionController::updateEntry(
     entry_end->update();
     // Apply month and year to list
     // get month as int from event_date
-    const auto month
-        = String::convertDateToTm(entry_start->get("event_date")).tm_mon + 1;
-    const auto year
-        = String::convertDateToTm(entry_start->get("event_date")).tm_year;
+    const auto month = entry_start->getEventDate().month();
+    const auto year = entry_start->getEventDate().year();
     return redirect(
                prefix + "/?year=" + std::to_string(year)
                + "&month=" + std::to_string(month))

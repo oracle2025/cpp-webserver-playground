@@ -93,6 +93,10 @@ string TimeEntryDefinition::get(const KeyStringType& key) const
     }
     return {};
 }
+Poco::Data::Date TimeEntryDefinition::getEventDate() const
+{
+    return event_date;
+}
 string TimeEntryDefinition::description() const
 {
     return get("event_date") + " " + get("event_time") + " " + event_type + " "
@@ -462,10 +466,10 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                 "%H:%M:%S", endTime, timeZoneDifferential);
             endTimeData = Poco::Data::Time{dt.hour(), dt.minute(), 0};
         }
-
+        using DateTime::Date;
         records.push_back(make_shared<OverViewRow>(
-            String::convertDateToWeekday(eventDate),
-            String::convertDateToDayMonth(eventDate),
+            Date(eventDate).formatAsWeekday(),
+            Date(eventDate).formatAsDayMonth(),
             startTime,
             endTime.empty() ? std::nullopt : std::make_optional(endTimeData),
             eventDate,
@@ -482,33 +486,22 @@ TimeEntryDefinition::IsOpenResult TimeEntryDefinition::isOpen(
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
     const auto sql = R"(SELECT
-MAX(time(event_time)) AS max_time, event_type, event_date
+MAX(time(event_time)) AS max_time, event_type
 FROM
 time_events WHERE employee_id = ? AND event_date = ?
 GROUP BY
 event_date;)";
     Poco::Data::Time max_time;
-    Poco::Data::Date event_date;
     string event_type_;
     Statement select(*g_session);
-    select << sql, into(max_time), into(event_type_), into(event_date),
+    select << sql, into(max_time), into(event_type_),
         bind(user_id), bind(date);
     spdlog::debug("SQL EXEC: {}", select.execute());
-
-    const std::string event_time = DateTime::Time(max_time).formatAsTime();
-    /*Poco::DateTimeFormatter::format(
-    Poco::DateTime(
-        event_date.year(),
-        event_date.month(),
-        event_date.day(),
-        max_time.hour(),
-        max_time.minute()),
-    "%H:%M");*/
-
+    const std::string event_time_str = DateTime::Time(max_time).formatAsTime();
     spdlog::debug("SQL: {}", select.toString());
-    spdlog::debug("MAX_TIME: {}", event_time);
+    spdlog::debug("MAX_TIME: {}", event_time_str);
     spdlog::debug("event_type: {}", event_type_);
-    return {event_type_ == "start", event_time};
+    return {event_type_ == "start", event_time_str};
 }
 void TimeEntryDefinition::closeOpenDays(
     const string& user_id, const string& current_date)

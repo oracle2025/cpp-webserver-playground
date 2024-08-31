@@ -16,10 +16,17 @@ class Date {
 public:
     Date() = delete;
     Date(const Poco::Data::Date& data);
+    Date(long year, long month, long day);
+
+    static Date currentDate();
 
     std::string formatAsDate() const;
     std::string formatAsDayMonth() const;
     std::string formatAsWeekday() const;
+
+    long year() const;
+    long month() const;
+    long day() const;
 
 private:
     long m_year;
