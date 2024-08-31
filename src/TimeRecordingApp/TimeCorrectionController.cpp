@@ -193,13 +193,12 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         }
         row["start_id"] = values.at("start_id");
         row["end_id"] = values.at("end_id");
+        row["enable_edit"] = !end_time.empty();
         rows.push_back(row);
     }
 
     data["rows"] = rows;
     data["total_hours"] = total_hours.formatAsTotalHours();
-    data["enable_edit"] = Session(request).userName() == "richard"
-        || Session(request).userName() == "admin";
     return content(
                BaseTemplate(TEMPLATE_DIR "/timeentry/list.html").render(data))
         ->title("Übersicht")
@@ -234,6 +233,11 @@ std::shared_ptr<Response> TimeCorrectionController::editEntry(
     if (entry_start->get("employee_id") != entry_end->get("employee_id")) {
         return redirect(prefix + "/")
             ->alert("Different User IDs", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    if (entry_start->get("employee_id") != Session(request).userId()) {
+        return redirect(prefix + "/")
+            ->alert("User ID not allowed to edit", Html::AlertType::DANGER)
             .shared_from_this();
     }
     if (entry_start->get("event_date") != entry_end->get("event_date")) {
@@ -296,11 +300,17 @@ std::shared_ptr<Response> TimeCorrectionController::updateEntry(
             ->alert("Different User IDs", Html::AlertType::DANGER)
             .shared_from_this();
     }
+    if (entry_start->get("employee_id") != Session(request).userId()) {
+        return redirect(prefix + "/")
+            ->alert("User ID not allowed to edit", Html::AlertType::DANGER)
+            .shared_from_this();
+    }
     if (entry_start->get("event_date") != entry_end->get("event_date")) {
         return redirect(prefix + "/")
             ->alert("Different Dates", Html::AlertType::DANGER)
             .shared_from_this();
     }
+    // TODO: above checks are duplicated in editEntry
     /*
      * Where is the start_time parameter parsed and verified?
      */
