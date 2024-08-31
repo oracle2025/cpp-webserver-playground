@@ -6,6 +6,7 @@
 #include "DateTime/Time.hpp"
 #include "String/currentDateTime.hpp"
 
+#include <optional>
 #include <Poco/DateTime.h>
 #ifndef __clang__
 #pragma GCC diagnostic push
