@@ -192,7 +192,6 @@ TEST_CASE("TimeEntry")
     SUBCASE("Check negative difference between timestamps")
     {
         using std::tuple;
-        using std::tuple;
         using t = tuple<string, string, long>;
         using DateTime::Time;
         const auto test_data = {
