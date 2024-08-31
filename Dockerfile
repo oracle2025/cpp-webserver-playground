@@ -21,7 +21,7 @@ FROM debian:12.6
 
 RUN set -ex \
     && apt-get update \
-    && apt-get upgrade \
+    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
                build-essential \
                cmake \
