@@ -266,7 +266,6 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/DateTime/Time.hpp
             src/Data/ValidationError.cpp
             src/Data/ValidationError.hpp
-            src/Impl/check_memory_usage.cpp
             src/Data/MigrationsV9.cpp
             src/Data/MigrationsV9.hpp)
     target_compile_definitions(
