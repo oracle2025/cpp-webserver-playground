@@ -21,7 +21,7 @@ struct CrudController::CrudControllerImpl {
 CrudController::CrudController(
     const string& prefix, make_record_func makeRecordFunc)
     : m_makeRecord(std::move(makeRecordFunc))
-    , impl_(new CrudControllerImpl)
+    , impl_(std::make_unique<CrudControllerImpl>())
 {
     impl_->prefix = prefix;
 }

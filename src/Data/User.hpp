@@ -15,13 +15,14 @@ namespace Data {
 class UserDefinition {
 public:
     using RecordType
-        = Poco::Tuple<string, string, Poco::Data::CLOB, string, string>;
+        = Poco::Tuple<string, string, Poco::Data::CLOB, string, string, string>;
     RecordType data;
     string& id;
     string& username;
     Poco::Data::CLOB& password;
     string& salt;
     string& start_page;
+    string& role;
     // Poco::Data::BLOB password_hash;
     UserDefinition();
     vector<ColumnType> columns() const;
@@ -49,5 +50,6 @@ public:
 using User = RecordImpl<UserDefinition>;
 
 bool findUser(Poco::Data::Session& session, const string& username, User& user);
+vector<shared_ptr<User>> findUsersByRole(const string& role);
 
 } // namespace Data

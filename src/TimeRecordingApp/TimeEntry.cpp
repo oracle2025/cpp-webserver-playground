@@ -148,6 +148,24 @@ try {
     TRACE_RETHROW("Could not list");
 }
 
+std::vector<int> TimeEntryDefinition::yearsForAllUsers() const
+try {
+    using namespace Poco::Data::Keywords;
+    using Poco::Data::Statement;
+    const auto sql
+        = "SELECT DISTINCT CAST(strftime('%Y', event_date) AS INTEGER) AS year "
+          "FROM time_events WHERE year IS NOT null "
+          "ORDER BY year;";
+    std::vector<int> result;
+    Statement select(*g_session);
+    select << sql, into(result), now;
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("RESULT: {}", result.size());
+    return result;
+} catch (...) {
+    TRACE_RETHROW("Could not list");
+}
+
 std::vector<int> TimeEntryDefinition::monthsFor(
     const string& user_id, int year) const
 try {
@@ -170,7 +188,26 @@ try {
 } catch (...) {
     TRACE_RETHROW("Could not list");
 }
-
+[[nodiscard]] std::vector<int> TimeEntryDefinition::monthsForAllUsers(int year) const
+try {
+    using namespace Poco::Data::Keywords;
+    using Poco::Data::Statement;
+    const auto sql
+        = "SELECT DISTINCT CAST(strftime('%m', event_date) AS INTEGER) AS "
+          "month "
+          "FROM time_events WHERE month IS NOT null "
+          "AND CAST(strftime('%Y', event_date) AS INTEGER) = ? "
+          "ORDER BY month;";
+    std::vector<int> result;
+    Statement select(*g_session);
+    select << sql, into(result), bind(year), now;
+    spdlog::debug("SQL: {}", select.toString());
+    spdlog::debug("YEAR: {}", year);
+    spdlog::debug("RESULT: {}", result.size());
+    return result;
+} catch (...) {
+    TRACE_RETHROW("Could not list");
+}
 struct OverViewRow : public Record {
     OverViewRow(
         const string& day,

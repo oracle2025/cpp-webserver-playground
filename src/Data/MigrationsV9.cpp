@@ -16,6 +16,11 @@ void MigrationsV9::perform()
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
 
+    *g_session
+        << R"(ALTER TABLE Users
+ADD COLUMN role VARCHAR NOT NULL DEFAULT 'user';)",
+        now;
+
     migration.version(9);
 }
 } // namespace Data

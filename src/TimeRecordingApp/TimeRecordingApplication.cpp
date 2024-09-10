@@ -12,6 +12,7 @@
 #include "String/capitalize.hpp"
 #include "TimeCorrectionController.hpp"
 #include "TimeEntryController.hpp"
+#include "TimeReportController.hpp"
 #include "User/PasswordChangeController.hpp"
 
 std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
@@ -31,6 +32,9 @@ std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
     });
 
     std::make_shared<TimeCorrectionController>("/list")->initialize(
+        privateRouter);
+
+    std::make_shared<TimeReportController>("/report")->initialize(
         privateRouter);
 
     privateHandler->defaultHandler(Http::NotFoundHandler);
@@ -66,9 +70,13 @@ std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
     controller->setPostProcessingHook([](const Request& request,
                                          const shared_ptr<Response>& response) {
         using Http::Session;
-        response->appendNavBarAction({"Übersicht", "/list/"});
-        // response->appendNavBarAction({"Auswertung", "/report/"});
-        if (Session(request).isAdmin()) {
+        Session session(request);
+        if (session.role() == "user") {
+            response->appendNavBarAction({"Übersicht", "/list/"});
+        } else {
+            response->appendNavBarAction({"Auswertung", "/report/"});
+        }
+        if (session.isAdmin()) {
 #ifdef ENABLE_USER_LIST
             response->appendNavBarAction({"Users", "/user/", "right"});
 #endif

@@ -25,8 +25,8 @@ struct TimeCorrectionController::TimeCorrectionControllerImpl {
 };
 TimeCorrectionController::~TimeCorrectionController() = default;
 TimeCorrectionController::TimeCorrectionController(
-    const TimeCorrectionController::string& prefix)
-    : impl_(new TimeCorrectionControllerImpl)
+    const string& prefix)
+    : impl_(std::make_unique<TimeCorrectionControllerImpl>())
 {
     impl_->prefix = prefix;
 }

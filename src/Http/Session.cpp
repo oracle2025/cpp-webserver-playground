@@ -128,5 +128,19 @@ bool Session::isAdmin() const
 {
     return isLoggedIn() && userName() == "admin";
 }
+string Session::role() const
+{
+    SessionStorage storage;
+    if (request.hasCookie("session-id")
+        && storage.pop(SessionId{request.cookie("session-id")})) {
+
+        Data::User user;
+        if (user.pop(storage.data().userId())) {
+            return user.role;
+        }
+        TRACE_THROW("Session::role() called with invalid user-id");
+    }
+TRACE_THROW("Session::role() called without session-id cookie");
+}
 
 } // namespace Http

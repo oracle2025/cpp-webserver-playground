@@ -1,8 +1,8 @@
 #pragma once
 #include "Data/RecordImpl.hpp"
 
-#include <Poco/Tuple.h>
 #include <Poco/Data/Date.h>
+#include <Poco/Tuple.h>
 
 struct TimeEntryDefinition {
     using string = std::string;
@@ -79,8 +79,10 @@ struct TimeEntryDefinition {
     static string presentableName();
     [[nodiscard]] bool isEmptyFor(const string& user_id) const;
     [[nodiscard]] std::vector<int> yearsFor(const string& user_id) const;
+    [[nodiscard]] std::vector<int> yearsForAllUsers() const;
     [[nodiscard]] std::vector<int> monthsFor(
         const string& user_id, int year) const;
+    [[nodiscard]] std::vector<int> monthsForAllUsers(int year) const;
     vector<shared_ptr<Record>> overviewAsPointers(
         const string& user_id, int year, int month, const string& current_date);
     struct IsOpenResult {
