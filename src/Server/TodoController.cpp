@@ -8,6 +8,8 @@
 #include "String/escape.hpp"
 #include "Template/BaseTemplate.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <sstream>
 #include <utility>
 
@@ -76,6 +78,7 @@ std::string recurseTodos(
     int level = 0,
     const std::string& parent_id = "")
 {
+    spdlog::debug("recurseTodos: level: {}, parent_id: {}", level, parent_id);
     // filter list for parent_id
     std::vector<std::shared_ptr<Record>> descendents
         = filtered(list, parent_id);

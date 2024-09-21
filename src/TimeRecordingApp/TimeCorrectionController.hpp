@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <iosfwd>
 #include <memory>
 
@@ -8,6 +10,10 @@ class Request;
 class Response;
 class Router;
 } // namespace Http
+namespace DateTime {
+class Time;
+} // namespace DateTime
+class Record;
 
 class TimeCorrectionController
     : public std::enable_shared_from_this<TimeCorrectionController> {
@@ -19,6 +25,10 @@ public:
 
     explicit TimeCorrectionController(const string& prefix);
     TimeCorrectionController& initialize(Http::Router& router);
+
+    static nlohmann::json convertResultToData(
+        const std::vector<std::shared_ptr<Record>>& records,
+        DateTime::Time& total);
 
 private:
     std::shared_ptr<Response> listEntries(const Request& request);

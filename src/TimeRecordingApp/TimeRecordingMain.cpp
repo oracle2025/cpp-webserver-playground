@@ -20,6 +20,7 @@ int main(int argc, char** argv)
     try {
         Poco::Data::SQLite::Connector::registerConnector();
 #ifdef DEBUG_BUILD
+        spdlog::set_level(spdlog::level::debug);
         const auto connectionString = "time_recording.sqlite";
 #else
         const auto connectionString = TIME_RECORDING_DATABASE_DIR "/time_recording.sqlite";

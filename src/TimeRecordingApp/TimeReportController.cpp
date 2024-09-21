@@ -2,9 +2,13 @@
 #include "TimeReportController.hpp"
 
 #include "Data/User.hpp"
+#include "DateTime/Date.hpp"
+#include "DateTime/Time.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
+#include "String/capitalize.hpp"
 #include "Template/BaseTemplate.hpp"
+#include "TimeCorrectionController.hpp"
 #include "TimeEntry.hpp"
 
 #include <string>
@@ -114,15 +118,38 @@ std::shared_ptr<Response> TimeReportController::list(const Request& request)
     auto users = Data::findUsersByRole("user");
     auto users_json = nlohmann::json::array();
     for (const auto& user : users) {
+
+        using DateTime::Date;
+        auto time_entries = record->overviewAsPointers(
+            user->key(),
+            selected_year,
+            selected_month,
+            Date::currentDate().formatAsDate());
+        using DateTime::Time;
+        auto total_hours = Time(0, 0);
+        auto rows = time_entries.empty()
+            ? nlohmann::json::array()
+            : TimeCorrectionController::convertResultToData(
+                  time_entries, total_hours);
+
         nlohmann::json user_json;
         user_json["user_id"] = user->key();
         user_json["username"] = user->get("username");
+        user_json["name"] = String::capitalize(user->get("username"));
+        user_json["rows"] = rows;
+        user_json["total_hours"] = total_hours.formatAsTotalHours();
+        spdlog::debug("Rows: {}", rows.dump());
         users_json.push_back(user_json);
     }
     auto data = nlohmann::json::object();
+    data["years"] = years_with_selection;
+    data["selected_year"] = selected_year;
+    data["months"] = months_with_selection;
     data["users"] = users_json;
+    spdlog::debug("Years: {}", data["years"].dump());
 
-    return content(Template::BaseTemplate(TEMPLATE_DIR "/timeentry/report.html").render(data))
+    return content(Template::BaseTemplate(TEMPLATE_DIR "/timeentry/report.html")
+                       .render(data))
         ->title("Report")
         .shared_from_this();
 }

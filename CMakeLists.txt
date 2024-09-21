@@ -100,6 +100,7 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
 
     add_library(
             webservers OBJECT
+            src/Impl/check_memory_usage.cpp
             src/Data/Todo.cpp
             src/Data/Todo.hpp
             src/Data/SharedTodo.cpp

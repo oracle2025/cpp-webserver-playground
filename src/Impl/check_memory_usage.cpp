@@ -1,7 +1,10 @@
+#if defined(__APPLE__) && defined(__MACH__)
 #include <mach/mach.h>
+#endif
 
 int check_memory_usage()
 {
+#if defined(__APPLE__) && defined(__MACH__)
 
     struct task_basic_info t_info;
     mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
@@ -17,4 +20,6 @@ int check_memory_usage()
     return t_info.resident_size;
     // resident size is in t_info.resident_size;
     // virtual size is in t_info.virtual_size;
+#endif
+    return -1;
 }

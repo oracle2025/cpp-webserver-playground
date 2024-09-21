@@ -24,8 +24,7 @@ struct TimeCorrectionController::TimeCorrectionControllerImpl {
     string prefix;
 };
 TimeCorrectionController::~TimeCorrectionController() = default;
-TimeCorrectionController::TimeCorrectionController(
-    const string& prefix)
+TimeCorrectionController::TimeCorrectionController(const string& prefix)
     : impl_(std::make_unique<TimeCorrectionControllerImpl>())
 {
     impl_->prefix = prefix;
@@ -141,6 +140,7 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         months_with_selection.push_back(month_with_selection);
     }
     using DateTime::Date;
+
     auto result = record->overviewAsPointers(
         user_id,
         selected_year,
@@ -168,11 +168,22 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
             ->title("Übersicht")
             .shared_from_this();
     }
-    auto columns = result[0]->fields();
-    auto rows = nlohmann::json::array();
     using DateTime::Time;
     auto total_hours = Time(0, 0);
-    for (const auto& entry : result) {
+    data["rows"] = convertResultToData(result, total_hours);
+    data["total_hours"] = total_hours.formatAsTotalHours();
+    return content(
+               BaseTemplate(TEMPLATE_DIR "/timeentry/list.html").render(data))
+        ->title("Übersicht")
+        .shared_from_this();
+}
+nlohmann::json TimeCorrectionController::convertResultToData(
+    const vector<shared_ptr<Record>>& records, DateTime::Time& total)
+{
+    auto columns = records[0]->fields();
+    auto rows = nlohmann::json::array();
+    using DateTime::Time;
+    for (const auto& entry : records) {
         auto row = nlohmann::json::object();
         const auto values = entry->values();
         for (const auto& field : columns) {
@@ -183,26 +194,21 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
         if (start_time.empty() || end_time.empty()) {
             row["hours"] = "";
         } else {
-            row["hours"] = Time::parseTime(end_time).difference(
-                Time::parseTime(start_time)).formatAsTotalHours();
+            row["hours"] = Time::parseTime(end_time)
+                               .difference(Time::parseTime(start_time))
+                               .formatAsTotalHours();
         }
         if (!end_time.empty()) {
             auto difference = Time::parseTime(end_time).difference(
                 Time::parseTime(start_time));
-            total_hours.add(difference);
+            total.add(difference);
         }
         row["start_id"] = values.at("start_id");
         row["end_id"] = values.at("end_id");
         row["enable_edit"] = !end_time.empty();
         rows.push_back(row);
     }
-
-    data["rows"] = rows;
-    data["total_hours"] = total_hours.formatAsTotalHours();
-    return content(
-               BaseTemplate(TEMPLATE_DIR "/timeentry/list.html").render(data))
-        ->title("Übersicht")
-        .shared_from_this();
+    return rows;
 }
 std::shared_ptr<Response> TimeCorrectionController::editEntry(
     const Request& request)

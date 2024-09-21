@@ -15,6 +15,7 @@ int main(int argc, char** argv)
         Poco::Data::SQLite::Connector::registerConnector();
 #ifdef DEBUG_BUILD
         const auto connectionString = "todo.sqlite";
+        spdlog::set_level(spdlog::level::debug);
 #else
         const auto connectionString = TODO_DATABASE_DIR "/todo.sqlite";
 #endif

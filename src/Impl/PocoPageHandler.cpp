@@ -2,6 +2,8 @@
 
 #include <utility>
 
+int check_memory_usage();
+
 using HTTPCookie = Poco::Net::HTTPCookie;
 
 PocoPageHandler::PocoPageHandler(
@@ -56,7 +58,7 @@ void PocoPageHandler::handleRequest(
 
         Poco::URI uri(request.getURI());
 
-        spdlog::info("Request: {}", uri.toString());
+        spdlog::info("Request: {} Memory Usage: {}", uri.toString(), check_memory_usage());
 
         const Http::Method method = httpMethod(request.getMethod());
         if (method == Http::Method::METHOD_NOT_ALLOWED) {
