@@ -3,11 +3,13 @@
 
 #include "Data/User.hpp"
 #include "DateTime/Date.hpp"
+#include "DateTime/Month.hpp"
 #include "DateTime/Time.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
 #include "String/capitalize.hpp"
 #include "Template/BaseTemplate.hpp"
+#include "Template/TemplateDataHelper.hpp"
 #include "TimeCorrectionController.hpp"
 #include "TimeEntry.hpp"
 
@@ -42,76 +44,23 @@ std::shared_ptr<Response> TimeReportController::list(const Request& request)
     /* Select hours for Month */
     auto record = make_shared<TimeEntry>(request);
 
-    auto years = record->yearsForAllUsers();
-    vector<int> months;
-    static const map<int, string> month_names
-        = {{1, "Januar"},
-           {2, "Februar"},
-           {3, "März"},
-           {4, "April"},
-           {5, "Mai"},
-           {6, "Juni"},
-           {7, "Juli"},
-           {8, "August"},
-           {9, "September"},
-           {10, "Oktober"},
-           {11, "November"},
-           {12, "Dezember"}};
-    int selected_year = 0;
-    if (request.hasParameter("year")
-        && std::count(
-               years.begin(),
-               years.end(),
-               std::atoi(request.parameter("year").c_str()))
-            > 0) {
-        selected_year = std::atoi(request.parameter("year").c_str());
-        months = record->monthsForAllUsers(selected_year);
-    } else {
-        selected_year = years.back();
-        months = record->monthsForAllUsers(selected_year);
-    }
+    const auto years = record->yearsForAllUsers();
+    int selected_year = selectYear(request, years);
+    const auto months = record->monthsForAllUsers(selected_year);
     spdlog::debug("Selected Year: {}", selected_year);
 
-    int selected_month = 0;
-    if (request.hasParameter("month")
-        && std::count(
-               months.begin(),
-               months.end(),
-               std::atoi(request.parameter("month").c_str()))
-            > 0) {
-        selected_month = std::atoi(request.parameter("month").c_str());
-    } else {
-        selected_month = months.back();
-    }
+    int selected_month = selectMonth(request, months);
     spdlog::debug("Selected Month: {}", selected_month);
 
-    nlohmann::json::array_t years_with_selection;
-    for (auto year : years) {
-        nlohmann::json year_with_selection;
-        year_with_selection["year"] = year;
-        if (year == selected_year) {
-            year_with_selection["selected"] = true;
-        } else {
-            year_with_selection["selected"] = false;
-        }
-        years_with_selection.push_back(year_with_selection);
+    auto years_with_selection
+        = Template::selectFromList(years, selected_year, "year");
+
+    auto months_with_selection = Template::selectFromList(
+        months, selected_month, "month");
+    for (auto &month : months_with_selection) {
+        month["month_name"] = DateTime::Month(month["month"]).asString();
     }
 
-    nlohmann::json::array_t months_with_selection;
-    for (auto month : months) {
-        if (month_names.find(month) == month_names.end()) {
-            continue;
-        }
-        nlohmann::json month_with_selection;
-        month_with_selection["month"] = month_names.at(month);
-        month_with_selection["month_number"] = month;
-        if (month == selected_month) {
-            month_with_selection["selected"] = true;
-        } else {
-            month_with_selection["selected"] = false;
-        }
-        months_with_selection.push_back(month_with_selection);
-    }
     // Select all users where role == employee
     // Select all time entries for selected user
     // Generate View without EDIT button
@@ -152,4 +101,28 @@ std::shared_ptr<Response> TimeReportController::list(const Request& request)
                        .render(data))
         ->title("Report")
         .shared_from_this();
+}
+int TimeReportController::selectYear(
+    const Request& request, const vector<int>& years)
+{
+    if (!request.hasParameter("year")) {
+        return years.back();
+    }
+    auto selected_year = std::atoi(request.parameter("year").c_str());
+    if (std::count(years.begin(), years.end(), selected_year) > 0) {
+        return selected_year;
+    }
+    return years.back();
+}
+int TimeReportController::selectMonth(
+    const Request& request, const vector<int>& months)
+{
+    if (!request.hasParameter("month")) {
+        return months.back();
+    }
+    auto selected_month = std::atoi(request.parameter("month").c_str());
+    if (std::count(months.begin(), months.end(), selected_month) > 0) {
+        return selected_month;
+    }
+    return months.back();
 }

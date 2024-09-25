@@ -10,8 +10,8 @@
     <ul class="nav nav-pills mb-4" id="monthTabs" role="tablist">
         {% for month in months %}
         <li role="presentation" {% if month.selected %} class="active"{% endif %}>
-            <a href="?year={{selected_year}}&month={{month.month_number}}">
-                {{month.month}}
+            <a href="?year={{selected_year}}&month={{month.month}}">
+                {{month.month_name}}
             </a>
         </li>
         {% endfor %}

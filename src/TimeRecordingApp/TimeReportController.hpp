@@ -22,6 +22,9 @@ public:
 private:
     std::shared_ptr<Response> list(const Request& request);
 
+    int selectYear(const Request& request, const std::vector<int>& years);
+    int selectMonth(const Request& request, const std::vector<int>& months);
+
     struct TimeReportControllerImpl;
     std::unique_ptr<TimeReportControllerImpl> impl_;
 };

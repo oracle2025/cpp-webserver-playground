@@ -35,6 +35,10 @@ private:
     std::shared_ptr<Response> editEntry(const Request& request);
     std::shared_ptr<Response> updateEntry(const Request& request);
 
+
+    int selectYear(const Request& request, const std::vector<int>& years);
+    int selectMonth(const Request& request, const std::vector<int>& months);
+
     struct TimeCorrectionControllerImpl;
     std::unique_ptr<TimeCorrectionControllerImpl> impl_;
 };

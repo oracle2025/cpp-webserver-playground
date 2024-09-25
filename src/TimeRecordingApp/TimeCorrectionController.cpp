@@ -2,6 +2,7 @@
 #include "TimeCorrectionController.hpp"
 
 #include "DateTime/Date.hpp"
+#include "DateTime/Month.hpp"
 #include "DateTime/Time.hpp"
 #include "Html/List.hpp"
 #include "Http/Request.hpp"
@@ -10,6 +11,7 @@
 #include "Http/Session.hpp"
 #include "String/escape.hpp"
 #include "Template/BaseTemplate.hpp"
+#include "Template/TemplateDataHelper.hpp"
 #include "TimeEntry.hpp"
 
 using Http::content;
@@ -70,7 +72,6 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
             .shared_from_this();
     }
     auto years = record->yearsFor(user_id);
-    vector<int> months;
     static const map<int, string> month_names
         = {{1, "Januar"},
            {2, "Februar"},
@@ -84,60 +85,20 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
            {10, "Oktober"},
            {11, "November"},
            {12, "Dezember"}};
-    int selected_year = 0;
-    if (request.hasParameter("year")
-        && std::count(
-               years.begin(),
-               years.end(),
-               std::atoi(request.parameter("year").c_str()))
-            > 0) {
-        selected_year = std::atoi(request.parameter("year").c_str());
-        months = record->monthsFor(user_id, selected_year);
-    } else {
-        selected_year = years.back();
-        months = record->monthsFor(user_id, selected_year);
-    }
+    int selected_year = selectYear(request, years);
     spdlog::debug("Selected Year: {}", selected_year);
+    const auto months = record->monthsFor(user_id, selected_year);
 
-    int selected_month = 0;
-    if (request.hasParameter("month")
-        && std::count(
-               months.begin(),
-               months.end(),
-               std::atoi(request.parameter("month").c_str()))
-            > 0) {
-        selected_month = std::atoi(request.parameter("month").c_str());
-    } else {
-        selected_month = months.back();
-    }
+    int selected_month = selectMonth(request, months);
+
     spdlog::debug("Selected Month: {}", selected_month);
 
-    nlohmann::json::array_t years_with_selection;
-    for (auto year : years) {
-        nlohmann::json year_with_selection;
-        year_with_selection["year"] = year;
-        if (year == selected_year) {
-            year_with_selection["selected"] = true;
-        } else {
-            year_with_selection["selected"] = false;
-        }
-        years_with_selection.push_back(year_with_selection);
-    }
+    auto years_with_selection = Template::selectFromList(years, selected_year, "year");
 
-    nlohmann::json::array_t months_with_selection;
-    for (auto month : months) {
-        if (month_names.find(month) == month_names.end()) {
-            continue;
-        }
-        nlohmann::json month_with_selection;
-        month_with_selection["month"] = month_names.at(month);
-        month_with_selection["month_number"] = month;
-        if (month == selected_month) {
-            month_with_selection["selected"] = true;
-        } else {
-            month_with_selection["selected"] = false;
-        }
-        months_with_selection.push_back(month_with_selection);
+    auto months_with_selection = Template::selectFromList(
+        months, selected_month, "month");
+    for (auto &month : months_with_selection) {
+        month["month_name"] = DateTime::Month(month["month"]).asString();
     }
     using DateTime::Date;
 
@@ -347,4 +308,28 @@ std::shared_ptr<Response> TimeCorrectionController::updateEntry(
                + "&month=" + std::to_string(month))
         ->alert("Updated", Html::AlertType::SUCCESS)
         .shared_from_this();
+}
+int TimeCorrectionController::selectYear(
+    const Request& request, const vector<int>& years)
+{
+    if (!request.hasParameter("year")) {
+        return years.back();
+    }
+    auto selected_year = std::atoi(request.parameter("year").c_str());
+    if (std::count(years.begin(), years.end(), selected_year) > 0) {
+        return selected_year;
+    }
+    return years.back();
+}
+int TimeCorrectionController::selectMonth(
+    const Request& request, const vector<int>& months)
+{
+    if (!request.hasParameter("month")) {
+        return months.back();
+    }
+    auto selected_month = std::atoi(request.parameter("month").c_str());
+    if (std::count(months.begin(), months.end(), selected_month) > 0) {
+        return selected_month;
+    }
+    return months.back();
 }

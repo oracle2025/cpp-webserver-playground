@@ -268,7 +268,10 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/ValidationError.cpp
             src/Data/ValidationError.hpp
             src/Data/MigrationsV9.cpp
-            src/Data/MigrationsV9.hpp)
+            src/Data/MigrationsV9.hpp
+            src/DateTime/Month.cpp
+            src/DateTime/Month.hpp
+            src/Template/TemplateDataHelper.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic
