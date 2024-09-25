@@ -2,6 +2,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <vector>
 
 namespace Http {
 class Request;
