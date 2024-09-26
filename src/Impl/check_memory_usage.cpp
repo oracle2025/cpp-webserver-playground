@@ -1,5 +1,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <mach/mach.h>
+#else
+#include <stdio.h>
 #endif
 
 int check_memory_usage()
@@ -20,6 +22,10 @@ int check_memory_usage()
     return t_info.resident_size;
     // resident size is in t_info.resident_size;
     // virtual size is in t_info.virtual_size;
+#else
+    struct rusage rusage;
+    getrusage( RUSAGE_SELF, &rusage );
+    return (size_t)(rusage.ru_maxrss * 1024L);
 #endif
     return -1;
 }
