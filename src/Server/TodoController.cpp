@@ -80,8 +80,9 @@ std::string recurseTodos(
 {
     spdlog::debug("recurseTodos: level: {}, parent_id: {}", level, parent_id);
     // filter list for parent_id
-    std::vector<std::shared_ptr<Record>> descendents
-        = filtered(list, parent_id);
+    //std::vector<std::shared_ptr<Record>> descendents
+    //    = filtered(list, parent_id);
+    auto &descendents = list;
 
     if (descendents.empty()) {
         return {};
@@ -120,7 +121,7 @@ std::string recurseTodos(
             << i->key()
             << R"(" class="remove button btn btn-danger btn-sm">♻️ <span class="hidden-xs">Delete</span></a>)";
         str << "</td></tr>\n";
-        str << recurseTodos(list, level + 1, i->key());
+        //str << recurseTodos(list, level + 1, i->key());
     }
     str << "</table>\n";
     if (level > 0) {
