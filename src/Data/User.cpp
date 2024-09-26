@@ -98,7 +98,7 @@ string UserDefinition::description() const
 }
 vector<KeyStringType> UserDefinition::presentableFields() const
 {
-    return {"username"};
+    return {"username", "role"};
 }
 
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
