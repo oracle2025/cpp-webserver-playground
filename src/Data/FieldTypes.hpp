@@ -12,5 +12,6 @@ enum class HtmlInputType {
     RADIO,
     SELECT,
     TEXTAREA,
-    HIDDEN
+    HIDDEN,
+    NON_EDITABLE
 };

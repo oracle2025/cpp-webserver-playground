@@ -82,6 +82,8 @@ string List::operator()()
                 str << R"(<td class="max">)" << String::escape(values[column])
                     << "</td>\n";
                 break;
+            case HtmlInputType::NON_EDITABLE:
+                break;
             }
         }
         str << R"(<td><a href=")" << m_prefix << R"(/edit?)" << record->key()

@@ -42,6 +42,9 @@ Form::Form(const Record& record, string action, string method)
         case HtmlInputType::SELECT:
         default:
             m_pureElements.push_back(make_shared<Text>(key, value));
+            break;
+        case HtmlInputType::NON_EDITABLE:
+            break;
         }
     }
 }

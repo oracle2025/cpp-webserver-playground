@@ -26,6 +26,7 @@ nlohmann::json AsJson::fromRecord(const Record& record)
         case HtmlInputType::RADIO:
         case HtmlInputType::TEXTAREA:
         case HtmlInputType::SELECT:
+        case HtmlInputType::NON_EDITABLE:
         default:
             data[key] = value;
         }
