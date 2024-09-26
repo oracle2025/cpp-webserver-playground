@@ -2,6 +2,7 @@
 #include <mach/mach.h>
 #else
 #include <stdio.h>
+#include <sys/resource.h>
 #endif
 
 int check_memory_usage()
