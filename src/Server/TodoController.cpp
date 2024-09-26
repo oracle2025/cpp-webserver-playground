@@ -111,10 +111,10 @@ std::string recurseTodos(
         }
         str << "&nbsp;&nbsp;&nbsp;&nbsp;";
         str << i->values()["description"];
-        if (level == 0 && !filtered(list, i->key()).empty()) {
+        /*if (level == 0 && !filtered(list, i->key()).empty()) {
             str << R"( <button type="button" class="btn btn-link btn-sm mt-2 toggle-subitems" id="hide-)"
                 << i->key() << R"(">Hide&nbsp;subtasks</button>)" << "\n";
-        }
+        }*/
         str << R"(</td><td><a href="/todo/edit?)" << i->key()
             << R"(" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Edit</span></a></td>
 <td><a href="/todo/delete?)"
