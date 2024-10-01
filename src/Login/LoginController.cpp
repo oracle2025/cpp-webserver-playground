@@ -92,17 +92,17 @@ LoginController& LoginController::initialize(Http::Router& router)
     });
     router.get("/sessions", [ptr](const Request& request) {
         if (Session(request).isAdmin()) {
-            auto response = content(Html::List(
-                                        Session::listAll(),
-                                        {
-                                         "userId",
-                                         "userName",
-                                         "isLoggedIn",
-                                         "createdAt",
-                                         "lastUsedAt",
-                                         "path",
-                                         "userAgent"})
-                                        .withHeader()())
+            auto response = content(
+                                Html::List(
+                                    Session::listAll(),
+                                    {"userId",
+                                     "userName",
+                                     "isLoggedIn",
+                                     "createdAt",
+                                     "lastUsedAt",
+                                     "path",
+                                     "userAgent"})
+                                    .withHeader()())
                                 ->appendNavBarAction({"Start", "/"})
                                 .shared_from_this();
             return ptr->m_postProcessingHook(request, response);
@@ -204,7 +204,10 @@ handler_type LoginController::getDefaultHandler()
             && Http::Session(request).isAdmin()) {
             auto response = m_adminHandler->handle(request);
             if (response) {
-                return m_postProcessingHook(request, response);
+                auto processedResponse
+                    = m_postProcessingHook(request, response);
+                Http::Session::addAlertToSession(request, *processedResponse);
+                return processedResponse;
             } else {
                 return forwardToSecretHandler(request);
             }
