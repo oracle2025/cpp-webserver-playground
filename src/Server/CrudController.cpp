@@ -25,36 +25,15 @@ CrudController::CrudController(
 {
     impl_->prefix = prefix;
 }
-CrudController &CrudController::initialize(Http::Router& router)
+CrudController& CrudController::initialize(Http::Router& router)
 {
     const auto prefix = impl_->prefix;
     auto ptr = shared_from_this();
-    router.get(prefix + "/new", [ptr, prefix](const Request& request) {
-        using namespace Input;
-        auto record = ptr->m_makeRecord(request);
-        return content(Form(*record, prefix + "/create", "post")
-                           .appendElement(make_shared<Submit>(
-                               "Create " + record->presentableName()))())
-            ->title("Create " + record->presentableName())
-            .shared_from_this();
+    router.get(prefix + "/new", [ptr](const Request& request) {
+        return ptr->newRecord(request);
     });
-    router.post(prefix + "/create", [ptr, prefix](const Request& request) {
-        using Http::Session;
-        auto record = ptr->m_makeRecord(request);
-        for (const auto& field : record->fields()) {
-            if (request.hasParameter(field)) {
-                record->setImpl(field, request.parameter(field));
-            }
-            if (field == "user_id") {
-                record->setImpl("user_id", Session(request).userId());
-            }
-        }
-        record->insert();
-        return redirect(prefix + "/edit?" + record->key())
-            ->alert(
-                record->presentableName() + " created",
-                Html::AlertType::SUCCESS)
-            .shared_from_this();
+    router.post(prefix + "/create", [ptr](const Request& request) {
+        return ptr->createRecord(request);
     });
     router.get(prefix + "/edit", [ptr](const Request& request) {
         return ptr->editRecord(request);
@@ -133,8 +112,7 @@ CrudController &CrudController::initialize(Http::Router& router)
         using namespace Input;
         auto record = ptr->m_makeRecord(request);
         if (record->pop(request.query())) {
-            return Confirm(prefix, *record, record->descriptionImpl())()
-                ;
+            return Confirm(prefix, *record, record->descriptionImpl())();
         } else {
             return recordNotFound(prefix, record->presentableName());
         }
@@ -172,13 +150,17 @@ std::shared_ptr<Response> CrudController::editRecord(const Request& request)
     using namespace Input;
     auto record = m_makeRecord(request);
     if (record->pop(request.query())) {
-        return content(Form(
-                           *record,
-                           string(prefix() + "/update?") + record->key(),
-                           "post")
-                           .appendElement(make_shared<Submit>(
-                               "Update " + record->presentableName()))())
+        auto form = std::make_shared<Form>(
+                        *record,
+                        string(prefix() + "/update?") + record->key(),
+                        "post")
+                        ->appendElement(
+                            make_shared<Submit>(
+                                "Update " + record->presentableName()))
+                        .shared_from_this();
+        return content((*form)())
             ->title("Edit " + record->presentableName())
+            .form(form)
             .shared_from_this();
     } else {
         return recordNotFound(prefix(), record->presentableName());
@@ -197,5 +179,34 @@ std::shared_ptr<Response> CrudController::listRecords(const Request& request)
         ->appendAction(
             {"Create new " + record->presentableName(), prefix() + "/new"})
         .title(record->presentableName() + " List")
+        .shared_from_this();
+}
+std::shared_ptr<Response> CrudController::newRecord(const Request& request)
+{
+    using namespace Input;
+    auto record = m_makeRecord(request);
+    return content(Form(*record, impl_->prefix + "/create", "post")
+                       .appendElement(
+                           make_shared<Submit>(
+                               "Create " + record->presentableName()))())
+        ->title("Create " + record->presentableName())
+        .shared_from_this();
+}
+std::shared_ptr<Response> CrudController::createRecord(const Request& request)
+{
+    using Http::Session;
+    auto record = m_makeRecord(request);
+    for (const auto& field : record->fields()) {
+        if (request.hasParameter(field)) {
+            record->setImpl(field, request.parameter(field));
+        }
+        if (field == "user_id") {
+            record->setImpl("user_id", Session(request).userId());
+        }
+    }
+    record->insert();
+    return redirect(impl_->prefix + "/edit?" + record->key())
+        ->alert(
+            record->presentableName() + " created", Html::AlertType::SUCCESS)
         .shared_from_this();
 }

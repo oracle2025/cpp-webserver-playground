@@ -62,6 +62,8 @@ struct CrudController : public std::enable_shared_from_this<CrudController>{
     const string& prefix() const;
 
 protected:
+    virtual std::shared_ptr<Response> newRecord(const Request& request);
+    virtual std::shared_ptr<Response> createRecord(const Request& request);
     virtual std::shared_ptr<Response> editRecord(const Request& request);
     virtual std::shared_ptr<Response> listRecords(const Request& request);
 

@@ -271,7 +271,15 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Data/MigrationsV9.hpp
             src/DateTime/Month.cpp
             src/DateTime/Month.hpp
-            src/Template/TemplateDataHelper.hpp)
+            src/Template/TemplateDataHelper.hpp
+            src/Data/MigrationsV10.cpp
+            src/Data/MigrationsV10.hpp
+            src/User/UserAdminController.cpp
+            src/User/UserAdminController.hpp
+            src/Input/Select.cpp
+            src/Input/Select.hpp
+            src/Calendar/CalendarController.cpp
+            src/Calendar/CalendarController.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic
@@ -350,6 +358,8 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             tests/PocoDateTimeTest.cpp
             tests/TimeEntryControllerTest.cpp
             tests/TimeRecordingApplicationTest.cpp
+            tests/UserAdminTest.cpp
+            tests/CalendarTest.cpp
     )
     target_link_libraries(tests webservers)
     target_include_directories(tests PRIVATE tests)

@@ -178,6 +178,22 @@ struct FakeBrowser {
         }
         return false;
     }
+    bool find_and_follow(const string& needle, int offset)
+    {
+        auto links = extractLinks(m_pageContents);
+        std::vector<std::string> found;
+        for (auto& link : links) {
+            auto link_text = std::get<0>(link);
+            if (link_text.find(needle) != std::string::npos) {
+                found.push_back(std::get<1>(link));
+            }
+        }
+        if (offset < found.size()) {
+            location(found.at(offset));
+            return true;
+        }
+        return false;
+    }
     Input::FormPtr form()
     {
         return m_form;

@@ -39,13 +39,6 @@ LoginController& LoginController::initialize(Http::Router& router)
 {
     using Http::Session;
     auto ptr = shared_from_this();
-    router.get("/", [ptr](const Request& request) {
-        if (Session(request).isLoggedIn() && ptr->m_secretHandler) {
-            return ptr->forwardToSecretHandler(request);
-        } else {
-            return redirect("/login");
-        }
-    });
     router.get(
         "/login", [ptr](const Request& request) { return ptr->loginForm(); });
     router.post("/login", [ptr](const Request& request) {
@@ -199,6 +192,7 @@ shared_ptr<Response> LoginController::forwardToSecretHandler(
 }
 handler_type LoginController::getDefaultHandler()
 {
+    // TODO: What happens if this gets called a thousand times?
     return [this](const Request& request) {
         if (m_adminHandler && Http::Session(request).isLoggedIn()
             && Http::Session(request).isAdmin()) {
@@ -218,7 +212,7 @@ handler_type LoginController::getDefaultHandler()
             return response->appendNavBarAction({"🔒 Login", "/", "right"})
                 .shared_from_this();
         }
-        return redirect("/")
+        return redirect("/login")
             ->alert("Please login", Html::AlertType::INFO)
             .shared_from_this();
     };

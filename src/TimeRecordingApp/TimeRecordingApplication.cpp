@@ -6,7 +6,7 @@
 #include "Impl/PocoWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "Login/ProfileController.hpp"
-#include "Server/CrudController.hpp"
+#include "User/UserAdminController.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
 #include "String/capitalize.hpp"
@@ -43,7 +43,7 @@ std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
     shared_ptr<SimpleWebServer> adminHandler = nullptr;
 #ifdef ENABLE_USER_LIST
     adminHandler = make_shared<SimpleWebServer>();
-    auto userCrud = std::make_shared<CrudController>(
+    auto userCrud = std::make_shared<UserAdminController>(
                         "/user",
                         [](const Request& request) {
                             return std::make_shared<Data::User>(request);

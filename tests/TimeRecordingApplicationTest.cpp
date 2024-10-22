@@ -15,8 +15,8 @@ void login(FakeBrowser& browser)
 {
     browser.location("http://localhost:8080/login");
     CHECK(browser.form().get() != nullptr);
-    browser.form()->set("username", "admin");
-    browser.form()->set("password", "Adm1n!");
+    browser.form()->set("username", "user");
+    browser.form()->set("password", "S3cr3t&");
     browser.submit();
     CHECK(
         browser.pageContents().find("Logged in successfully") != std::string::npos);
@@ -29,6 +29,11 @@ TEST_CASE("TimeRecordingApplicationTest")
     g_session = &session;
     Data::MigrationsLatest m;
     m.perform();
+    Data::User user;
+    user.username = "user";
+    user.setPassword("S3cr3t&");
+    user.set("role", "user");
+    user.insert();
 
     SimpleWebServer handler;
     auto presentation = std::make_shared<Html::Presentation>("Time Recording");

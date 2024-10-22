@@ -42,6 +42,8 @@ std::shared_ptr<Response> TimeReportController::list(const Request& request)
 { /* Select Users */
     /* Select Month */
     /* Select hours for Month */
+
+    // TODO if current_user.role != employer return permission denied
     auto record = make_shared<TimeEntry>(request);
 
     const auto years = record->yearsForAllUsers();

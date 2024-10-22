@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MigrationsV9.hpp"
+#include "MigrationsV10.hpp"
 
 namespace Data {
-using MigrationsLatest = MigrationsV9;
+using MigrationsLatest = MigrationsV10;
 }

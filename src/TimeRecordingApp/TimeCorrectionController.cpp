@@ -167,6 +167,7 @@ nlohmann::json TimeCorrectionController::convertResultToData(
         row["start_id"] = values.at("start_id");
         row["end_id"] = values.at("end_id");
         row["enable_edit"] = !end_time.empty();
+        row["note"] = String::escape(values.at("note"));
         rows.push_back(row);
     }
     return rows;
@@ -221,6 +222,7 @@ std::shared_ptr<Response> TimeCorrectionController::editEntry(
     data["date"] = Date(entry_start->getEventDate()).formatAsDayMonth();
     data["start_time"] = entry_start->get("event_time");
     data["end_time"] = entry_end->get("event_time");
+    data["note"] = String::escape(entry_end->get("note"));
     return content(
                BaseTemplate(TEMPLATE_DIR "/timeentry/edit.html").render(data))
         ->title("Eintrag bearbeiten")
@@ -237,7 +239,7 @@ std::shared_ptr<Response> TimeCorrectionController::updateEntry(
      * end_time
      */
     const auto expected_parameters
-        = {"id_start", "id_end", "start_time", "end_time"};
+        = {"id_start", "id_end", "start_time", "end_time", "note"};
     const auto prefix = impl_->prefix;
     for (const auto& parameter : expected_parameters) {
         if (!request.hasParameter(parameter)) {
@@ -297,6 +299,8 @@ std::shared_ptr<Response> TimeCorrectionController::updateEntry(
     // Also check for Overlaps with existing entries from the same day
     entry_start->set("event_time", start_time);
     entry_end->set("event_time", end_time);
+    auto note = request.parameter("note");
+    entry_end->set("note", note);
     entry_start->update();
     entry_end->update();
     // Apply month and year to list

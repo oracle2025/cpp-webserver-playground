@@ -45,6 +45,12 @@
                     {% if row.enable_edit %}
                         <a href="/list/edit?{{row.start_id}}-{{row.end_id}}" class="edit button btn btn-success btn-sm">✏️ <span class="hidden-xs">Bearbeiten</span></a>
                     {% endif %}
+                    <button type="button" class="btn btn-warning btn-sm">Notiz</button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div class="alert alert-warning" role="alert">Notiz: {{row.note}}</div>
                 </td>
             </tr>
 ## endfor

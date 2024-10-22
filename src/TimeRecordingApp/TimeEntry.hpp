@@ -15,6 +15,7 @@ struct TimeEntryDefinition {
         string,
         string,
         string,
+        string,
         string>;
     RecordType data;
     string& id;
@@ -26,6 +27,7 @@ struct TimeEntryDefinition {
     string& deleted_event_id;
     string& creation_date;
     string& creator_user_id;
+    string& note;
     explicit TimeEntryDefinition(RecordType d)
         : data{std::move(d)}
         , id(data.get<0>())
@@ -37,6 +39,7 @@ struct TimeEntryDefinition {
         , deleted_event_id(data.get<6>())
         , creation_date(data.get<7>())
         , creator_user_id(data.get<8>())
+        , note(data.get<9>())
     {
     }
     TimeEntryDefinition()
@@ -50,6 +53,7 @@ struct TimeEntryDefinition {
         , deleted_event_id(data.get<6>())
         , creation_date(data.get<7>())
         , creator_user_id(data.get<8>())
+        , note(data.get<9>())
     {
     }
     TimeEntryDefinition(const TimeEntryDefinition& t)
@@ -63,6 +67,7 @@ struct TimeEntryDefinition {
         , deleted_event_id(data.get<6>())
         , creation_date(data.get<7>())
         , creator_user_id(data.get<8>())
+        , note(data.get<9>())
     {
     }
     TimeEntryDefinition& operator=(const TimeEntryDefinition& other)
@@ -70,15 +75,15 @@ struct TimeEntryDefinition {
         data = other.data;
         return *this;
     }
-    [[nodiscard]] string table_name() const;
-    [[nodiscard]] vector<ColumnType> columns() const;
+    [[nodiscard]] static string table_name() ;
+    [[nodiscard]] static vector<ColumnType> columns() ;
     void set(const KeyStringType& key, const string& value);
     [[nodiscard]] string get(const KeyStringType& key) const;
     [[nodiscard]] string description() const;
     static vector<KeyStringType> presentableFields();
     static string presentableName();
-    [[nodiscard]] bool isEmptyFor(const string& user_id) const;
-    [[nodiscard]] std::vector<int> yearsFor(const string& user_id) const;
+    [[nodiscard]] static bool isEmptyFor(const string& user_id) ;
+    [[nodiscard]] static std::vector<int> yearsFor(const string& user_id) ;
     [[nodiscard]] std::vector<int> yearsForAllUsers() const;
     [[nodiscard]] std::vector<int> monthsFor(
         const string& user_id, int year) const;
@@ -92,7 +97,7 @@ struct TimeEntryDefinition {
     IsOpenResult isOpen(const string& user_id, const string& date);
 
     void closeOpenDays(const string& user_id, const string& current_date);
-    Poco::Data::Date getEventDate() const;
+    [[nodiscard]] Poco::Data::Date getEventDate() const;
     bool checkTimestampExists(
         const string& employee_id,
         const string& event_date,

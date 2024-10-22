@@ -55,7 +55,7 @@ TEST_CASE("Login Server")
         auto response = w.handle({"/secret_page"});
         CHECK(response->alert().message() == "Please login");
         CHECK(response->status() == 302);
-        CHECK(response->location() == "/");
+        CHECK(response->location() == "/login");
     }
     SUBCASE("Login 100 times")
     {

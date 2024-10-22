@@ -7,12 +7,12 @@
 #include "String/currentDateTime.hpp"
 
 #include <optional>
-#include <Poco/DateTime.h>
 #ifndef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 #include <regex>
+#include <utility>
 #ifndef __clang__
 #pragma GCC diagnostic pop
 #endif
@@ -26,11 +26,11 @@
 
 const auto regex_valid_time_str = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$";
 
-string TimeEntryDefinition::table_name() const
+string TimeEntryDefinition::table_name()
 {
     return "time_events";
 }
-vector<ColumnType> TimeEntryDefinition::columns() const
+vector<ColumnType> TimeEntryDefinition::columns()
 {
     return {
         ColumnType{"employee_id", "VARCHAR", HtmlInputType::TEXT},
@@ -41,6 +41,7 @@ vector<ColumnType> TimeEntryDefinition::columns() const
         ColumnType{"deleted_event_id", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"creation_date", "DATETIME", HtmlInputType::HIDDEN},
         ColumnType{"creator_user_id", "VARCHAR", HtmlInputType::HIDDEN},
+        ColumnType{"note", "VARCHAR", HtmlInputType::TEXT},
     };
 }
 void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
@@ -71,6 +72,8 @@ void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
         creation_date = value;
     } else if (key == "creator_user_id") {
         creator_user_id = value;
+    } else if (key == "note") {
+        note = value;
     }
 }
 string TimeEntryDefinition::get(const KeyStringType& key) const
@@ -91,6 +94,8 @@ string TimeEntryDefinition::get(const KeyStringType& key) const
         return creation_date;
     } else if (key == "creator_user_id") {
         return creator_user_id;
+    } else if (key == "note") {
+        return note;
     }
     return {};
 }
@@ -112,7 +117,7 @@ string TimeEntryDefinition::presentableName()
 {
     return "Time Entry";
 }
-bool TimeEntryDefinition::isEmptyFor(const string& user_id) const
+bool TimeEntryDefinition::isEmptyFor(const string& user_id)
 try {
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
@@ -129,7 +134,7 @@ try {
     TRACE_RETHROW("Could not count");
 }
 
-std::vector<int> TimeEntryDefinition::yearsFor(const string& user_id) const
+std::vector<int> TimeEntryDefinition::yearsFor(const string& user_id)
 try {
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
@@ -188,7 +193,8 @@ try {
 } catch (...) {
     TRACE_RETHROW("Could not list");
 }
-[[nodiscard]] std::vector<int> TimeEntryDefinition::monthsForAllUsers(int year) const
+[[nodiscard]] std::vector<int> TimeEntryDefinition::monthsForAllUsers(
+    int year) const
 try {
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
@@ -210,19 +216,21 @@ try {
 }
 struct OverViewRow : public Record {
     OverViewRow(
-        const string& day,
-        const string& date,
+        string day,
+        string date,
         const Poco::Data::Time& start_time,
         const std::optional<Poco::Data::Time>& end_time,
         const Poco::Data::Date& full_date,
-        const string& start_id = {},
-        const string& end_id = {})
-        : m_day{day}
-        , m_date{date}
+        string start_id = {},
+        string end_id = {},
+        string note = {})
+        : m_day{std::move(day)}
+        , m_date{std::move(date)}
         , m_start_time{start_time}
         , m_end_time{end_time}
-        , m_start_id{start_id}
-        , m_end_id{end_id}
+        , m_start_id{std::move(start_id)}
+        , m_end_id{std::move(end_id)}
+        , m_note{std::move(note)}
         , m_full_date{full_date}
     {
     }
@@ -250,7 +258,7 @@ struct OverViewRow : public Record {
                                     : ""},
             {"start_id", m_start_id},
             {"end_id", m_end_id},
-        };
+            {"note", m_note}};
     };
     HtmlInputType inputType(const KeyStringType& field) const override
     {
@@ -259,7 +267,7 @@ struct OverViewRow : public Record {
     string m_day, m_date;
     Poco::Data::Time m_start_time;
     std::optional<Poco::Data::Time> m_end_time;
-    string m_start_id, m_end_id;
+    string m_start_id, m_end_id, m_note;
     Poco::Data::Date m_full_date;
 };
 
@@ -387,10 +395,11 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
      *
      */
     const auto sql_with_corrections_optimized = R"(
-SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime, tOn.id StartId, tOff.id EndId
+SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime, tOn.id StartId, tOff.id EndId, tOff.note
 FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                                c1.id,
                                c1.employee_id,
+                               c1.note,
                                c1.corrected_event_id,
                                c1.event_type as FinalEventType,
                                c1.event_type,
@@ -404,6 +413,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                         SELECT cte.FinalID,
                                c2.id,
                                c2.employee_id,
+                               c2.note,
                                c2.corrected_event_id,
                                cte.FinalEventType,
                                c2.event_type,
@@ -418,6 +428,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
            cteNumbered AS (SELECT row_number() over (partition by FinalID order by lvl desc) as nr, *
                            FROM cteSteps)
       SELECT employee_id,
+             note,
              FinalTime      as event_time,
              FinalDate      as event_date,
              FinalEventType as event_type,
@@ -429,6 +440,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
          LEFT JOIN (WITH cteSteps AS (SELECT c1.id         as FinalID,
                                              c1.id,
                                              c1.employee_id,
+                                             c1.note,
                                              c1.corrected_event_id,
                                              c1.event_type as FinalEventType,
                                              c1.event_type,
@@ -442,6 +454,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                                       SELECT cte.FinalID,
                                              c2.id,
                                              c2.employee_id,
+                                             c2.note,
                                              c2.corrected_event_id,
                                              cte.FinalEventType,
                                              c2.event_type,
@@ -456,6 +469,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                          cteNumbered AS (SELECT row_number() over (partition by FinalID order by lvl desc) as nr, *
                                          FROM cteSteps)
                     SELECT employee_id,
+                           note,
                            FinalTime      as event_time,
                            FinalDate      as event_date,
                            FinalEventType as event_type,
@@ -467,14 +481,14 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                    on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);
 )";
     using valueType = Poco::Tuple<
-        string, // employee_id
-        Poco::Data::Date, // event_date
-        Poco::Data::Time, // start_time
-        Poco::Data::Date, // event_date
-        string, // end_time
-        string, // start_id
-        string, // end_id
-        string,
+        string, // employee_id 0
+        Poco::Data::Date, // event_date 1
+        Poco::Data::Time, // start_time 2
+        Poco::Data::Date, // event_date 3
+        string, // end_time 4
+        string, // start_id 5
+        string, // end_id 6
+        string, // note 7
         string>;
     std::vector<valueType> result;
 
@@ -496,6 +510,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
         const auto endTime = row.get<4>();
         const auto startId = row.get<5>();
         const auto endId = row.get<6>();
+        const auto noteText = row.get<7>();
 
         Poco::Data::Time endTimeData;
         if (!endTime.empty()) {
@@ -505,14 +520,17 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
             endTimeData = Poco::Data::Time{dt.hour(), dt.minute(), 0};
         }
         using DateTime::Date;
-        records.push_back(make_shared<OverViewRow>(
-            Date(eventDate).formatAsWeekday(),
-            Date(eventDate).formatAsDayMonth(),
-            startTime,
-            endTime.empty() ? std::nullopt : std::make_optional(endTimeData),
-            eventDate,
-            startId,
-            endId));
+        records.push_back(
+            make_shared<OverViewRow>(
+                Date(eventDate).formatAsWeekday(),
+                Date(eventDate).formatAsDayMonth(),
+                startTime,
+                endTime.empty() ? std::nullopt
+                                : std::make_optional(endTimeData),
+                eventDate,
+                startId,
+                endId,
+                noteText));
     }
     return records;
 } catch (...) {
@@ -532,8 +550,7 @@ event_date;)";
     Poco::Data::Time max_time;
     string event_type_;
     Statement select(*g_session);
-    select << sql, into(max_time), into(event_type_),
-        bind(user_id), bind(date);
+    select << sql, into(max_time), into(event_type_), bind(user_id), bind(date);
     spdlog::debug("SQL EXEC: {}", select.execute());
     const std::string event_time_str = DateTime::Time(max_time).formatAsTime();
     spdlog::debug("SQL: {}", select.toString());

@@ -36,5 +36,5 @@ TEST_CASE("Form Data")
     form.set("user", "admin");
     form.set("pass", "Adm1n!");
 
-    CHECK(form.data() == "user=admin&pass=Adm1n!&");
+    CHECK(form.data() == "user=admin&pass=Adm1n%21&");
 }

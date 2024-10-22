@@ -7,7 +7,7 @@
 #include "TimeElement.h"
 #include "Hidden.hpp"
 #include "Text.hpp"
-
+#include "Poco/URI.h"
 #include <sstream>
 
 using std::ostringstream;
@@ -111,7 +111,9 @@ string Form::data() const
 {
     ostringstream str;
     for (auto& element : m_pureElements) {
-        str << element->name() << "=" << element->value() << "&";
+        std::string value;
+        Poco::URI::encode(element->value(), "/?&:", value);
+        str << element->name() << "=" << value << "&";
     }
     return str.str();
 }

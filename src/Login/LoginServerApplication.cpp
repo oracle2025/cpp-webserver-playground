@@ -1,5 +1,6 @@
 #include "LoginServerApplication.hpp"
 
+#include "Calendar/CalendarController.hpp"
 #include "Data/Movie.hpp"
 #include "Data/SharedTodo.hpp"
 #include "Document/DocumentController.hpp"
@@ -46,6 +47,7 @@ void makeCruds(Http::Router& router)
                          })
                          ->initialize(router)
                          .shared_from_this();
+    Calendar::CalendarController::initialize("/calendar", router);
 }
 void makeHome(Http::Router& router)
 {

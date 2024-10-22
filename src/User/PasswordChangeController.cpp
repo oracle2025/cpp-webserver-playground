@@ -13,9 +13,9 @@
 
 using Http::content;
 using Http::redirect;
-using Request = Http::Request;
-using Response = Http::Response;
-using Session = Http::Session;
+using Http::Request;
+using Http::Response;
+using Http::Session;
 
 void PasswordChangeController::initialize(
     const string& prefix, Http::Router& router)
