@@ -1,4 +1,4 @@
-#include "TimeElement.h"
+#include "TimeElement.hpp"
 
 #include "String/capitalize.hpp"
 #include "String/escape.hpp"
@@ -20,7 +20,7 @@ string TimeElement::operator()()
 {
     ostringstream str;
     str << R"(<label for=")" << m_label << R"(">)" << String::capitalize(m_label)
-        << R"(</label><br> <input type="time" step="3600" id=")" << m_label << R"(" name=")"
+        << R"(</label><br> <input class="form-control" type="time" step="60" id=")" << m_label << R"(" name=")"
         << m_label << R"(" value=")" << String::escape(m_value) << R"(">)";
 
     return str.str();

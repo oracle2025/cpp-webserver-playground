@@ -38,7 +38,9 @@
                         <td>{{row.start_time}} - {{row.end_time}}</td>
                         <td>{{row.hours}}</td>
                         <td>
-
+                            {% if row.show_note %}
+                            <span data-toggle="tooltip" data-placement="right" class="note_tooltip" title="" data-original-title="{{row.note}}">⚠️</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

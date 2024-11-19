@@ -52,7 +52,8 @@ TEST_CASE("TimeEntryControllerTest")
             browser.pageContents().find("Logged in successfully")
             != string::npos);
         browser.location("/list/");
-        CHECK(browser.pageContents().find("Noch keine Einträge") != string::npos);
+        CHECK(
+            browser.pageContents().find("Noch keine Einträge") != string::npos);
         browser.location("http://localhost:8080/time_entry/");
         CHECK(browser.form() != nullptr);
         browser.form()->set("event_time", "11:00");
@@ -62,5 +63,68 @@ TEST_CASE("TimeEntryControllerTest")
             browser.pageContents().find("Time Entry created") != string::npos);
         browser.location("/list/");
         CHECK(browser.pageContents().find("11:00 -") != string::npos);
+    }
+    SUBCASE("Create Entry with Note at Stop")
+    {
+        browser.location("http://localhost:8080/login");
+        CHECK(browser.form().get() != nullptr);
+        browser.form()->set("username", "admin");
+        browser.form()->set("password", "Adm1n!");
+        browser.submit();
+        CHECK(
+            browser.pageContents().find("Logged in successfully")
+            != string::npos);
+        browser.location("http://localhost:8080/time_entry/");
+        CHECK(browser.form() != nullptr);
+        browser.form()->set("event_time", "11:00");
+        browser.form()->set("event_type", "start");
+        browser.submit();
+        CHECK(
+            browser.pageContents().find("Time Entry created") != string::npos);
+        browser.location("http://localhost:8080/time_entry/");
+        CHECK(browser.form() != nullptr);
+        browser.form()->set("event_time", "12:00");
+        browser.form()->set("event_type", "stop");
+        browser.form()->set("note", "NoteCanary");
+        browser.submit();
+        CHECK(
+            browser.pageContents().find("Time Entry created") != string::npos);
+        browser.location("/list/");
+        CHECK(browser.pageContents().find("11:00 - 12:00") != string::npos);
+        CHECK(browser.pageContents().find("NoteCanary") != string::npos);
+    }
+    SUBCASE("Create Entry with Note at Start")
+    {
+        browser.location("http://localhost:8080/login");
+        CHECK(browser.form().get() != nullptr);
+        browser.form()->set("username", "admin");
+        browser.form()->set("password", "Adm1n!");
+        browser.submit();
+        CHECK(
+            browser.pageContents().find("Logged in successfully")
+            != string::npos);
+        browser.location("http://localhost:8080/time_entry/");
+        CHECK(browser.form() != nullptr);
+        browser.form()->set("event_time", "11:00");
+        browser.form()->set("event_type", "start");
+        browser.form()->set("note", "NoteCanary");
+        browser.submit();
+        CHECK(
+            browser.pageContents().find("Time Entry created") != string::npos);
+        CHECK(browser.pageContents().find("NoteCanary") != string::npos);
+
+        browser.location("/list/");
+        CHECK(browser.pageContents().find("NoteCanary") != string::npos);
+
+
+        browser.location("http://localhost:8080/time_entry/");
+        CHECK(browser.form() != nullptr);
+        browser.form()->set("event_time", "12:00");
+        browser.form()->set("event_type", "stop");
+        browser.submit();
+        CHECK(
+            browser.pageContents().find("Time Entry created") != string::npos);
+        browser.location("/list/");
+        CHECK(browser.pageContents().find("NoteCanary") != string::npos);
     }
 }

@@ -34,6 +34,8 @@ private:
     std::shared_ptr<Response> listEntries(const Request& request);
     std::shared_ptr<Response> editEntry(const Request& request);
     std::shared_ptr<Response> updateEntry(const Request& request);
+    std::shared_ptr<Response> newEntry(const Request& request);
+    std::shared_ptr<Response> createEntry(const Request& request);
 
 
     int selectYear(const Request& request, const std::vector<int>& years);
@@ -41,4 +43,6 @@ private:
 
     struct TimeCorrectionControllerImpl;
     std::unique_ptr<TimeCorrectionControllerImpl> impl_;
+    bool isAllowed(const Request& request);
+
 };

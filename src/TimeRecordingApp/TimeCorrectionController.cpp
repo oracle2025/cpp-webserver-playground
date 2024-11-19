@@ -1,6 +1,7 @@
 
 #include "TimeCorrectionController.hpp"
 
+#include "Data/ValidationError.hpp"
 #include "DateTime/Date.hpp"
 #include "DateTime/Month.hpp"
 #include "DateTime/Time.hpp"
@@ -9,6 +10,11 @@
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
 #include "Http/Session.hpp"
+#include "Input/Date.h"
+#include "Input/Submit.hpp"
+#include "Input/Text.hpp"
+#include "Input/TimeElement.hpp"
+#include "String/currentDateTime.hpp"
 #include "String/escape.hpp"
 #include "Template/BaseTemplate.hpp"
 #include "Template/TemplateDataHelper.hpp"
@@ -36,7 +42,6 @@ TimeCorrectionController& TimeCorrectionController::initialize(
 {
     const auto prefix = impl_->prefix;
     auto ptr = shared_from_this();
-    using Http::redirect;
 
     router.get(prefix + "/", [ptr](const Request& request) {
         return ptr->listEntries(request);
@@ -47,17 +52,20 @@ TimeCorrectionController& TimeCorrectionController::initialize(
     router.post(prefix + "/update", [ptr](const Request& request) {
         return ptr->updateEntry(request);
     });
-    router.get(prefix + "/enable_debug", [prefix](const Request& request) {
-        spdlog::set_level(spdlog::level::debug);
-        return redirect(prefix + "/")
-            ->alert("Log Level Debug enabled", Html::AlertType::SUCCESS)
-            .shared_from_this();
+    router.get(prefix + "/new", [ptr](const Request& request) {
+        return ptr->newEntry(request);
+    });
+    router.post(prefix + "/create", [ptr](const Request& request) {
+        return ptr->createEntry(request);
     });
     return *this;
 }
 std::shared_ptr<Response> TimeCorrectionController::listEntries(
     const TimeCorrectionController::Request& request)
 {
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
     auto record = make_shared<TimeEntry>(request);
     // Select by User
     // Check if Empty -> display Empty Message
@@ -93,11 +101,12 @@ std::shared_ptr<Response> TimeCorrectionController::listEntries(
 
     spdlog::debug("Selected Month: {}", selected_month);
 
-    auto years_with_selection = Template::selectFromList(years, selected_year, "year");
+    auto years_with_selection
+        = Template::selectFromList(years, selected_year, "year");
 
-    auto months_with_selection = Template::selectFromList(
-        months, selected_month, "month");
-    for (auto &month : months_with_selection) {
+    auto months_with_selection
+        = Template::selectFromList(months, selected_month, "month");
+    for (auto& month : months_with_selection) {
         month["month_name"] = DateTime::Month(month["month"]).asString();
     }
     using DateTime::Date;
@@ -168,6 +177,7 @@ nlohmann::json TimeCorrectionController::convertResultToData(
         row["end_id"] = values.at("end_id");
         row["enable_edit"] = !end_time.empty();
         row["note"] = String::escape(values.at("note"));
+        row["show_note"] = !values.at("note").empty();
         rows.push_back(row);
     }
     return rows;
@@ -175,6 +185,9 @@ nlohmann::json TimeCorrectionController::convertResultToData(
 std::shared_ptr<Response> TimeCorrectionController::editEntry(
     const Request& request)
 {
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
     /*
      * TODO: Testcases
      *
@@ -231,6 +244,9 @@ std::shared_ptr<Response> TimeCorrectionController::editEntry(
 std::shared_ptr<Response> TimeCorrectionController::updateEntry(
     const Request& request)
 {
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
     /*
      * Form parameters:
      * id_start
@@ -336,4 +352,100 @@ int TimeCorrectionController::selectMonth(
         return selected_month;
     }
     return months.back();
+}
+bool TimeCorrectionController::isAllowed(const Request& request)
+{
+    using Http::Session;
+    Session session(request);
+    return session.role() == "user";
+}
+std::shared_ptr<Response> TimeCorrectionController::newEntry(
+    const Request& request)
+{
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
+    using namespace Input;
+    const auto prefix = impl_->prefix;
+    auto form = std::make_shared<Form>(
+        vector<ElementPtr>{
+            std::make_shared<Date>("date"),
+            std::make_shared<TimeElement>("start"),
+            std::make_shared<TimeElement>("end"),
+            std::make_shared<Text>("note"),
+            std::make_shared<Submit>("Create Entry")},
+        prefix + "/create",
+        "post");
+
+    return content((*form)())
+        ->form(form)
+        .title("Neuer Eintrag")
+        .shared_from_this();
+}
+std::shared_ptr<Response> TimeCorrectionController::createEntry(
+    const Request& request)
+{
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
+    const auto prefix = impl_->prefix;
+
+    auto entry_start = make_shared<TimeEntry>(request);
+    auto entry_end = make_shared<TimeEntry>(request);
+    try {
+        const auto user_id = Session(request).userId();
+        for (const std::string& parameter : {"date", "start", "end", "note"}) {
+            if (!request.hasParameter(parameter)) {
+                throw Data::ValidationError("Missing parameter: " + parameter);
+            }
+        }
+        const auto event_date = request.parameter("date");
+        const auto start_time = request.parameter("start");
+        const auto end_time = request.parameter("end");
+        entry_start->set("employee_id", user_id);
+        entry_start->set("event_date", event_date); // TODO: validate date
+        entry_start->set("event_time", start_time);
+        entry_start->set("event_type", "start");
+        entry_start->set("corrected_event_id", "");
+        entry_start->set("deleted_event_id", "");
+        entry_start->set("creation_date", String::localDateTime());
+        entry_start->set("creator_user_id", user_id);
+        entry_start->set("note", request.parameter("note"));
+        entry_end->set("employee_id", user_id);
+        entry_end->set("event_date", event_date); // TODO: validate date
+        entry_end->set("event_time", end_time);
+        entry_end->set("event_type", "stop");
+        entry_end->set("corrected_event_id", "");
+        entry_end->set("deleted_event_id", "");
+        entry_end->set("creation_date", String::localDateTime());
+        entry_end->set("creator_user_id", user_id);
+        entry_end->set("note", request.parameter("note"));
+        if (entry_start->checkTimestampExists(user_id, event_date, start_time)||
+            entry_end->checkTimestampExists(user_id, event_date, end_time)) {
+            return redirect(prefix + "/")
+                ->alert(
+                    "Fehler: Zeitpunkt wurde bereits erfasst",
+                    Html::AlertType::DANGER)
+                .shared_from_this();
+        }
+        if (DateTime::Time::parseTime(end_time).difference(
+                DateTime::Time::parseTime(start_time)).toMinutes() < 0) {
+            return redirect(prefix + "/")
+                ->alert(
+                    "Fehler: Stop kann nicht vor Start sein",
+                    Html::AlertType::DANGER)
+                .shared_from_this();
+        }
+        // TODO Check if there is already an Entry in that same range
+        entry_start->insert();
+        entry_end->insert();
+    } catch (const Data::ValidationError& ex) {
+        return redirect(prefix + "/new")
+            //TODO: what() contains the submitted data, could be exploited
+            ->alert(ex.what(), Html::AlertType::DANGER)
+            .shared_from_this();
+    }
+    return redirect(prefix + "/")
+        ->alert("Created new Time Entry", Html::AlertType::SUCCESS)
+        .shared_from_this();
 }

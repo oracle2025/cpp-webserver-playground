@@ -11,6 +11,8 @@ struct RouteId {
     explicit RouteId(string path);
     bool operator<(const RouteId& rhs) const;
 
+    const string& path() const;
+
 private:
     Method m_method = Method::GET;
     string m_path;

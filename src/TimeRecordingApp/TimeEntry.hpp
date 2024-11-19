@@ -90,9 +90,11 @@ struct TimeEntryDefinition {
     [[nodiscard]] std::vector<int> monthsForAllUsers(int year) const;
     vector<shared_ptr<Record>> overviewAsPointers(
         const string& user_id, int year, int month, const string& current_date);
+
     struct IsOpenResult {
         bool isOpen;
         string start_time;
+        string note;
     };
     IsOpenResult isOpen(const string& user_id, const string& date);
 

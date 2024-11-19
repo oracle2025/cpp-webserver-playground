@@ -1,6 +1,8 @@
 #include "TimeEntryController.hpp"
 
 #include "Data/ValidationError.hpp"
+#include "DateTime/Date.hpp"
+#include "DateTime/Time.hpp"
 #include "Http/Request.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
@@ -8,10 +10,9 @@
 #include "Input/Submit.hpp"
 #include "String/capitalize.hpp"
 #include "String/currentDateTime.hpp"
+#include "String/escape.hpp"
 #include "Template/BaseTemplate.hpp"
 #include "Text.hpp"
-#include "DateTime/Time.hpp"
-#include "DateTime/Date.hpp"
 #include "TimeEntry.hpp"
 
 using Http::content;
@@ -25,31 +26,39 @@ struct TimeEntryController::TimeEntryControllerImpl {
 shared_ptr<Http::Response> TimeEntryController::entryForm(
     const TimeEntryController::Request& request)
 {
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
     using namespace Input;
     using Http::Session;
+
     auto entry = make_shared<TimeEntry>(request);
     auto data = nlohmann::json::object();
 
     data["Username"] = String::capitalize(Session(request).userName());
     string start_time;
+    string note;
     auto enable_start_button
-        = enableStartButton(Session(request).userId(), start_time);
+        = enableStartButton(Session(request).userId(), start_time, note);
     data["enable_start_button"] = enable_start_button;
+    data["note"] = string{};
     if (!enable_start_button) {
         data["start_time"] = start_time;
+        data["note"] = String::escape(note);
     }
     using DateTime::Date;
 
     const auto current = Date::currentDate();
     data["current_date"] = current.formatAsDate();
-    data["current_date_pretty"] = current.formatAsWeekday() + ", "
-        + current.formatAsDayMonth();
+    data["current_date_pretty"]
+        = current.formatAsWeekday() + ", " + current.formatAsDayMonth();
     data["currentLocalTime"] = String::localTime();
 
     auto form = std::make_shared<Input::Form>(
                     vector<Input::ElementPtr>{
                         std::make_shared<Input::Text>("event_time"),
                         std::make_shared<Input::Text>("event_type"),
+                        std::make_shared<Input::Text>("note", note),
                     },
                     impl_->prefix + "/",
                     "post")
@@ -65,6 +74,9 @@ shared_ptr<Http::Response> TimeEntryController::entryForm(
 std::shared_ptr<Http::Response> TimeEntryController::createEntry(
     const Request& request)
 {
+    if (!isAllowed(request)) {
+        return content("Access denied");
+    }
     using Http::Session;
     const auto prefix = impl_->prefix;
     auto entry = std::make_shared<TimeEntry>(request);
@@ -91,6 +103,7 @@ std::shared_ptr<Http::Response> TimeEntryController::createEntry(
         entry->set("deleted_event_id", "");
         entry->set("creation_date", String::localDateTime());
         entry->set("creator_user_id", user_id);
+        entry->set("note", request.parameter("note"));
         /* Check:
          * Can't have an event that has exactly the same date and time:
          * UNIQUE(employee_id, event_date, event_time)
@@ -147,6 +160,7 @@ TimeEntryController& TimeEntryController::initialize(Http::Router& router)
     router.post(prefix + "/", [ptr](const Request& request) {
         return ptr->createEntry(request);
     });
+#ifdef DEBUG_BUILD
     router.get(
         prefix + "/generateTestData", [ptr, prefix](const Request& request) {
             ptr->generateTwoYearsOfTestData(Http::Session(request).userId());
@@ -154,6 +168,7 @@ TimeEntryController& TimeEntryController::initialize(Http::Router& router)
                 ->alert("Test data generated", Html::AlertType::SUCCESS)
                 .shared_from_this();
         });
+#endif
     return *this;
 }
 TimeEntryController::TimeEntryController(const string& prefix)
@@ -162,11 +177,12 @@ TimeEntryController::TimeEntryController(const string& prefix)
     impl_->prefix = prefix;
 }
 bool TimeEntryController::enableStartButton(
-    const string& userId, string& start_time)
+    const string& userId, string& start_time, string& note)
 {
     auto todays_date = String::currentDate();
     auto result = TimeEntry().isOpen(userId, todays_date);
     start_time = result.start_time;
+    note = result.note;
     return !result.isOpen;
 }
 static void insert_for_day(
@@ -214,5 +230,10 @@ void TimeEntryController::generateTwoYearsOfTestData(const string& userId)
         }
     }
 }
-
+bool TimeEntryController::isAllowed(const Request& request)
+{
+    using Http::Session;
+    Session session(request);
+    return (session.role() == "user") || session.isAdmin();
+}
 TimeEntryController::~TimeEntryController() = default;

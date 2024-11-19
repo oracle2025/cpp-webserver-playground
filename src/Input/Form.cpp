@@ -4,10 +4,11 @@
 #include "CheckBoxSelect.hpp"
 #include "Data/Record.hpp"
 #include "Date.h"
-#include "TimeElement.h"
 #include "Hidden.hpp"
-#include "Text.hpp"
 #include "Poco/URI.h"
+#include "Text.hpp"
+#include "TimeElement.hpp"
+
 #include <sstream>
 
 using std::ostringstream;

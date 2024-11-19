@@ -1,6 +1,6 @@
 #include "Data/Migrations.hpp"
-#include "String/currentDateTime.hpp"
 #include "DateTime/Time.hpp"
+#include "String/currentDateTime.hpp"
 #include "TimeRecordingApp/TimeEntry.hpp"
 #include "doctest.h"
 
@@ -204,5 +204,65 @@ TEST_CASE("TimeEntry")
                 = Time::parseTime(end).difference(Time::parseTime(start));
             CHECK_EQ(difference.toMinutes(), expected);
         }
+    }
+    SUBCASE("Corrupted Time Calculation")
+    {
+        /*
+BUG:
+
+    Input:
+        (employee_id = 'fceb73d4-630d-41bb-b253-bca924f07108' AND
+strftime('%m-%Y', event_date) = '07-2024')
+
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-10,23:55,start
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-13,23:17,start
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-13,23:18,stop
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-10,23:59,stop
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-14,21:31,start
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-14,21:35,stop
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-14,22:39,start
+                                         fceb73d4-630d-41bb-b253-bca924f07108,2024-07-14,23:59,stop
+
+*/
+        TimeEntry t;
+        t.set("employee_id", "user_id_123");
+
+        insert_for_start(t, "2024-07-10", "23:55");
+        insert_for_start(t, "2024-07-13", "23:17"); //,start
+        insert_for_stop(t, "2024-07-13", "23:18"); //,stop
+        insert_for_stop(t, "2024-07-10", "23:59"); //,stop
+        insert_for_start(t, "2024-07-14", "21:31"); //,start
+        insert_for_stop(t, "2024-07-14", "21:35"); //,stop
+        insert_for_start(t, "2024-07-14", "22:39"); //,start
+        insert_for_stop(t, "2024-07-14", "23:59"); //,stop
+
+        auto records = t.overviewAsPointers(
+            "user_id_123", 2024, 7, String::currentDate());
+
+        std::ostringstream str;
+        using DateTime::Time;
+        for (const auto& entry : records) {
+            const auto values = entry->values();
+            const auto start_time = values.at("start_time");
+            const auto end_time = values.at("end_time");
+            str << values.at("day") << " " << values.at("date") << " "
+                << values.at("start_time") << " " << values.at("end_time")
+                << " " << ((start_time.empty() || end_time.empty())
+                ? ""
+                : Time::parseTime(end_time)
+                      .difference(Time::parseTime(start_time))
+                      .formatAsTotalHours()) << "\n";
+        }
+        CHECK("" == str.str());
+
+        /*
+                                         Output:
+
+            Mittwoch 	10. Juli 	23:55 - 23:18 	0 h -37 min
+                Samstag 	13. Juli 	23:17 - 21:35 	-1 h -42 min
+                Sonntag 	14. Juli 	21:31 - 23:59 	2 h 28 min
+                Sonntag 	14. Juli 	22:39 -
+            Summe 	1 h -51 min
+         */
     }
 }

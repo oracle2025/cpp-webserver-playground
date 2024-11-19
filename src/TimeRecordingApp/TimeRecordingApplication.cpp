@@ -6,7 +6,6 @@
 #include "Impl/PocoWebServer.hpp"
 #include "Login/LoginController.hpp"
 #include "Login/ProfileController.hpp"
-#include "User/UserAdminController.hpp"
 #include "Signup/SignupController.hpp"
 #include "SimpleWebServer.hpp"
 #include "String/capitalize.hpp"
@@ -14,6 +13,7 @@
 #include "TimeEntryController.hpp"
 #include "TimeReportController.hpp"
 #include "User/PasswordChangeController.hpp"
+#include "User/UserAdminController.hpp"
 
 std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
     Router& router, std::shared_ptr<Html::Presentation> presentation)
@@ -28,7 +28,20 @@ std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
     PasswordChangeController::initialize("/password", privateRouter);
     std::make_shared<Login::ProfileController>()->initialize(privateRouter);
     privateRouter.get("/", [](const Request& request) {
-        return Http::redirect("/time_entry/");
+        using Http::Session;
+        Session session(request);
+        if (session.role() == "user") {
+            return Http::redirect("/time_entry/");
+        } else {
+            return Http::redirect("/report/");
+        }
+    });
+    privateRouter.get("/enable_debug", [](const Request& request) {
+        spdlog::set_level(spdlog::level::debug);
+        using Http::redirect;
+        return redirect("/")
+            ->alert("Log Level Debug enabled", Html::AlertType::SUCCESS)
+            .shared_from_this();
     });
 
     std::make_shared<TimeCorrectionController>("/list")->initialize(
@@ -36,6 +49,10 @@ std::shared_ptr<LoginController> TimeRecordingApplication::makeLoginController(
 
     std::make_shared<TimeReportController>("/report")->initialize(
         privateRouter);
+
+    for (const auto& [id, handler] : privateRouter) {
+        spdlog::debug("Route: " + id.path());
+    }
 
     privateHandler->defaultHandler(Http::NotFoundHandler);
     privateHandler->finish_init();

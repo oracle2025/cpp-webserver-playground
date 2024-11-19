@@ -20,10 +20,12 @@ struct TimeEntryController
     TimeEntryController& initialize(Http::Router& router);
 
 private:
-    bool enableStartButton(const string& userId, string& start_time);
+    bool enableStartButton(
+        const string& userId, string& start_time, string& note);
     std::shared_ptr<Response> createEntry(const Request& request);
     std::shared_ptr<Response> entryForm(const Request& request);
     void generateTwoYearsOfTestData(const string& userId);
     struct TimeEntryControllerImpl;
     std::unique_ptr<TimeEntryControllerImpl> impl_;
+    bool isAllowed(const Request& request);
 };

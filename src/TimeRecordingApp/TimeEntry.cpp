@@ -49,10 +49,15 @@ void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
     if (key == "employee_id") {
         employee_id = value;
     } else if (key == "event_date") {
-        int timeZoneDifferential;
-        auto dt = Poco::DateTimeParser::parse(
-            "%Y-%m-%d", value, timeZoneDifferential);
-        event_date = dt;
+        try {
+
+            int timeZoneDifferential;
+            auto dt = Poco::DateTimeParser::parse(
+                "%Y-%m-%d", value, timeZoneDifferential);
+            event_date = dt;
+        } catch (...) {
+            throw Data::ValidationError("Keine gültiges Datum: " + string(value));
+        }
     } else if (key == "event_time") {
         std::regex r(regex_valid_time_str);
         if (!std::regex_match(value, r)) {
@@ -394,8 +399,88 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
      *
      *
      */
+    const auto sql_with_corrections_optimized_before_note_addition = R"(
+SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime, tOn.id StartId, tOff.id EndId
+FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
+                               c1.id,
+                               c1.employee_id,
+                               c1.corrected_event_id,
+                               c1.event_type as FinalEventType,
+                               c1.event_type,
+                               c1.event_date as FinalDate,
+                               c1.event_time as FinalTime,
+                               1             as lvl
+                        FROM time_events c1
+                        WHERE employee_id = ?
+                          AND strftime('%Y-%m', event_date) = ?
+                        UNION ALL
+                        SELECT cte.FinalID,
+                               c2.id,
+                               c2.employee_id,
+                               c2.corrected_event_id,
+                               cte.FinalEventType,
+                               c2.event_type,
+                               c2.event_date,
+                               c2.event_time,
+                               cte.lvl + 1
+                        FROM cteSteps cte
+                                 INNER JOIN time_events c2
+                                            ON c2.corrected_event_id = cte.id OR c2.deleted_event_id = cte.id
+                        WHERE c2.employee_id = ?
+                          AND strftime('%Y-%m', event_date) = ?),
+           cteNumbered AS (SELECT row_number() over (partition by FinalID order by lvl desc) as nr, *
+                           FROM cteSteps)
+      SELECT employee_id,
+             FinalTime      as event_time,
+             FinalDate      as event_date,
+             FinalEventType as event_type,
+             FinalID        as id,
+             ROW_NUMBER()      Over (Partition by employee_id order by FinalDate, TIME(FinalTime)) EventID
+      FROM cteNumbered
+      WHERE nr = 1
+        AND event_type = 'start') tOn
+         LEFT JOIN (WITH cteSteps AS (SELECT c1.id         as FinalID,
+                                             c1.id,
+                                             c1.employee_id,
+                                             c1.corrected_event_id,
+                                             c1.event_type as FinalEventType,
+                                             c1.event_type,
+                                             c1.event_date as FinalDate,
+                                             c1.event_time as FinalTime,
+                                             1             as lvl
+                                      FROM time_events c1
+                                      WHERE employee_id = ?
+                                        AND strftime('%Y-%m', event_date) = ?
+                                      UNION ALL
+                                      SELECT cte.FinalID,
+                                             c2.id,
+                                             c2.employee_id,
+                                             c2.corrected_event_id,
+                                             cte.FinalEventType,
+                                             c2.event_type,
+                                             c2.event_date,
+                                             c2.event_time,
+                                             cte.lvl + 1
+                                      FROM cteSteps cte
+                                               INNER JOIN time_events c2
+                                                          ON c2.corrected_event_id = cte.id OR c2.deleted_event_id = cte.id
+                                      WHERE c2.employee_id = ?
+                                        AND strftime('%Y-%m', event_date) = ?),
+                         cteNumbered AS (SELECT row_number() over (partition by FinalID order by lvl desc) as nr, *
+                                         FROM cteSteps)
+                    SELECT employee_id,
+                           FinalTime      as event_time,
+                           FinalDate      as event_date,
+                           FinalEventType as event_type,
+                           FinalID        as id,
+                           ROW_NUMBER()      Over (Partition by employee_id order by FinalDate, TIME(FinalTime)) EventID
+                    FROM cteNumbered
+                    WHERE nr = 1
+                      AND event_type = 'stop') tOff
+                   on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);
+)";
     const auto sql_with_corrections_optimized = R"(
-SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime, tOn.id StartId, tOff.id EndId, tOff.note
+SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime, tOn.id StartId, tOff.id EndId, tOn.note StartNote, tOff.note EndNote
 FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                                c1.id,
                                c1.employee_id,
@@ -488,8 +573,8 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
         string, // end_time 4
         string, // start_id 5
         string, // end_id 6
-        string, // note 7
-        string>;
+        string, // startnote 7
+        string>; // endnote 8
     std::vector<valueType> result;
 
     std::ostringstream year_month_str;
@@ -510,7 +595,8 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
         const auto endTime = row.get<4>();
         const auto startId = row.get<5>();
         const auto endId = row.get<6>();
-        const auto noteText = row.get<7>();
+        const auto noteText = row.get<8>();
+        const auto startNoteText = row.get<7>();
 
         Poco::Data::Time endTimeData;
         if (!endTime.empty()) {
@@ -530,7 +616,7 @@ FROM (WITH cteSteps AS (SELECT c1.id         as FinalID,
                 eventDate,
                 startId,
                 endId,
-                noteText));
+                endTime.empty() ? startNoteText : noteText));
     }
     return records;
 } catch (...) {
@@ -542,21 +628,23 @@ TimeEntryDefinition::IsOpenResult TimeEntryDefinition::isOpen(
     using namespace Poco::Data::Keywords;
     using Poco::Data::Statement;
     const auto sql = R"(SELECT
-MAX(time(event_time)) AS max_time, event_type
+MAX(time(event_time)) AS max_time, event_type, note
 FROM
 time_events WHERE employee_id = ? AND event_date = ?
 GROUP BY
 event_date;)";
     Poco::Data::Time max_time;
     string event_type_;
+    string note_;
     Statement select(*g_session);
-    select << sql, into(max_time), into(event_type_), bind(user_id), bind(date);
+    select << sql, into(max_time), into(event_type_), into(note_),
+        bind(user_id), bind(date);
     spdlog::debug("SQL EXEC: {}", select.execute());
     const std::string event_time_str = DateTime::Time(max_time).formatAsTime();
     spdlog::debug("SQL: {}", select.toString());
     spdlog::debug("MAX_TIME: {}", event_time_str);
     spdlog::debug("event_type: {}", event_type_);
-    return {event_type_ == "start", event_time_str};
+    return {event_type_ == "start", event_time_str, note_};
 }
 void TimeEntryDefinition::closeOpenDays(
     const string& user_id, const string& current_date)
@@ -582,7 +670,7 @@ max_time, event_type, event_date
 FROM
 (
     SELECT
-        MAX(time(event_time)) AS max_time, event_type, event_date
+        MAX(time(event_time)) AS max_time, event_type, event_date, note
     FROM
         time_events
     WHERE
@@ -593,20 +681,22 @@ FROM
 WHERE
 event_type = 'start';)";
     spdlog::debug("SQL: {}", sql);
-    using valueType = Poco::Tuple<string, string, string>;
+    using valueType = Poco::Tuple<string, string, string, string>;
     std::vector<valueType> result;
     Poco::Data::Statement select(*g_session);
     select << sql, into(result), bind(user_id), now;
     for (const auto& row : result) {
         const auto event_type_ = row.get<1>();
         const auto event_date_ = row.get<2>();
+        const auto note_ = row.get<3>();
         if (event_type_ == "start" && event_date_ != current_date) {
             spdlog::debug("Closing day: {}", row.get<2>());
             spdlog::debug("Closing time: {}", row.get<0>());
             spdlog::debug("currentDate day: {}", current_date);
             TimeEntry ted;
             ted.set("employee_id", user_id);
-            ted.set("event_date", row.get<2>());
+            ted.set("event_date", event_date_);
+            ted.set("note", note_);
             ted.set("event_time", "23:59");
             ted.set("event_type", "stop");
             ted.insert();

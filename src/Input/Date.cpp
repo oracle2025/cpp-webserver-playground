@@ -19,7 +19,7 @@ string Date::operator()()
 {
     ostringstream str;
     str << R"(<label for=")" << m_label << R"(">)" << String::capitalize(m_label)
-        << R"(</label><br> <input type="date" id=")" << m_label << R"(" name=")"
+        << R"(</label><br> <input class="form-control" type="date" id=")" << m_label << R"(" name=")"
         << m_label << R"(" value=")" << String::escape(m_value) << R"(">)";
     return str.str();
 }

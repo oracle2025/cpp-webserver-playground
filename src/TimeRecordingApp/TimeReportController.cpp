@@ -7,6 +7,7 @@
 #include "DateTime/Time.hpp"
 #include "Http/Response.hpp"
 #include "Http/Router.hpp"
+#include "Http/Session.hpp"
 #include "String/capitalize.hpp"
 #include "Template/BaseTemplate.hpp"
 #include "Template/TemplateDataHelper.hpp"
@@ -42,6 +43,12 @@ std::shared_ptr<Response> TimeReportController::list(const Request& request)
 { /* Select Users */
     /* Select Month */
     /* Select hours for Month */
+
+    using Http::Session;
+    Session session(request);
+    if ((session.role() != "employer") && (!session.isAdmin())) {
+        return content("Access denied");
+    }
 
     // TODO if current_user.role != employer return permission denied
     auto record = make_shared<TimeEntry>(request);

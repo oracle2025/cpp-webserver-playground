@@ -1,20 +1,15 @@
-//
-// Created by Richard Spindler on 10.02.24.
-//
-
 #include "RouteId.hpp"
 
 namespace Http {
-RouteId::RouteId(const Http::Method& method, string  path)
+RouteId::RouteId(const Http::Method& method, string path)
     : m_method(method)
     , m_path(std::move(path))
 {
 }
-RouteId::RouteId(string  path)
+RouteId::RouteId(string path)
     : m_path(std::move(path))
 {
 }
-
 
 bool RouteId::operator<(const RouteId& rhs) const
 {
@@ -23,4 +18,9 @@ bool RouteId::operator<(const RouteId& rhs) const
     }
     return m_path < rhs.m_path;
 }
-} // Http
+
+const string& RouteId::path() const
+{
+    return m_path;
+}
+} // namespace Http
