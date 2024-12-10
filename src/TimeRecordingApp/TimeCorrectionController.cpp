@@ -394,9 +394,9 @@ std::shared_ptr<Response> TimeCorrectionController::createEntry(
     auto entry_end = make_shared<TimeEntry>(request);
     try {
         const auto user_id = Session(request).userId();
-        for (const std::string& parameter : {"date", "start", "end", "note"}) {
+        for (const auto& parameter : {"date", "start", "end", "note"}) {
             if (!request.hasParameter(parameter)) {
-                throw Data::ValidationError("Missing parameter: " + parameter);
+                throw Data::ValidationError(std::string{"Missing parameter: "} + parameter);
             }
         }
         const auto event_date = request.parameter("date");
