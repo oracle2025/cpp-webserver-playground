@@ -16,9 +16,17 @@ public:
     std::string formatAsTime() const;
     void add(const Time& other);
 
+    bool operator <=(const Time& other) const;
+    bool operator >=(const Time& other) const;
+    bool operator <(const Time& other) const;
+    bool operator >(const Time& other) const;
+
 private:
     long hours;
     long minutes;
 };
+
+std::ostream& operator<<(std::ostream& os, const Time& tm);
+
 
 } // namespace Time

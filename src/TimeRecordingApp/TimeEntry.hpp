@@ -75,22 +75,23 @@ struct TimeEntryDefinition {
         data = other.data;
         return *this;
     }
-    [[nodiscard]] static string table_name() ;
-    [[nodiscard]] static vector<ColumnType> columns() ;
+    [[nodiscard]] static string table_name();
+    [[nodiscard]] static vector<ColumnType> columns();
     void set(const KeyStringType& key, const string& value);
     [[nodiscard]] string get(const KeyStringType& key) const;
     [[nodiscard]] string description() const;
     static vector<KeyStringType> presentableFields();
     static string presentableName();
-    [[nodiscard]] static bool isEmptyFor(const string& user_id) ;
-    [[nodiscard]] static std::vector<int> yearsFor(const string& user_id) ;
+    [[nodiscard]] static bool isEmptyFor(const string& user_id);
+    [[nodiscard]] static std::vector<int> yearsFor(const string& user_id);
     [[nodiscard]] std::vector<int> yearsForAllUsers() const;
     [[nodiscard]] std::vector<int> monthsFor(
         const string& user_id, int year) const;
     [[nodiscard]] std::vector<int> monthsForAllUsers(int year) const;
     vector<shared_ptr<Record>> overviewAsPointers(
         const string& user_id, int year, int month, const string& current_date);
-
+    vector<shared_ptr<Record>> listDay(
+        const string& user_id, const string& current_date);
     struct IsOpenResult {
         bool isOpen;
         string start_time;
@@ -104,6 +105,11 @@ struct TimeEntryDefinition {
         const string& employee_id,
         const string& event_date,
         const string& event_time);
+    bool checkTimerangeOverlaps(
+        const string& employee_id,
+        const string& event_date,
+        const string& start_time,
+        const string& end_time);
     void validate();
 };
 

@@ -420,16 +420,18 @@ std::shared_ptr<Response> TimeCorrectionController::createEntry(
         entry_end->set("creation_date", String::localDateTime());
         entry_end->set("creator_user_id", user_id);
         entry_end->set("note", request.parameter("note"));
-        if (entry_start->checkTimestampExists(user_id, event_date, start_time)||
-            entry_end->checkTimestampExists(user_id, event_date, end_time)) {
+        if (entry_start->checkTimestampExists(user_id, event_date, start_time)
+            || entry_end->checkTimestampExists(user_id, event_date, end_time)) {
             return redirect(prefix + "/")
                 ->alert(
                     "Fehler: Zeitpunkt wurde bereits erfasst",
                     Html::AlertType::DANGER)
                 .shared_from_this();
         }
-        if (DateTime::Time::parseTime(end_time).difference(
-                DateTime::Time::parseTime(start_time)).toMinutes() < 0) {
+        if (DateTime::Time::parseTime(end_time)
+                .difference(DateTime::Time::parseTime(start_time))
+                .toMinutes()
+            < 0) {
             return redirect(prefix + "/")
                 ->alert(
                     "Fehler: Stop kann nicht vor Start sein",
@@ -437,11 +439,20 @@ std::shared_ptr<Response> TimeCorrectionController::createEntry(
                 .shared_from_this();
         }
         // TODO Check if there is already an Entry in that same range
+        if (entry_start->checkTimerangeOverlaps(
+                user_id, event_date, start_time, end_time)) {
+            return redirect(prefix + "/")
+                ->alert(
+                    "Fehler: Zeitraum überschneidet sich mit bestehendem "
+                    "Eintrag",
+                    Html::AlertType::DANGER)
+                .shared_from_this();
+        }
         entry_start->insert();
         entry_end->insert();
     } catch (const Data::ValidationError& ex) {
         return redirect(prefix + "/new")
-            //TODO: what() contains the submitted data, could be exploited
+            // TODO: what() contains the submitted data, could be exploited
             ->alert(ex.what(), Html::AlertType::DANGER)
             .shared_from_this();
     }

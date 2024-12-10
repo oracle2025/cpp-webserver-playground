@@ -49,3 +49,35 @@ TEST_CASE("Convert Date To Weekday")
     CHECK_EQ(String::convertDateToWeekday("2024-07-20"), "Samstag");
     CHECK_EQ(String::convertDateToWeekday("2024-07-21"), "Sonntag");
 }
+TEST_CASE("Compare Time Less than Equal")
+{
+    const auto A = DateTime::Time::parseTime("10:00");
+    const auto B = DateTime::Time::parseTime("11:00");
+    CHECK(A <= B);
+    CHECK(A <= A);
+    CHECK_FALSE(B <= A);
+}
+TEST_CASE("Compare Time Greater than Equal")
+{
+    const auto A = DateTime::Time::parseTime("10:00");
+    const auto B = DateTime::Time::parseTime("11:00");
+    CHECK(B >= A);
+    CHECK(A >= A);
+    CHECK_FALSE(A >= B);
+}
+TEST_CASE("Compare Time Less than")
+{
+    const auto A = DateTime::Time::parseTime("10:00");
+    const auto B = DateTime::Time::parseTime("11:00");
+    CHECK(A < B);
+    CHECK_FALSE(A < A);
+    CHECK_FALSE(B < A);
+}
+TEST_CASE("Compare Time Greater than")
+{
+    const auto A = DateTime::Time::parseTime("10:00");
+    const auto B = DateTime::Time::parseTime("11:00");
+    CHECK(B > A);
+    CHECK_FALSE(A > A);
+    CHECK_FALSE(A > B);
+}

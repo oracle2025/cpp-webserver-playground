@@ -1,10 +1,12 @@
 #include "Data/Migrations.hpp"
+#include "FakeBrowser.hpp"
 #include "Http/Session.hpp"
 #include "Impl/SimpleWebServer.hpp"
 #include "Login/LoginController.hpp"
+#include "PocoPageHandler.hpp"
 #include "TimeRecordingApp/TimeCorrectionController.hpp"
-#include "doctest.h"
 #include "TimeRecordingApp/TimeEntry.hpp"
+#include "doctest.h"
 #include "spdlog/spdlog.h"
 
 #include <Poco/Data/SQLite/Connector.h>
@@ -15,6 +17,17 @@ static void insert_for_start(
     t.set("event_time", start);
     t.set("event_type", "start");
     t.insert();
+}
+
+static map<string, string> login(RequestHandler& w)
+{
+    map<string, string> params;
+    params["username"] = "admin";
+    params["password"] = "Adm1n!";
+    auto response
+        = w.handle({"/login", {}, params, "", Http::Method::POST});
+    auto cookieJar = response->cookies();
+    return cookieJar;
 }
 
 TEST_CASE("TimeCorrectionController")
@@ -34,6 +47,7 @@ TEST_CASE("TimeCorrectionController")
         = std::make_shared<TimeCorrectionController>("/list")
               ->initialize(timeCorrectionServer->router())
               .shared_from_this();
+    auto presentation = std::make_shared<Html::Presentation>("Time Recording");
 
     auto login_controller
         = std::make_shared<LoginController>(
@@ -41,8 +55,12 @@ TEST_CASE("TimeCorrectionController")
               ->initialize(w.router())
               .shared_from_this();
     w.defaultHandler(login_controller->getDefaultHandler());
-    w.setPresentation(nullptr);
+    w.setPresentation(presentation);
     w.finish_init();
+    PocoPageHandler pageHandler(
+        [&w](const Request& request) { return w.handle(request); },
+        presentation);
+    FakeBrowser browser(pageHandler);
     SUBCASE("List Empty") {
         CHECK(w.handle({"/list/"})->status() == 302);
         map<string, string> params;
@@ -70,5 +88,11 @@ TEST_CASE("TimeCorrectionController")
         CHECK(actual.find("18. März") != string::npos);
         CHECK(actual.find("23:55") != string::npos);
     }
-    SUBCASE("List Test Data") {}
+    SUBCASE("Create Entry") {
+        auto cookieJar = login(w);
+        auto response_new_entry_form = w.handle({"/list/new", cookieJar});
+        const auto content = response_new_entry_form->content();
+        CHECK(content.find("Create Entry") != string::npos);
+        response_new_entry_form->form();
+    }
 }

@@ -56,7 +56,8 @@ void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
                 "%Y-%m-%d", value, timeZoneDifferential);
             event_date = dt;
         } catch (...) {
-            throw Data::ValidationError("Keine gültiges Datum: " + string(value));
+            throw Data::ValidationError(
+                "Keine gültiges Datum: " + string(value));
         }
     } else if (key == "event_time") {
         std::regex r(regex_valid_time_str);
@@ -730,6 +731,170 @@ bool TimeEntryDefinition::checkTimestampExists(
 
 void TimeEntryDefinition::validate()
 {
+}
+
+vector<shared_ptr<Record>> TimeEntryDefinition::listDay(
+    const string& user_id, const string& current_date)
+try {
+    using namespace Poco::Data::Keywords;
+    using Poco::Data::Statement;
+    const auto sql = R"(
+SELECT tOn.employee_id, tOn.event_date, tOn.event_time StartTime, tOff.event_date, tOff.event_time EndTime
+FROM (SELECT employee_id,
+     event_time,
+     event_date,
+     ROW_NUMBER() Over (Partition by employee_id order by event_date) EventID
+FROM time_events
+where event_type = 'start'
+AND employee_id = ?
+AND strftime('%Y-%m-%d', event_date) = ?) tOn
+ LEFT JOIN (SELECT employee_id,
+                   event_time,
+                   event_date,
+                   ROW_NUMBER() Over (Partition by employee_id order by event_date) EventID
+            FROM time_events
+            where event_type = 'stop'
+              AND employee_id = ?
+              AND strftime('%Y-%m-%d', event_date) = ?) tOff
+           on (tOn.employee_id = tOff.employee_id and tOn.EventID = tOff.EventID);
+)";
+    using valueType = Poco::Tuple<
+        string, // employee_id 0
+        Poco::Data::Date, // event_date 1
+        Poco::Data::Time, // start_time 2
+        Poco::Data::Date, // event_date 3
+        string, // end_time 4
+        string,
+        string,
+        string,
+        string>;
+    std::vector<valueType> result;
+
+    std::ostringstream year_month_day;
+
+    Poco::Data::Statement select(*g_session);
+    select << sql, into(result), bind(user_id), bind(current_date),
+        bind(user_id), bind(current_date), now;
+    std::vector<shared_ptr<Record>> records;
+    records.reserve(result.size());
+    for (const auto& row : result) {
+        const auto eventDate = row.get<1>();
+        const auto startTime = row.get<2>();
+        const auto endTime = row.get<4>();
+        const auto startId = row.get<5>();
+        const auto endId = row.get<6>();
+        const auto noteText = row.get<8>();
+        const auto startNoteText = row.get<7>();
+
+        Poco::Data::Time endTimeData;
+        if (!endTime.empty()) {
+            int timeZoneDifferential;
+            auto dt = Poco::DateTimeParser::parse(
+                "%H:%M:%S", endTime, timeZoneDifferential);
+            endTimeData = Poco::Data::Time{dt.hour(), dt.minute(), 0};
+        }
+        using DateTime::Date;
+        records.push_back(
+            make_shared<OverViewRow>(
+                Date(eventDate).formatAsWeekday(),
+                Date(eventDate).formatAsDayMonth(),
+                startTime,
+                endTime.empty() ? std::nullopt
+                                : std::make_optional(endTimeData),
+                eventDate,
+                startId,
+                endId,
+                endTime.empty() ? startNoteText : noteText));
+    }
+    return records;
+} catch (...) {
+    TRACE_RETHROW("Could not list");
+}
+bool TimeEntryDefinition::checkTimerangeOverlaps(
+    const string& employee_id_,
+    const string& event_date_,
+    const string& start_time,
+    const string& end_time)
+{
+    /* Types of Overlap:
+     *
+     * 1) No Overlap end
+     * A: -----+======+------------
+     * B: --------------+======+---
+     *
+     * B.start_time > A.end_time
+     *
+     * 2) No Overlap start
+     * A: --------------+======+---
+     * B: -----+======+------------
+     *
+     * B.end_time < A.start_time
+     *
+     * 3) Complete Overlap
+     * A: -----+======+------------
+     * B: -------+===+-------------
+     *
+     * B.start_time >= A.start_time && B.end_time <= A.end_time
+     *
+     * 4) Partial Overlap Start and End
+     * A: -----+======+------------
+     * B: ---+==========+----------
+     *
+     * B.start_time < A.start_time && B.end_time > A.end_time
+     *
+     * 5) Partial Overlap Start
+     * A: -----+======+------------
+     * B: ---+====+----------------
+     *
+     * B.start_time < A.start_time && B.end_time >= A.start_time
+     *
+     * 6) Partial Overlap End
+     * A: -----+======+------------
+     * B: ----------+====+---------
+     *
+     * B.start_time <= A.end_time && B.end_time > A.end_time
+     *
+     * if B.end_time >= A.start_time && B.start_time <= A.end_time
+     */
+    // ASSERT: start_time < end_time
+    // I would need to get all the pairs for a day
+    auto all_pairs_for_day = listDay(employee_id_, event_date_);
+
+    struct time_span {
+        DateTime::Time start_time;
+        DateTime::Time end_time;
+    };
+
+    time_span A{
+        DateTime::Time::parseTime(start_time),
+        DateTime::Time::parseTime(end_time)};
+
+    for (const auto& pair : all_pairs_for_day) {
+        auto startTime = pair->values().at("start_time");
+        auto endTime = pair->values().at("end_time");
+        time_span B{
+            DateTime::Time::parseTime(startTime),
+            DateTime::Time::parseTime(endTime)};
+        spdlog::debug(
+            "CheckOverlap: {} {} {}", event_date_, startTime, endTime);
+        // Complete Overlap
+        if (B.start_time >= A.start_time && B.end_time <= A.end_time) {
+                return true;
+        }
+        // Partial Overlap Start and End
+        if (B.start_time < A.start_time && B.end_time > A.end_time) {
+            return true;
+        }
+        // Partial Overlap Start
+        if (B.start_time < A.start_time && B.end_time >= A.start_time) {
+            return true;
+        }
+        // Partial Overlap End
+        if (B.start_time <= A.end_time && B.end_time > A.end_time) {
+            return true;
+        }
+    }
+    return false;
 }
 
 TEST_CASE("Valid Time Regex")

@@ -7,7 +7,6 @@
 
 namespace DateTime {
 
-
 void parseTime(const std::string& timeStr, struct tm& timeStruct)
 {
     memset(&timeStruct, 0, sizeof(struct tm)); // Clear the structure
@@ -84,4 +83,25 @@ void Time::add(const Time& other)
         minutes -= 60;
     }
 }
-} // namespace Time
+bool Time::operator<=(const Time& other) const
+{
+    return difference(other).toMinutes() <= 0;
+}
+bool Time::operator>=(const Time& other) const
+{
+    return difference(other).toMinutes() >= 0;
+}
+bool Time::operator<(const Time& other) const
+{
+    return difference(other).toMinutes() < 0;
+}
+bool Time::operator>(const Time& other) const
+{
+    return difference(other).toMinutes() > 0;
+}
+std::ostream& operator<<(std::ostream& os, const Time& tm)
+{
+    os << tm.formatAsTime();
+    return os;
+}
+} // namespace DateTime

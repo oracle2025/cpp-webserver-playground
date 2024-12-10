@@ -182,7 +182,7 @@ struct RecordImpl : public T, public RecordExtended {
     } catch (...) {
         TRACE_RETHROW("Could not create statement");
     }
-    string orderedColumnNames(const vector<ColumnType>& columns) const
+    static string orderedColumnNames(const vector<ColumnType>& columns)
     {
         string result = "id, ";
         for (auto& column : columns) {
