@@ -279,7 +279,11 @@ if (${Poco_FOUND} AND ${spdlog_FOUND})
             src/Input/Select.cpp
             src/Input/Select.hpp
             src/Calendar/CalendarController.cpp
-            src/Calendar/CalendarController.hpp)
+            src/Calendar/CalendarController.hpp
+            src/Data/MigrationsV11.cpp
+            src/Data/MigrationsV11.hpp
+            src/Csv/CsvFileReader.cpp
+            src/Csv/CsvFileReader.hpp)
     target_compile_definitions(
             webservers PUBLIC -DCURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
     target_compile_options(webservers PRIVATE -Wall -Wextra -Werror -Wpedantic
