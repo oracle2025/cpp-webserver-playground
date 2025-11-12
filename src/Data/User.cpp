@@ -11,13 +11,14 @@ TEST_CASE("UserRecord")
     RecordImpl<UserDefinition> user;
 }
 UserDefinition::UserDefinition()
-    : data{"", "", {}, ""}
+    : data{"", "", {}, "", "", "", ""}
     , id(data.get<0>())
     , username(data.get<1>())
     , password(data.get<2>())
     , salt(data.get<3>())
     , start_page(data.get<4>())
     , role(data.get<5>())
+    , api_key(data.get<6>())
 {
 }
 vector<ColumnType> UserDefinition::columns() const
@@ -27,7 +28,8 @@ vector<ColumnType> UserDefinition::columns() const
         {"password", "BLOB", HtmlInputType::NON_EDITABLE},
         {"salt", "VARCHAR", HtmlInputType::NON_EDITABLE},
         {"start_page", "VARCHAR", HtmlInputType::TEXT},
-        {"role", "VARCHAR", HtmlInputType::TEXT}};
+        {"role", "VARCHAR", HtmlInputType::TEXT},
+        {"api_key", "VARCHAR", HtmlInputType::NON_EDITABLE}};
 }
 string UserDefinition::get(const KeyStringType& key) const
 {
@@ -41,6 +43,8 @@ string UserDefinition::get(const KeyStringType& key) const
         return start_page;
     } else if (key == "role") {
         return role;
+    } else if (key == "api_key") {
+        return api_key;
     }
     return "";
 }
@@ -66,6 +70,7 @@ UserDefinition::UserDefinition(const UserDefinition::RecordType& d)
     , salt(data.get<3>())
     , start_page(data.get<4>())
     , role(data.get<5>())
+    , api_key(data.get<6>())
 {
 }
 UserDefinition::UserDefinition(const UserDefinition& u)
@@ -76,6 +81,7 @@ UserDefinition::UserDefinition(const UserDefinition& u)
     , salt(data.get<3>())
     , start_page(data.get<4>())
     , role(data.get<5>())
+    , api_key(data.get<6>())
 {
 }
 void UserDefinition::set(const KeyStringType& key, const string& value)
@@ -90,6 +96,8 @@ void UserDefinition::set(const KeyStringType& key, const string& value)
         start_page = value;
     } else if (key == "role") {
         role = value;
+    } else if (key == "api_key") {
+        api_key = value;
     }
 }
 string UserDefinition::description() const
@@ -108,7 +116,7 @@ bool findUser(Poco::Data::Session& session, const string& username, User& user)
     using String::repeat;
     Statement select(session);
     string copy(username);
-    select << "SELECT id, username, password, salt, start_page, role FROM "
+    select << "SELECT id, username, password, salt, start_page, role, api_key FROM "
             + user.table_name() + " WHERE username = ?",
         use(copy), into(user.data), range(0, 1);
     try {

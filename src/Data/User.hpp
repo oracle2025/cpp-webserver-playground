@@ -14,8 +14,9 @@ namespace Data {
 
 class UserDefinition {
 public:
+    // added api_key as last field
     using RecordType
-        = Poco::Tuple<string, string, Poco::Data::CLOB, string, string, string>;
+        = Poco::Tuple<string, string, Poco::Data::CLOB, string, string, string, string>;
     RecordType data;
     string& id;
     string& username;
@@ -23,6 +24,7 @@ public:
     string& salt;
     string& start_page;
     string& role;
+    string& api_key;
     // Poco::Data::BLOB password_hash;
     UserDefinition();
     vector<ColumnType> columns() const;
