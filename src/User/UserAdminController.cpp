@@ -11,6 +11,7 @@
 #include "Template/BaseTemplate.hpp"
 
 #include <nlohmann/json.hpp>
+#include "String/createRandomUUID.hpp"
 
 #include <utility>
 
@@ -72,6 +73,8 @@ shared_ptr<CrudController::Response> UserAdminController::createRecord(
     user.username = username;
     user.setPassword(request.parameter("password"));
     user.set("role", request.parameter("role"));
+    // generate API key for admin-created user
+    user.set("api_key", String::createRandomUUID());
     user.insert();
 
     auto response = redirect("/user/")

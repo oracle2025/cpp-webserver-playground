@@ -9,6 +9,7 @@
 #include "Input/Password.hpp"
 #include "Input/Submit.hpp"
 #include "Input/Text.hpp"
+#include "String/createRandomUUID.hpp"
 namespace Signup {
 using Http::content;
 using Http::redirect;
@@ -48,6 +49,8 @@ void SignupController::initialize(const string& prefix, Http::Router& router)
         }
         user.username = username;
         user.setPassword(request.parameter("password"));
+        // generate API key for the new user
+        user.set("api_key", String::createRandomUUID());
         user.insert();
 
         auto response = redirect("/")
