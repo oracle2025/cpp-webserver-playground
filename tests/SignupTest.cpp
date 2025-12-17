@@ -60,7 +60,7 @@ TEST_CASE("Signup")
         w.defaultHandler(login_controller->getDefaultHandler());
         w.setPresentation(presentation);
         w.finish_init();
-        CHECK(w.handle({"/secret"})->content() == "Access denied");
+        CHECK(w.handle({"/logout"})->content() == "Access denied");
         auto response = w.handle({"/signup/"});
         CHECK((response->content().find("username") != string::npos));
         auto cookieJar = response->cookies();
@@ -72,6 +72,6 @@ TEST_CASE("Signup")
             {"/signup/submit", cookieJar, params, {}, Http::Method::POST});
         CHECK(response->alert().message() == "User created");
         cookieJar.merge(response->cookies());
-        CHECK(w.handle({"/secret", cookieJar})->content() == "Success");
+        CHECK(w.handle({"/logout", cookieJar})->content().find("Login") != string::npos);
     }
 }
