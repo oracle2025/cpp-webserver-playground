@@ -24,6 +24,8 @@ struct LoginController : public std::enable_shared_from_this<LoginController> {
     static bool isValidUser(
         const map<string, string>& parameters, Data::User& user);
 
+    static bool hasValidApiToken(const Http::Request& request);
+
     Http::handler_type getDefaultHandler();
     using RequestHandler = Http::RequestHandler;
     using Response = Http::Response;

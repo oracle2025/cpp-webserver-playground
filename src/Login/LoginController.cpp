@@ -60,15 +60,6 @@ LoginController& LoginController::initialize(Http::Router& router)
         Http::Session::addAlertToSession(request, *response);
         return response;
     });
-    router.get("/secret", [](const Request& request) {
-        if (Session(request).isLoggedIn()) {
-            return content("Success");
-        } else {
-            return content("Access denied")
-                ->code(Response::UNAUTHORIZED)
-                .shared_from_this();
-        }
-    });
     router.get("/logout", [ptr](const Request& request) {
         if (Session(request).isLoggedIn()) {
             auto response = ptr->loginForm()
@@ -207,6 +198,8 @@ handler_type LoginController::getDefaultHandler()
             }
         } else if (Http::Session(request).isLoggedIn()) {
             return forwardToSecretHandler(request);
+        } else if (hasValidApiToken(request)) {
+            return forwardToSecretHandler(request);
         } else if (!m_publicHandler) {
         } else if (auto response = m_publicHandler->handle(request)) {
             return response->appendNavBarAction({"🔒 Login", "/", "right"})
@@ -216,4 +209,19 @@ handler_type LoginController::getDefaultHandler()
             ->alert("Please login", Html::AlertType::INFO)
             .shared_from_this();
     };
+}
+bool LoginController::hasValidApiToken(const Request& request)
+{
+    if (!request.hasParameter("api_key")) {
+        return false;
+    }
+    if (!request.hasParameter("user")) {
+        return false;
+    }
+    /* Lookup */
+    Data::User user;
+    const auto requesting_user = request.allParameters().at("user");
+    const auto requested_api_key = request.allParameters().at("api_key");
+    return Data::User::isValidApiKey(
+        requesting_user, requested_api_key, user);
 }

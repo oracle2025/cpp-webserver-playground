@@ -9,7 +9,7 @@
 
 void loginLogout(RequestHandler& w, map<string, string>& cookieJar)
 {
-    CHECK(w.handle({"/secret", cookieJar})->content() == "Access denied");
+    CHECK(w.handle({"/logout", cookieJar})->content() == "Access denied");
     map<string, string> params;
     params["username"] = "admin";
     params["password"] = "Adm1n!";
@@ -33,15 +33,22 @@ TEST_CASE("Login Server")
     m.perform();
 
     SimpleWebServer w;
+    auto trivial_secret_handler = std::make_shared<SimpleWebServer>();
+    trivial_secret_handler->router().get(
+        "/secret", [](const Request& request) {
+                return Http::content("Success");
+        });
+
     auto login_controller= std::make_shared<LoginController>(
-        nullptr, nullptr, nullptr, nullptr)->initialize(w.router()).shared_from_this();
+                                trivial_secret_handler, nullptr, nullptr, nullptr)->initialize(w.router()).shared_from_this();
     w.defaultHandler(login_controller->getDefaultHandler());
     w.setPresentation(nullptr);
     w.finish_init();
     Session::clearAll();
     SUBCASE("Login")
     {
-        CHECK(w.handle({"/secret"})->content() == "Access denied");
+        const auto response_denied = w.handle({"/logout"});
+        CHECK(response_denied->content() == "Access denied");
         map<string, string> params;
         params["username"] = "admin";
         params["password"] = "Adm1n!";
@@ -70,9 +77,24 @@ TEST_CASE("Login Server")
         map<string, string> cookieJar;
         for (int i = 0; i < 100; i++) {
             CHECK(
-                w.handle({"/secret", cookieJar})->content() == "Access denied");
+                w.handle({"/logout", cookieJar})->content() == "Access denied");
         }
         CHECK(Session::listAll().size() == 0);
+    }
+    SUBCASE("Use API Token")
+    {
+        map<string, string> cookieJar;
+        map<string, string> params;
+        Data::User user;
+        auto all_users  = user.listAsPointers();
+        CHECK(all_users.size() == 1);
+        auto admin_user = all_users[0];
+
+        params["user"] = "admin";
+        params["api_key"] = admin_user->values().at("api_key");
+        auto response = w.handle(
+            {"/secret", cookieJar, params});
+        CHECK(response->content() == "Success");
     }
     SUBCASE("Redirect to Login only on valid URIs")
     {

@@ -41,6 +41,15 @@ public:
         }
         return false;
     }
+    template<class T>
+    static bool isValidApiKey(
+        const string& username, const string& api_key, T& user)
+    {
+        if (findUser(*g_session, username, user)) {
+            return api_key == user.api_key;
+        }
+        return false;
+    }
     void set(const KeyStringType& key, const string& value);
     string description() const;
     UserDefinition(const RecordType& d);
