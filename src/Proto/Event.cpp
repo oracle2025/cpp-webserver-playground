@@ -7,14 +7,16 @@
 
 namespace Data {
 
+static const ScaffoldRecord::FieldsType EventCols = {{"subject", HtmlInputType::TEXT},
+                                                     {"startDate", HtmlInputType::DATE},
+                                                     {"endDate", HtmlInputType::DATE},
+                                                     {"startTime", HtmlInputType::TIME},
+                                                     {"endTime", HtmlInputType::TIME}};
+
 Event::Event(const Http::Request&)
     : ScaffoldRecord(
-          "event",
-          {{"subject", HtmlInputType::TEXT},
-           {"startDate", HtmlInputType::DATE},
-           {"endDate", HtmlInputType::DATE},
-           {"startTime", HtmlInputType::TIME},
-           {"endTime", HtmlInputType::TIME}})
+          "event", EventCols
+          )
 {
 }
 } // namespace Data

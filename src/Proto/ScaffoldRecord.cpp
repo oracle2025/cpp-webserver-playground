@@ -152,12 +152,14 @@ bool ScaffoldRecord::find_and_pop(
 
 TEST_CASE("Init Scaffold Record with CSV")
 {
+    static const ScaffoldRecord::FieldsType ShoppingItemCols =
+        {{"description", HtmlInputType::TEXT},
+         {"price", HtmlInputType::TEXT}};
     struct ShoppingItem : public ScaffoldRecord {
         ShoppingItem()
             : ScaffoldRecord(
-                  "shopping_item",
-                  {{"description", HtmlInputType::TEXT},
-                   {"price", HtmlInputType::TEXT}})
+                  "shopping_item", ShoppingItemCols
+                  )
         {
         }
     };

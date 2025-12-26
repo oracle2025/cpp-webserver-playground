@@ -32,7 +32,7 @@ TEST_CASE("TimeRecordingApplicationTest")
     Data::User user;
     user.username = "user";
     user.setPassword("S3cr3t&");
-    user.set("role", "user");
+    user.set(Data::UserDefinition::ROLE_FIELD, "user");
     user.insert();
 
     SimpleWebServer handler;

@@ -35,8 +35,9 @@ void ByOwner::setImpl(const KeyStringType& field, const string& value)
 }
 bool ByOwner::pop(const string& query)
 {
+    static const KeyStringType USER_ID_FIELD = "user_id";
     if(m_todo.pop(query)) {
-        if(m_todo.values()["user_id"] != m_userId){
+        if(m_todo.values().at(USER_ID_FIELD) != m_userId){
             m_todo.reset();
             return false;
         }
@@ -68,7 +69,8 @@ vector<shared_ptr<Record>> ByOwner::listAsPointers()
     auto userId = m_userId;
     auto new_logical_end = std::remove_if(
         result.begin(), result.end(), [userId](shared_ptr<Record> a) {
-            return a->values()["user_id"] != userId;
+            static const KeyStringType USER_ID_FIELD = "user_id";
+            return a->values()[USER_ID_FIELD] != userId;
         });
     result.erase(new_logical_end, result.end());
     return result;

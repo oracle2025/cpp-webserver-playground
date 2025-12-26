@@ -74,7 +74,7 @@ shared_ptr<CrudController::Response> UserAdminController::createRecord(
     user.setPassword(request.parameter("password"));
     user.set("role", request.parameter("role"));
     // generate API key for admin-created user
-    user.set("api_key", String::createRandomUUID());
+    user.set(Data::UserDefinition::API_KEY_FIELD, String::createRandomUUID());
     user.insert();
 
     auto response = redirect("/user/")

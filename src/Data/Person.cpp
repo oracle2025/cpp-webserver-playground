@@ -47,11 +47,13 @@ struct Person {
     }
     vector<ColumnType> columns() const
     {
-        return {
+        static const vector<ColumnType> cols =
+         {
             {"name", "VARCHAR", HtmlInputType::TEXT},
             {"address", "VARCHAR", HtmlInputType::TEXT},
             {"age", "INTEGER(3)", HtmlInputType::NUMBER},
         };
+        return cols;
     }
     void set(const string& key, const string& value)
     {

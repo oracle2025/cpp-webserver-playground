@@ -92,18 +92,27 @@ std::shared_ptr<Http::Response> TimeEntryController::createEntry(
                 ->alert("Please enter an event type", Html::AlertType::DANGER)
                 .shared_from_this();
         }
-        entry->set("employee_id", user_id);
+        static const KeyStringType EMPLOYEE_ID = "employee_id";
+        static const KeyStringType EVENT_DATE = "event_date";
+        static const KeyStringType EVENT_TIME = "event_time";
+        static const KeyStringType EVENT_TYPE = "event_type";
+        static const KeyStringType NOTE = "note";
+        static const KeyStringType CREATION_DATE = "creation_date";
+        static const KeyStringType CREATOR_USER_ID = "creator_user_id";
+        static const KeyStringType CORRECTED_EVENT_ID = "corrected_event_id";
+        static const KeyStringType DELETED_EVENT_ID = "deleted_event_id";
+        entry->set(EMPLOYEE_ID, user_id);
         const auto event_date
             = String::currentDate(); // TODO: provide as hidden parameter
-        entry->set("event_date", event_date);
+        entry->set(EVENT_DATE, event_date);
         auto event_time = request.parameter("event_time");
-        entry->set("event_time", event_time);
-        entry->set("event_type", request.parameter("event_type"));
-        entry->set("corrected_event_id", "");
-        entry->set("deleted_event_id", "");
-        entry->set("creation_date", String::localDateTime());
-        entry->set("creator_user_id", user_id);
-        entry->set("note", request.parameter("note"));
+        entry->set(EVENT_TIME, event_time);
+        entry->set(EVENT_TYPE, request.parameter("event_type"));
+        entry->set(CORRECTED_EVENT_ID, "");
+        entry->set(DELETED_EVENT_ID, "");
+        entry->set(CREATION_DATE, String::localDateTime());
+        entry->set(CREATOR_USER_ID, user_id);
+        entry->set(NOTE, request.parameter("note"));
         /* Check:
          * Can't have an event that has exactly the same date and time:
          * UNIQUE(employee_id, event_date, event_time)

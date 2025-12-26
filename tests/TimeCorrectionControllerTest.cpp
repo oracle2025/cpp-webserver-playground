@@ -13,9 +13,12 @@
 static void insert_for_start(
     TimeEntry& t, const std::string& day, const std::string& start)
 {
-    t.set("event_date", day);
-    t.set("event_time", start);
-    t.set("event_type", "start");
+    static const KeyStringType EVENT_DATE_FIELD = "event_date";
+    static const KeyStringType EVENT_TIME_FIELD = "event_time";
+    static const KeyStringType EVENT_TYPE_FIELD = "event_type";
+    t.set(EVENT_DATE_FIELD, day);
+    t.set(EVENT_TIME_FIELD, start);
+    t.set(EVENT_TYPE_FIELD, "start");
     t.insert();
 }
 

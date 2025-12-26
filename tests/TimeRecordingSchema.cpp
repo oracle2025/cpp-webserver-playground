@@ -107,13 +107,20 @@ std::string createTimeEvent(
     const std::string& creator_user_id)
 {
     TimeEntry t;
-    t.set("employee_id", employee_id);
-    t.set("event_time", event_time);
-    t.set("event_date", event_date);
-    t.set("event_type", event_type);
-    t.set("corrected_event_id", corrected_event_id);
-    t.set("deleted_event_id", deleted_event_id);
-    t.set("creator_user_id", creator_user_id);
+    static const KeyStringType EMPLOYEE_ID_FIELD = "employee_id";
+    static const KeyStringType EVENT_DATE_FIELD = "event_date";
+    static const KeyStringType EVENT_TIME_FIELD = "event_time";
+    static const KeyStringType EVENT_TYPE_FIELD = "event_type";
+    static const KeyStringType CORRECTED_EVENT_ID_FIELD = "corrected_event_id";
+    static const KeyStringType DELETED_EVENT_ID_FIELD = "deleted_event_id";
+    static const KeyStringType CREATOR_USER_ID_FIELD = "creator_user_id";
+    t.set(EMPLOYEE_ID_FIELD, employee_id);
+    t.set(EVENT_TIME_FIELD, event_time);
+    t.set(EVENT_DATE_FIELD, event_date);
+    t.set(EVENT_TYPE_FIELD, event_type);
+    t.set(CORRECTED_EVENT_ID_FIELD, corrected_event_id);
+    t.set(DELETED_EVENT_ID_FIELD, deleted_event_id);
+    t.set(CREATOR_USER_ID_FIELD, creator_user_id);
     t.insert();
     return t.key();
 }

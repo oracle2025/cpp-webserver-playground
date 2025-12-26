@@ -61,7 +61,7 @@ void TodoDefinition::set(const KeyStringType& key, const string& value)
 }
 vector<ColumnType> TodoDefinition::columns() const
 {
-    return {
+    static const vector<ColumnType> cols{
         ColumnType{"description", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"created_at", "VARCHAR", HtmlInputType::HIDDEN},
         ColumnType{"updated_at", "VARCHAR", HtmlInputType::HIDDEN},
@@ -69,6 +69,7 @@ vector<ColumnType> TodoDefinition::columns() const
         ColumnType{"user_id", "VARCHAR", HtmlInputType::HIDDEN},
         ColumnType{"parent_id", "VARCHAR", HtmlInputType::HIDDEN},
     };
+    return cols;
 }
 string TodoDefinition::table_name() const
 {
@@ -76,7 +77,8 @@ string TodoDefinition::table_name() const
 }
 vector<KeyStringType> TodoDefinition::presentableFields()
 {
-    return vector<KeyStringType>{"checked", "description"};
+    static const vector<KeyStringType> fields{"checked", "description"};
+    return fields;
 }
 string TodoDefinition::presentableName()
 {

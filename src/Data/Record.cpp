@@ -15,6 +15,7 @@
 KeyStringType::KeyStringType(const string& s)
     : string(s)
 {
+    // Note: Could enable this test only during test builds for performance
     // throw if invalid char
     // allowed: a-z, A-Z, 0-9, _
     if (s.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST"

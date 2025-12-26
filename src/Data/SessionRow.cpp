@@ -10,7 +10,7 @@ string SessionRowDefinition::table_name() const
 }
 vector<ColumnType> SessionRowDefinition::columns() const
 {
-    return {
+    static const vector<ColumnType> cols = {
         ColumnType{"isLoggedIn", "INTEGER(3)", HtmlInputType::CHECKBOX},
         ColumnType{"userId", "VARCHAR", HtmlInputType::HIDDEN},
         ColumnType{"userName", "VARCHAR", HtmlInputType::TEXT},
@@ -22,6 +22,7 @@ vector<ColumnType> SessionRowDefinition::columns() const
         ColumnType{"alert", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"alertType", "VARCHAR", HtmlInputType::TEXT},
     };
+    return cols;
 }
 void SessionRowDefinition::set(const KeyStringType& key, const string& value)
 {

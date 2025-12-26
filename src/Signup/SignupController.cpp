@@ -50,7 +50,8 @@ void SignupController::initialize(const string& prefix, Http::Router& router)
         user.username = username;
         user.setPassword(request.parameter("password"));
         // generate API key for the new user
-        user.set("api_key", String::createRandomUUID());
+        static const KeyStringType API_KEY_FIELD = "api_key";
+        user.set(API_KEY_FIELD, String::createRandomUUID());
         user.insert();
 
         auto response = redirect("/")

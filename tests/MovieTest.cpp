@@ -23,12 +23,18 @@ TEST_CASE("movie")
     movie.insert();
     auto id = movie.key();
 
-    CHECK_EQ(movie.get("title"), "The Matrix");
-    CHECK_EQ(movie.get("director"), "Wachowski");
-    CHECK_EQ(movie.get("genre"), "Sci-Fi");
-    CHECK_EQ(movie.get("year"), "1999");
-    CHECK_EQ(movie.get("rating"), "8.7");
-    CHECK_EQ(movie.get("user_id"), "");
+    static const KeyStringType TITLE_FIELD = "title";
+        static const KeyStringType DIRECTOR_FIELD = "director";
+        static const KeyStringType GENRE_FIELD = "genre";
+        static const KeyStringType YEAR_FIELD = "year";
+        static const KeyStringType RATING_FIELD = "rating";
+        static const KeyStringType USER_ID_FIELD = "user_id";
+    CHECK_EQ(movie.get(TITLE_FIELD), "The Matrix");
+    CHECK_EQ(movie.get(DIRECTOR_FIELD), "Wachowski");
+    CHECK_EQ(movie.get(GENRE_FIELD), "Sci-Fi");
+    CHECK_EQ(movie.get(YEAR_FIELD), "1999");
+    CHECK_EQ(movie.get(RATING_FIELD), "8.7");
+    CHECK_EQ(movie.get(USER_ID_FIELD), "");
 
     SUBCASE("list")
     {

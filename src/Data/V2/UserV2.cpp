@@ -20,10 +20,12 @@ UserDefinitionV2::UserDefinitionV2()
 }
 vector<ColumnType> UserDefinitionV2::columns() const
 {
-    return {
+    static const vector<ColumnType> cols =
+     {
         {"username", "VARCHAR", HtmlInputType::TEXT},
         {"password", "BLOB", HtmlInputType::TEXT},
         {"salt", "VARCHAR", HtmlInputType::TEXT}};
+    return cols;
 }
 string UserDefinitionV2::get(const KeyStringType& key) const
 {

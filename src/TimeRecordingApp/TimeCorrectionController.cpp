@@ -153,14 +153,17 @@ nlohmann::json TimeCorrectionController::convertResultToData(
     auto columns = records[0]->fields();
     auto rows = nlohmann::json::array();
     using DateTime::Time;
+    static const KeyStringType START_TIME_FIELD = "start_time";
+    static const KeyStringType END_TIME_FIELD = "end_time";
+    static const KeyStringType NOTE_FIELD = "note";
     for (const auto& entry : records) {
         auto row = nlohmann::json::object();
         const auto values = entry->values();
         for (const auto& field : columns) {
             row[field] = values.at(field);
         }
-        const auto start_time = values.at("start_time");
-        const auto end_time = values.at("end_time");
+        const auto start_time = values.at(START_TIME_FIELD);
+        const auto end_time = values.at(END_TIME_FIELD);
         if (start_time.empty() || end_time.empty()) {
             row["hours"] = "";
         } else {
@@ -173,11 +176,11 @@ nlohmann::json TimeCorrectionController::convertResultToData(
                 Time::parseTime(start_time));
             total.add(difference);
         }
-        row["start_id"] = values.at("start_id");
-        row["end_id"] = values.at("end_id");
+        row["start_id"] = values.at(START_TIME_FIELD);
+        row["end_id"] = values.at(END_TIME_FIELD);
         row["enable_edit"] = !end_time.empty();
-        row["note"] = String::escape(values.at("note"));
-        row["show_note"] = !values.at("note").empty();
+        row["note"] = String::escape(values.at(NOTE_FIELD));
+        row["show_note"] = !values.at(NOTE_FIELD).empty();
         rows.push_back(row);
     }
     return rows;

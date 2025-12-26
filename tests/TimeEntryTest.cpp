@@ -5,36 +5,44 @@
 #include "doctest.h"
 
 #include <Poco/Data/SQLite/Connector.h>
-
+static const KeyStringType EMPLOYEE_ID = "employee_id";
+static const KeyStringType EVENT_DATE = "event_date";
+static const KeyStringType EVENT_TIME = "event_time";
+static const KeyStringType EVENT_TYPE = "event_type";
+static const KeyStringType NOTE = "note";
+static const KeyStringType CREATION_DATE = "creation_date";
+static const KeyStringType CREATOR_USER_ID = "creator_user_id";
+static const KeyStringType CORRECTED_EVENT_ID = "corrected_event_id";
+static const KeyStringType DELETED_EVENT_ID = "deleted_event_id";
 static void insert_for_day(
     TimeEntry& t,
     const std::string& day,
     const std::string& start,
     const std::string& stop)
 {
-    t.set("event_date", day);
-    t.set("event_time", start);
-    t.set("event_type", "start");
+    t.set(EVENT_DATE, day);
+    t.set(EVENT_TIME, start);
+    t.set(EVENT_TYPE, "start");
     t.insert();
-    t.set("event_date", day);
-    t.set("event_time", stop);
-    t.set("event_type", "stop");
+    t.set(EVENT_DATE, day);
+    t.set(EVENT_TIME, stop);
+    t.set(EVENT_TYPE, "stop");
     t.insert();
 }
 static void insert_for_start(
     TimeEntry& t, const std::string& day, const std::string& start)
 {
-    t.set("event_date", day);
-    t.set("event_time", start);
-    t.set("event_type", "start");
+    t.set(EVENT_DATE, day);
+    t.set(EVENT_TIME, start);
+    t.set(EVENT_TYPE, "start");
     t.insert();
 }
 static void insert_for_stop(
     TimeEntry& t, const std::string& day, const std::string& stop)
 {
-    t.set("event_date", day);
-    t.set("event_time", stop);
-    t.set("event_type", "stop");
+    t.set(EVENT_DATE, day);
+    t.set(EVENT_TIME, stop);
+    t.set(EVENT_TYPE, "stop");
     t.insert();
 }
 /*

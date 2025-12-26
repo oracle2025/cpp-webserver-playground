@@ -26,6 +26,8 @@ public:
     string& role;
     string& api_key;
     // Poco::Data::BLOB password_hash;
+    static const KeyStringType ROLE_FIELD;
+    static const KeyStringType API_KEY_FIELD;
     UserDefinition();
     vector<ColumnType> columns() const;
     string get(const KeyStringType& key) const;

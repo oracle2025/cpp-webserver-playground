@@ -20,8 +20,9 @@ using BaseTemplate = Template::BaseTemplate;
 struct HierarchicalList {
     HierarchicalList(const std::vector<std::shared_ptr<Record>>& list)
     {
+        static const KeyStringType PARENT_ID_FIELD = "parent_id";
         for (const auto& i : list) {
-            const auto parent_id = i->values()["parent_id"];
+            const auto parent_id = i->values()[PARENT_ID_FIELD];
             if (ordered.find(parent_id) == ordered.end()) {
                 ordered[parent_id] = {i};
             } else {
@@ -107,8 +108,10 @@ struct RecursiveTodoRender {
         for (int c = 0; c < level; c++) {
             str << "&nbsp;&nbsp;&nbsp;&nbsp;";
         }
+        static const KeyStringType CHECKED_FIELD = "checked";
+        static const KeyStringType DESCRIPTION_FIELD = "description";
         str << R"(<input type="hidden" name=")" << key << R"(" value="no" />)";
-        if (values.at("checked") == "yes") {
+        if (values.at(CHECKED_FIELD) == "yes") {
             str << R"(<input type="checkbox" name=")" << key
                 << R"(" checked value="yes" onchange="submitForm(this);">)"
                 << "\n";
@@ -117,7 +120,7 @@ struct RecursiveTodoRender {
                 << R"(" value="yes" onchange="submitForm(this);">)" << "\n";
         }
         str << "&nbsp;&nbsp;&nbsp;&nbsp;";
-        str << values.at("description");
+        str << values.at(DESCRIPTION_FIELD);
     }
     virtual void editDeleteButtons(const string& key)
     {
@@ -173,21 +176,25 @@ std::string recurseTodos(
 
 TEST_CASE("RecursiveTodoRendering")
 {
+    static const KeyStringType DESCRIPTION_FIELD = "description";
+    static const KeyStringType CHECKED_FIELD = "checked";
+    static const KeyStringType PARENT_ID_FIELD = "parent_id";
+    static const KeyStringType KEY_FIELD = "key";
     struct ConcreteRecord : Record {
         ConcreteRecord(const string& key, const string& parent_id = {})
         {
-            m_values["description"] = key;
-            m_values["checked"] = "no";
-            m_values["parent_id"] = parent_id;
-            m_values["key"] = key;
+            m_values[DESCRIPTION_FIELD] = key;
+            m_values[CHECKED_FIELD] = "no";
+            m_values[PARENT_ID_FIELD] = parent_id;
+            m_values[KEY_FIELD] = key;
         }
         string key() const override
         {
-            return m_values.at("key");
+            return m_values.at(KEY_FIELD);
         }
         std::vector<KeyStringType> fields() const override
         {
-            return {"description", "checked", "parent_id"};
+            return {DESCRIPTION_FIELD, CHECKED_FIELD, PARENT_ID_FIELD};
         }
         std::map<KeyStringType, string> values() const override
         {
@@ -258,7 +265,7 @@ TEST_CASE("RecursiveTodoRendering")
                 str << "\t";
             }
             str << "Row Start: " << key << " ";
-            str << values.at("description");
+            str << values.at(DESCRIPTION_FIELD);
         }
         void editDeleteButtons(const string& key) override
         {

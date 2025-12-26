@@ -59,13 +59,15 @@ CrudController& CrudController::initialize(Http::Router& router)
     router.post(prefix + "/mark", [ptr, prefix](const Request& request) {
         auto record = ptr->m_makeRecord(request);
         std::ostringstream str;
+        static const KeyStringType CHECKED_FIELD = "checked";
+        static const KeyStringType DESCRIPTION_FIELD = "description";
         for (const auto& [key, value] : request.allParameters()) {
             record->pop(key);
-            if (record->getImpl("checked") != value) {
-                str << record->getImpl("description") << " is now "
+            if (record->getImpl(CHECKED_FIELD) != value) {
+                str << record->getImpl(DESCRIPTION_FIELD) << " is now "
                     << (value == "yes" ? "checked" : "unchecked") << std::endl;
             }
-            record->setImpl("checked", value);
+            record->setImpl(CHECKED_FIELD, value);
             record->update();
         }
         return redirect(prefix + "/")
@@ -196,12 +198,13 @@ std::shared_ptr<Response> CrudController::createRecord(const Request& request)
 {
     using Http::Session;
     auto record = m_makeRecord(request);
+    static const KeyStringType USER_ID_FIELD = "user_id";
     for (const auto& field : record->fields()) {
         if (request.hasParameter(field)) {
             record->setImpl(field, request.parameter(field));
         }
         if (field == "user_id") {
-            record->setImpl("user_id", Session(request).userId());
+            record->setImpl(USER_ID_FIELD, Session(request).userId());
         }
     }
     record->insert();

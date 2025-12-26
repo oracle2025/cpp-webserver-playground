@@ -32,7 +32,7 @@ string TimeEntryDefinition::table_name()
 }
 vector<ColumnType> TimeEntryDefinition::columns()
 {
-    return {
+    static const vector<ColumnType> cols = {
         ColumnType{"employee_id", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"event_date", "DATE", HtmlInputType::DATE},
         ColumnType{"event_time", "TIME", HtmlInputType::TIME},
@@ -43,6 +43,7 @@ vector<ColumnType> TimeEntryDefinition::columns()
         ColumnType{"creator_user_id", "VARCHAR", HtmlInputType::HIDDEN},
         ColumnType{"note", "VARCHAR", HtmlInputType::TEXT},
     };
+    return cols;
 }
 void TimeEntryDefinition::set(const KeyStringType& key, const string& value)
 {
@@ -250,21 +251,29 @@ struct OverViewRow : public Record {
     };
     std::vector<KeyStringType> fields() const override
     {
-        return {"day", "date", "start_time", "end_time", "start_id", "end_id"};
+        static const std::vector<KeyStringType> fields = {"day", "date", "start_time", "end_time", "start_id", "end_id"};
+        return fields;
     };
     std::map<KeyStringType, string> values() const override
     {
         using DateTime::Time;
+        static const KeyStringType START_TIME_FIELD = "start_time";
+        static const KeyStringType END_TIME_FIELD = "end_time";
+        static const KeyStringType DATE_FIELD = "date";
+        static const KeyStringType DAY_FIELD = "day";
+        static const KeyStringType START_ID_FIELD = "start_id";
+        static const KeyStringType END_ID_FIELD = "end_id";
+        static const KeyStringType NOTE_FIELD = "note";
         return {
-            {"day", m_day},
-            {"date", m_date},
-            {"start_time", Time(m_start_time).formatAsTime()},
-            {"end_time",
+            {DAY_FIELD, m_day},
+            {DATE_FIELD, m_date},
+            {START_TIME_FIELD, Time(m_start_time).formatAsTime()},
+            {END_TIME_FIELD,
              m_end_time.has_value() ? Time(m_end_time.value()).formatAsTime()
                                     : ""},
-            {"start_id", m_start_id},
-            {"end_id", m_end_id},
-            {"note", m_note}};
+            {START_ID_FIELD, m_start_id},
+            {END_ID_FIELD, m_end_id},
+            {NOTE_FIELD, m_note}};
     };
     HtmlInputType inputType(const KeyStringType& field) const override
     {
@@ -686,6 +695,11 @@ event_type = 'start';)";
     std::vector<valueType> result;
     Poco::Data::Statement select(*g_session);
     select << sql, into(result), bind(user_id), now;
+    static const KeyStringType EMPLOYEE_ID = "employee_id";
+    static const KeyStringType EVENT_DATE = "event_date";
+    static const KeyStringType EVENT_TIME = "event_time";
+    static const KeyStringType EVENT_TYPE = "event_type";
+    static const KeyStringType NOTE = "note";
     for (const auto& row : result) {
         const auto event_type_ = row.get<1>();
         const auto event_date_ = row.get<2>();
@@ -695,11 +709,11 @@ event_type = 'start';)";
             spdlog::debug("Closing time: {}", row.get<0>());
             spdlog::debug("currentDate day: {}", current_date);
             TimeEntry ted;
-            ted.set("employee_id", user_id);
-            ted.set("event_date", event_date_);
-            ted.set("note", note_);
-            ted.set("event_time", "23:59");
-            ted.set("event_type", "stop");
+            ted.set(EMPLOYEE_ID, user_id);
+            ted.set(EVENT_DATE, event_date_);
+            ted.set(NOTE, note_);
+            ted.set(EVENT_TIME, "23:59");
+            ted.set(EVENT_TYPE, "stop");
             ted.insert();
         }
     }

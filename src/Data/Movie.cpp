@@ -78,7 +78,7 @@ void MovieDefinition::set(const KeyStringType& key, const string& value)
 }
 std::vector<ColumnType> MovieDefinition::columns()
 {
-    return {
+    static const std::vector<ColumnType> cols{
         ColumnType{"title", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"director", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"genre", "VARCHAR", HtmlInputType::TEXT},
@@ -86,6 +86,7 @@ std::vector<ColumnType> MovieDefinition::columns()
         ColumnType{"rating", "VARCHAR", HtmlInputType::TEXT},
         ColumnType{"user_id", "VARCHAR", HtmlInputType::HIDDEN},
     };
+    return cols;
 }
 std::string MovieDefinition::table_name()
 {

@@ -10,6 +10,8 @@ TEST_CASE("UserRecord")
 {
     RecordImpl<UserDefinition> user;
 }
+const KeyStringType UserDefinition::ROLE_FIELD = "role";
+const KeyStringType UserDefinition::API_KEY_FIELD = "api_key";
 UserDefinition::UserDefinition()
     : data{"", "", {}, "", "", "", ""}
     , id(data.get<0>())
@@ -23,13 +25,14 @@ UserDefinition::UserDefinition()
 }
 vector<ColumnType> UserDefinition::columns() const
 {
-    return {
+    static const vector<ColumnType> cols = {
         {"username", "VARCHAR", HtmlInputType::TEXT},
         {"password", "BLOB", HtmlInputType::NON_EDITABLE},
         {"salt", "VARCHAR", HtmlInputType::NON_EDITABLE},
         {"start_page", "VARCHAR", HtmlInputType::TEXT},
         {"role", "VARCHAR", HtmlInputType::TEXT},
         {"api_key", "VARCHAR", HtmlInputType::NON_EDITABLE}};
+    return cols;
 }
 string UserDefinition::get(const KeyStringType& key) const
 {
@@ -106,7 +109,8 @@ string UserDefinition::description() const
 }
 vector<KeyStringType> UserDefinition::presentableFields() const
 {
-    return {"username", "role"};
+    const static vector<KeyStringType> fields = {"username", "role"};
+    return fields;
 }
 
 bool findUser(Poco::Data::Session& session, const string& username, User& user)
